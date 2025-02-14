@@ -1,0 +1,77 @@
+/* You can add global styles to this file, and also import other style files */
+//@font-face {
+//  font-family: "MyFont";
+//  src: url("assets/fonts/Poppins-Bold.ttf") format("truetype");
+//  font-weight: 700;
+//}
+@use "themes" as *;
+@use "@nebular/theme/styles/globals" as *;
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+@include nb-install() {
+  @include nb-theme-global();
+}
+@import "bootstrap/scss/bootstrap";
+*{
+  font-family: 'Poppins', sans-serif !important;
+}
+button, button:focus{
+  box-shadow: none !important;
+  outline: none !important;
+  border: none !important;
+}
+.cursor-pointer{
+  cursor: pointer;
+}
+
+.mainNavbar{
+  width: 100%;
+  .navUserCoverImg{
+    .userCoverImage{
+      height: 58px !important;
+      width: 148px !important;
+    }
+  }
+  .navUserActions{
+    .navUserAction{
+      cursor: pointer;
+      margin-left: 20px;
+      nb-icon{
+        font-size: 24px !important;
+      }
+    }
+    .navUserActionProfile{
+      cursor: pointer;
+      margin-left: 20px;
+    }
+  }
+  .profileManagement{
+    position: absolute;
+    top: 75px;
+    right: 10px;
+    width: 300px;
+    z-index: 9999;
+    box-shadow: rgba(0, 0, 0, 0.24) 0 3px 8px;
+    cursor: auto;
+  }
+}
+.appLayoutHeader{
+  .appLayoutHeaderText{
+    background: white;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: .5rem 0;
+    font-weight: bold;
+  }
+}
+.appLayoutBody{
+  margin: 1.5rem 0 0 0;
+}
+.appLayoutHeaderBack{
+  display: flex;
+  margin: 0 0 0 2rem;
+  align-items: center;
+  .appLayoutHeaderText{
+    margin: 1rem 2rem;
+    font-weight: bold;
+  }
+}

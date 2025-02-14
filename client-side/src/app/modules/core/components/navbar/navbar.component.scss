@@ -1,0 +1,91 @@
+::ng-deep {
+  .sideNavbar{
+    nb-menu{
+      margin: .5rem 0 0 0 !important;
+      .menu-item{
+        border-bottom: none;
+        a{
+          padding: .5rem;
+          .menu-title{
+            margin-left: 1rem;
+            font-size: .85rem;
+            color: rgba(0, 0, 0, 0.5) !important;
+          }
+        }
+        //a ~ .menu-item{
+        //  .menu-item{
+        //    a {
+        //      padding: .5rem !important;
+        //    }
+        //  }
+        //}
+        a.active{
+          background: rgb(237 241 247);
+          border-radius: .5rem;
+          .menu-icon{
+            font-size: 1.3rem !important;
+            color: #000000 !important;
+          }
+          .menu-title{
+            color: #000 !important;
+          }
+        }
+        a:hover{
+          .menu-icon, .menu-title{
+            color: #000000 !important;
+          }
+        }
+        //a.active ~ .menu-item{
+        //  .menu-item{
+        //    a {
+        //      padding: .5rem !important;
+        //      .menu-icon{
+        //        font-size: 1.3rem;
+        //        color: #000 !important;
+        //      }
+        //      .menu-title{
+        //        margin-left: 15px !important;
+        //      }
+        //    }
+        //    a.active{
+        //      position: relative;
+        //      inset: 0;
+        //      background: none !important;
+        //    }
+        //    a.active:before{
+        //      content: '';
+        //      position: absolute;
+        //      left: 0;
+        //      height: 30px;
+        //      width: 5px;
+        //      background: #555150c2;
+        //      border-radius: 10rem;
+        //    }
+        //  }
+        //}
+        //.menu-item:first-child{
+        //  border-top: none;
+        //}
+        //.menu-item{
+        //  color: #ffffff !important;
+        //  font-size: 1.3rem;
+        //  margin: 0;
+        //}
+        //.expand-state{
+        //  font-size: 1.25rem;
+        //  border-radius: 15px;
+        //  line-height: 1;
+        //  width: 1.2rem;
+        //  color: white !important;
+        //  height: 1.2rem;
+        //  background: rgba(255, 255, 255, 0.16);
+        //}
+      }
+    }
+    p-sidebar{
+      .p-sidebar .p-sidebar-header{
+        padding: 10px 15px 5px !important;
+      }
+    }
+  }
+}

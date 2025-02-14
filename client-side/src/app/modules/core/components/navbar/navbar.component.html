@@ -1,0 +1,117 @@
+<div class="mainNavbar">
+  <div class="row">
+    <div class="col-sm-12 col-md-2 col-lg-2 col-xl-2 ps-0">
+      <div class="navUser d-flex align-items-center gap-3">
+        <div class="navUserCoverImg">
+          <img src="./assets/core/logo.png" alt="User Cover Image" class="userCoverImage" />
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-12 col-md-10 col-lg-10 col-xl-10 pe-0 d-block m-auto">
+      <div class="d-flex w-100 justify-content-end align-items-center">
+        <div>
+          <nb-icon class="cursor-pointer me-3"
+                   nbTooltip="Menu"
+                   (click)="sidebarVisible = true; showProfile = false"
+                   nbTooltipPlacement="bottom"
+                   style="font-size: 30px"
+                   nbPrefix icon="grid-outline"
+                   pack="eva"
+                   [nbContextMenu]="items"
+          ></nb-icon>
+        </div>
+        <div class="navGlobalSearch">
+          <nb-form-field>
+            <nb-icon nbPrefix icon="search-outline" pack="eva"></nb-icon>
+            <input type="text" placeholder="search" nbTooltipPlacement="bottom-start" nbTooltip="Global Search" nbInput fullWidth>
+          </nb-form-field>
+        </div>
+        <div class="navUserActions d-flex justify-content-between align-items-center">
+          <div class="navUserAction">
+            <nb-icon nbPrefix icon="home-outline" pack="eva"
+                     nbTooltip="Home" nbTooltipPlacement="bottom"  [routerLink]="['/']"></nb-icon>
+          </div>
+          <div class="navUserAction">
+            <nb-icon nbPrefix icon="bell-outline" nbTooltip="Notifications"  nbTooltipPlacement="bottom" pack="eva"></nb-icon>
+          </div>
+          <div class="navUserAction">
+            <nb-icon nbPrefix icon="shopping-bag-outline"
+
+                     nbTooltip="Cart" nbTooltipPlacement="bottom"
+                     [routerLink]="['/cart/view']" pack="eva"></nb-icon>
+          </div>
+          <div class="navUserAction">
+            <nb-icon nbPrefix icon="heart-outline"
+
+                     nbTooltip="Wishlist" nbTooltipPlacement="bottom"
+                     [routerLink]="['/wishlist/view']"
+                     pack="eva"></nb-icon>
+          </div>
+          <div class="navUserAction">
+            <nb-icon nbPrefix icon="settings-2-outline"
+
+                     nbTooltip="Settings" nbTooltipPlacement="bottom"
+                     [routerLink]="['/settings/view']"
+                     pack="eva"></nb-icon>
+          </div>
+          <div class="navUserActionProfile">
+            <nb-user size="medium" name="Pavan NPK"
+                     (click)="op.toggle($event)"
+                     picture="./assets/profile/userPic.webp">
+            </nb-user>
+            <div class="">
+              <p-overlayPanel #op>
+                <div class="profileManagement bg-white rounded-2 text-center">
+                  <div class="profileInfo">
+                    <nb-user size="large" onlyPicture class="d-flex justify-content-center"
+                             picture="./assets/profile/userPic.webp">
+                    </nb-user>
+                    <p class="fw-semibold mb-1 mt-2">Pavan Kumar Narendravarapu</p>
+                    <small class="text-black-50 d-block mb-1 small">pavankumardummy&#64;gmail.com</small>
+                    <button nbButton size="small"
+                            (click)="op.toggle($event)"
+                            [routerLink]="['/manage-account/config']"
+                            class=" rounded-2 mt-2 fw-semibold">
+                      <nb-icon icon="person-outline"></nb-icon>Manage Account</button>
+                  </div>
+                  <p-divider type="solid" />
+                  <div class=" pb-2">
+                    <button nbButton size="small"  class=" rounded-2 fw-semibold"><nb-icon icon="power"></nb-icon>Sign Out</button>
+                    <div class="pt-2">
+                      <small class="text-black-50">Last Login: 3 days ago</small>
+                    </div>
+                  </div>
+                  <div class="profileManagementBottom bg-body-tertiary rounded-bottom-2 px-3 py-2">
+                    <div>
+                      <small class="text-black-50 me-3 cursor-pointer">Privacy Policy</small>
+                      <small class="text-black-50 cursor-pointer">Terms & Conditions</small>
+                    </div>
+                    <div>
+                      <small class="text-black-50">©2025. All Rights Reserved</small>
+                    </div>
+                    <div>
+                      <img ngSrc="./assets/core/logo2.png" alt="logo" height="58" width="148">
+                    </div>
+                  </div>
+                </div>
+              </p-overlayPanel>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sideNavbar">
+  <p-sidebar [(visible)]="sidebarVisible">
+    <ng-template pTemplate="header">
+      <div class="w-100 d-flex justify-content-between">
+        <img ngSrc="./assets/core/logo.png" alt="logo" height="58" width="148">
+      </div>
+    </ng-template>
+    <div>
+      <nb-menu [items]="items" (click)="sidebarVisible = !sidebarVisible" autoCollapse="true"></nb-menu>
+    </div>
+  </p-sidebar>
+</div>
+

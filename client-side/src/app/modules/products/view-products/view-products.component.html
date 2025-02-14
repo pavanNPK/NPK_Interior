@@ -1,0 +1,14 @@
+<div class="viewProductsMain">
+  <div class="appLayoutHeader">
+    <h5 class="appLayoutHeaderText">
+      Products
+    </h5>
+  </div>
+  <div class="appLayoutBody">
+    <div>
+      @for (item of products; track item; let i = $index) {
+        <p class="m-0">{{ i + 1 + ' ' + item.productName }}</p>
+      }
+    </div>
+  </div>
+</div>
