@@ -54,7 +54,6 @@ The backend is developed using:
 ### Backend Setup
 To set up the backend, follow these steps:
 ```sh
-cd server-side
 npm install
 npm start
 ```
