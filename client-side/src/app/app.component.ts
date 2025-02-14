@@ -10,7 +10,7 @@ import {OverlaySpinnerComponent} from "./modules/core/components/overlay-spinner
 
   ],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
   title = 'client';

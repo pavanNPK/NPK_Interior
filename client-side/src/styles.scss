@@ -59,7 +59,7 @@ button, button:focus{
     background: white;
     border-radius: 5px;
     padding: 5px 10px;
-    margin: .5rem 0;
+    margin-bottom: 0;
     font-weight: bold;
   }
 }
@@ -75,3 +75,23 @@ button, button:focus{
     font-weight: bold;
   }
 }
+input[type="text"]:focus {
+  box-shadow: none !important;
+  background-color: #f7f9fc !important;
+  border-color: #e4e9f2 !important;
+}
+.nb-theme-default nb-checkbox {
+  .label {
+    cursor: pointer;
+  }
+  .native-input:focus + .custom-checkbox,
+  .custom-checkbox.checked {
+    box-shadow: none !important;
+  }
+  .custom-checkbox.checked {
+    background-color: #000 !important;
+    border-color: #000 !important;
+  }
+}
+
+

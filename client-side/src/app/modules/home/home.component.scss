@@ -1,7 +1,17 @@
 ::ng-deep{
   .nb-theme-default{
+    nb-layout-header{
+      //position: fixed;
+      //top: 0;
+      //width: 100%;
+      //z-index: 10;
+    }
     nb-layout-column{
+      //margin-top: 4.5rem !important;
       padding: 1.5rem !important;
+    }
+    .p-component-overlay{
+      z-index: 0 !important;
     }
   }
 }

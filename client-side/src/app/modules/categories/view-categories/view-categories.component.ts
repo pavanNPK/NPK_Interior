@@ -2,11 +2,18 @@ import {Component, OnInit} from '@angular/core';
 import {CategoriesDTO} from "../../../models/categoriesDTO";
 import {CategoriesService} from "../../../services/categories.service";
 import {ResponseWithError} from "../../../models/commonDTO";
+import {NbButtonModule, NbIconModule, NbTooltipModule} from "@nebular/theme";
+import {RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-view-categories',
   standalone: true,
-  imports: [],
+  imports: [
+    NbButtonModule,
+    NbIconModule,
+    NbTooltipModule,
+    RouterLink
+  ],
   templateUrl: './view-categories.component.html',
   styleUrl: './view-categories.component.scss'
 })
