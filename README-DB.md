@@ -10,7 +10,7 @@ db.categories.find({}, { subCategories: 0 }).sort({ name: 1 })
 ```
 db.categories.find({}).sort({ name: 1 })
 ```
-`POST /categories` - Insert the categories into database.
+#### `POST /categories` - Insert the categories into database.
 
 #### There ara some scenarios that we need to handle:
 
