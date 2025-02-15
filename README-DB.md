@@ -12,7 +12,7 @@ db.categories.find({}).sort({ name: 1 })
 ```
 #### `POST /categories` - Insert the categories into database.
 
-#### There ara some scenarios that we need to handle:
+##### There ara some scenarios that we need to handle:
 
 | Case          | Action  |
 |---------------|---------|
