@@ -13,7 +13,7 @@
 | Bootstrap |         |          |
 | NGX-Bootstrap |    |          |
 | PrimeNG   |         |          |
-
+### For DB also separate readme file inside the repo
 ## Features (Planned & Implemented)
 ### ✅ Implemented
 - **Product Listing & Management** – Showcasing various interior decor products.
