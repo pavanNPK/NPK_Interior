@@ -33,7 +33,6 @@ export class ViewCategoriesComponent implements OnInit {
         else
           this.categories = [];
         this.loading = false;
-        console.log(this.categories);
       },
       error: (error) => console.error('Error fetching products', error),
       complete: () => (this.loading = false),

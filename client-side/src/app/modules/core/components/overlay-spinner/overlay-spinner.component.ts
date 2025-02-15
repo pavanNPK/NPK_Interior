@@ -14,9 +14,6 @@ export class OverlaySpinnerComponent implements OnInit {
   loading$: Observable<boolean> = new Observable<boolean>();
   constructor(private loaderService: OverlaySpinnerService) {}
   ngOnInit(): void {
-    this.loading$ = this.loaderService.loading$; // Subscribe to loading state
-    this.loading$.subscribe(x => {
-      console.log(x);
-    })
+    this.loading$ = this.loaderService.loading$;
   }
 }

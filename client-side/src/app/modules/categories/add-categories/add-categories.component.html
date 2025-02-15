@@ -20,7 +20,8 @@
           <div *ngFor="let category of categories.controls; let i = index" [formGroupName]="i" class="card mb-3 border-0 p-4">
             <div class="row">
               <div class="d-flex justify-content-between align-items-center mb-1">
-                <p class="fw-semibold m-0">Categories</p>
+                <p class="fw-semibold m-0">Categories
+                <nb-icon nbPrefix icon="info-outline" class="cursor-pointer" nbTooltip="Once you select the category from autocomplete. Then only reset button will be appear. If you reset the category, then you can able to select the category again or enter" nbTooltipPlacement="bottom"></nb-icon></p>
                 <nb-checkbox class="cursor-pointer"
                              (change)="subCategoriesValidation(i, category.get('enableSubCategory')?.value)"
                              [nbTooltip]="'Enable / Disable the sub categories in the index of category ' + (i + 1)"
@@ -28,23 +29,32 @@
               </div>
               <div class="col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <label class="label fw-semibold">Name</label>
-                <input type="text" nbInput class="form-control" formControlName="name" placeholder="Enter category name"
-                       (keyup)="trimLeadingSpace($event)"
-                       [ngClass]="{ 'is-invalid': submitted && category.get('name')?.errors }"
-                       [ngbTypeahead]="categorySearch"
-                       [inputFormatter]="categoryFormatter"
-                       [resultFormatter]="categoryFormatter"
-                       [editable]='false'
-                       (selectItem)="categorySelected($event.item)">
-                <div *ngIf="submitted && category.get('name')?.errors" class="invalid-feedback">
-                  <div *ngIf="category.get('name')?.errors?.['required']">Please enter the category name.</div>
-                </div>
+                <nb-form-field>
+                  <nb-icon nbSuffix icon="refresh-outline" pack="eva" class="cursor-pointer"
+                           (click)="resetCategoryName(i)"
+                           [nbTooltip]="'Reset the category data'"
+                           [ngClass]="category.get('_id')?.value ? 'd-block' : 'd-none'"></nb-icon>
+                  <input type="text" nbInput class="form-control" formControlName="name" placeholder="Enter category name"
+                         (keyup)="trimLeadingSpace($event)"
+                         [ngClass]="{ 'is-invalid': submitted && category.get('name')?.errors }"
+                         [ngbTypeahead]="categorySearch"
+                         [inputFormatter]="categoryFormatter"
+                         [resultFormatter]="categoryFormatter"
+                         [editable]='true'
+                         [readOnly]="category.get('_id')?.value"
+                         (selectItem)="categorySelected($event.item, i)">
+                  <div *ngIf="submitted && category.get('name')?.errors" class="invalid-feedback">
+                    <div *ngIf="category.get('name')?.errors?.['required']">Please enter the category name.</div>
+                  </div>
+                </nb-form-field>
               </div>
               <div class="col-sm-11 col-md-6 col-lg-6 col-xl-6">
                 <div class="d-flex align-items-center gap-3">
                   <div class="w-100">
                     <label class="label fw-semibold">Description</label>
-                    <input type="text" nbInput class="form-control" fullWidth formControlName="description" placeholder="Enter category description">
+                    <input type="text" nbInput class="form-control"
+                           [readOnly]="category.get('_id')?.value"
+                           fullWidth formControlName="description" placeholder="Enter category description">
                   </div>
                   <div *ngIf="categories.length > 1" class="col-1 mt-3">
                     <button nbButton size="small" status="danger"
@@ -60,7 +70,7 @@
             <div class="row" *ngIf="category.get('enableSubCategory')?.value">
               <p-divider type="solid" />
               <p class="fw-semibold mb-1">Sub Categories
-                <nb-icon nbPrefix icon="info-outline" class="cursor-pointer" nbTooltip="Once filled the sub categories. If you disable the sub categories, the sub categories will be deleted" nbTooltipPlacement="bottom"></nb-icon></p>
+                <nb-icon nbPrefix icon="info-outline" class="cursor-pointer" nbTooltip="If you disable the sub categories after filling the data, You will lost the sub categories data" nbTooltipPlacement="bottom"></nb-icon></p>
               <div formArrayName="subcategories">
                 <div *ngFor="let subCategory of getSubcategories(i).controls; let j = index" [formGroupName]="j">
                   <div class="row" [ngClass]="j > 0 ? 'mt-3' : ''">

@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {Router} from "@angular/router";
 import {Location, NgClass, NgForOf, NgIf} from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import {
@@ -6,7 +7,7 @@ import {
   NbCheckboxModule,
   NbFormFieldModule,
   NbIconModule,
-  NbInputModule,
+  NbInputModule, NbToastrService,
   NbTooltipModule
 } from '@nebular/theme';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -51,7 +52,11 @@ export class AddCategoriesComponent implements OnInit {
   submitted: boolean = false;
   categoriesDTO: CategoriesDTO[] = [];
 
-  constructor(private location: Location, private fb: FormBuilder, private cs: CategoriesService) {}
+  constructor(private location: Location,
+              private fb: FormBuilder,
+              private cs: CategoriesService,
+              private router: Router,
+              private toastService: NbToastrService,) {}
 
   ngOnInit() {
     this.loadCategories();
@@ -64,7 +69,6 @@ export class AddCategoriesComponent implements OnInit {
         else
           this.categoriesDTO = [];
         this.loading = false;
-        // console.log(this.categoriesDTO);
         this.loadForm();
       },
       error: (error) => console.error('Error fetching products', error),
@@ -93,6 +97,7 @@ export class AddCategoriesComponent implements OnInit {
   // Create a new category with an empty subcategories array
   createCategory(): FormGroup {
     return this.fb.group({
+      _id: [''],
       name: ['', Validators.required],
       description: [''],
       enableSubCategory: [false],
@@ -144,6 +149,7 @@ export class AddCategoriesComponent implements OnInit {
     this.location.back();
   }
   // **Category Search ngbTypeahead script ** //
+  // **Optional ** //
   categorySearch: OperatorFunction<string, CategoriesDTO[]> = (text$: Observable<string>) => {
     return text$.pipe(
       debounceTime(200),
@@ -159,7 +165,9 @@ export class AddCategoriesComponent implements OnInit {
     );
   };
 
-  categoryFormatter = (value: any) => value?.name || '';
+  categoryFormatter = (category: CategoriesDTO) => {
+    return category && category.name ? category.name : ''; // Ensure it returns a string
+  };
 
   // Submit the form
   addCategories() {
@@ -167,30 +175,40 @@ export class AddCategoriesComponent implements OnInit {
     if (this.addCategoriesForm.invalid) {
       return;
     } else {
-      console.log(this.addCategoriesForm.value);
       const formValues = this.addCategoriesForm.value;
       const categories: CategoriesDTO[] = formValues.categories.map(
         (category: any) => {
           const data = new CategoriesDTO();
-          data.name = category.name;
+          data.name = category.name.name ? category.name.name : category.name;
           data.description = category.description;
+          if(category._id){
+            data._id = category._id;
+          }
           if (category.enableSubCategory) {
-            data.subcategories = category.subcategories;
+            data.subCategories = category.subcategories;
           }
           return data;
         }
       );
-      console.log(categories);
       this.cs.addCategory(categories).subscribe({
         next: (response: ResponseWithError<CategoriesDTO[]>) => {
-          if (response.success)
-            this.categoriesDTO = response.response || [];
-          else
-            this.categoriesDTO = [];
+          if (response.success){
+            this.submitted = false;
+            this.addCategoriesForm.reset();
+            this.router.navigate(['/categories/view']);
+            this.toastService.success('Successfully added new categories', 'Categories', {duration: 2000});
+          }
+          else{
+            this.toastService.danger('Failed to add new categories', 'Categories', {duration: 2000});
+          }
           this.loading = false;
-          this.loadForm();
         },
-        error: (error) => console.error('Error fetching products', error),
+        error: (error) => {
+          this.loading = false;
+          this.addCategoriesForm.reset();
+          this.submitted = false;
+          this.toastService.danger('Failed to add new categories', 'Categories', {duration: 2000});
+        },
         complete: () => (this.loading = true),
       })
     }
@@ -216,13 +234,27 @@ export class AddCategoriesComponent implements OnInit {
   }
 
 
-  categorySelected(event: any) {
-    console.log(event)
+  categorySelected(event: any, i: number) {
+    let category = this.categories.at(i);
+    if (category) {
+      category.get('name')?.setValue(event.name.name);
+      category.get('_id')?.setValue(event._id);
+      category.get('description')?.setValue(event.description);
+    }
   }
 
   trimLeadingSpace(event: any) {
     const input = event.target;
     input.value = input.value.replace(/^\s+/, ''); // Removes leading spaces only
     input.dispatchEvent(new Event('input')); // Updates the form control
+  }
+
+  resetCategoryName(i: number) {
+    const category = this.categories.at(i);
+    if (category && category.get('name')) {
+      category.get('name')!.setValue('');
+      category.get('description')!.setValue('');
+      category.get('_id')!.setValue('');
+    }
   }
 }

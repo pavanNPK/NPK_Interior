@@ -3,10 +3,11 @@ export class CategoriesDTO{
   name?: string;
   description?: string;
   enableSubCategory?: boolean;
-  subcategories?: SubCategories[];
+  subCategories?: SubCategories[];
 }
 export class SubCategories{
   _id?: string;
   name?: string;
   description?: string;
+  category_id?: string;
 }

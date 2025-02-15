@@ -2,18 +2,60 @@ const Category = require('../models/categories.model');
 const mongoose = require('mongoose');
 
 exports.addCategory = async (req, res) => {
-    console.log(JSON.stringify(req.body, null, 2));
-    // const category = new Category({
-    //     name: req.body.name
-    // });
-    // try {
-    //     await category.save();
-    //     res.json({response: category, success: true, message: "Category added successfully"});
-    // } catch (error) {
-    //     console.error('Error adding category:', error);
-    //     res.status(500).json({response: null, success: false, message: 'Error adding category' });
-    // }
-}
+    try {
+        let categories = req.body;
+        for (const c of categories) {
+            if (c?._id) {
+                // Category ID exists, check for subcategories
+                if (c?.subCategories?.length > 0) {
+                    // Subcategories are there, insert them
+                    let subCategories = c.subCategories.map((subCategory) => ({
+                        _id: new mongoose.Types.ObjectId(),
+                        name: subCategory.name,
+                        description: subCategory.description,
+                        category_id: mongoose.Types.ObjectId(c._id),
+                    }));
+                    await Category.findByIdAndUpdate(
+                        c._id,
+                        { $push: { subCategories: { $each: subCategories } } },
+                        { new: true }
+                    );
+                }
+            }
+            else {
+                // Category ID doesn't exist, create category
+                let newCategoryId = new mongoose.Types.ObjectId();
+                let newCategory = new Category({
+                    _id: newCategoryId,
+                    name: c.name,
+                    description: c.description
+                });
+                if (c.subCategories?.length > 0) {
+                    newCategory.subCategories = c.subCategories.map((subCategory) => ({
+                        _id: new mongoose.Types.ObjectId(),
+                        name: subCategory.name,
+                        description: subCategory.description,
+                        category_id: newCategoryId,
+                    }));
+                }
+                let savedCategory = await newCategory.save();
+                // Now update subcategories with category_id
+                if (savedCategory.subCategories?.length > 0) {
+                    await Category.findByIdAndUpdate(
+                        savedCategory._id,
+                        { $set: { subCategories: savedCategory.subCategories } },
+                        { new: true }
+                    );
+                }
+            }
+        }
+        res.status(200).json({success: true, message: "Categories processed successfully" });
+    } catch (error) {
+        console.error("Error processing categories:", error);
+        res.status(500).json({success: false, error: "Internal server error" });
+    }
+};
+
 
 exports.getCategories = async (req, res) => {
     try {
