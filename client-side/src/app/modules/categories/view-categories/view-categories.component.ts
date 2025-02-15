@@ -18,7 +18,7 @@ import {RouterLink} from "@angular/router";
   styleUrl: './view-categories.component.scss'
 })
 export class ViewCategoriesComponent implements OnInit {
-  loading: boolean = false;
+  loading: boolean = true;
   categories: CategoriesDTO[] = [];
   constructor(private categoriesService: CategoriesService) { }
   ngOnInit(): void {
@@ -26,13 +26,14 @@ export class ViewCategoriesComponent implements OnInit {
   }
   loadCategories(){
     this.loading = true;
-    this.categoriesService.getCategories().subscribe({
+    this.categoriesService.getCategories('').subscribe({
       next: (response: ResponseWithError<CategoriesDTO[]>) => {
         if (response.success)
           this.categories = response.response || [];
         else
           this.categories = [];
         this.loading = false;
+        console.log(this.categories);
       },
       error: (error) => console.error('Error fetching products', error),
       complete: () => (this.loading = false),

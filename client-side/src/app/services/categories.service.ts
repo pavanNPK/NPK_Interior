@@ -12,8 +12,13 @@ export class CategoriesService {
   constructor(private http: HttpClient) {
   }
 
-  getCategories(): Observable<ResponseWithError<CategoriesDTO[]>> {
-    return this.http.get<ResponseWithError<CategoriesDTO[]>>('http://localhost:3000/categories')
+  getCategories(type: string): Observable<ResponseWithError<CategoriesDTO[]>> {
+    return this.http.get<ResponseWithError<CategoriesDTO[]>>('http://localhost:3000/categories?type=' + type)
+      .pipe(map(response => response));
+  }
+
+  addCategory(category: CategoriesDTO[]): Observable<ResponseWithError<CategoriesDTO[]>> {
+    return this.http.post<ResponseWithError<CategoriesDTO[]>>('http://localhost:3000/categories', category)
       .pipe(map(response => response));
   }
 }

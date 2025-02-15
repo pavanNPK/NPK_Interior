@@ -2,21 +2,23 @@ const Category = require('../models/categories.model');
 const mongoose = require('mongoose');
 
 exports.addCategory = async (req, res) => {
-    const category = new Category({
-        name: req.body.name
-    });
-    try {
-        await category.save();
-        res.json({response: category, success: true, message: "Category added successfully"});
-    } catch (error) {
-        console.error('Error adding category:', error);
-        res.status(500).json({response: null, success: false, message: 'Error adding category' });
-    }
+    console.log(JSON.stringify(req.body, null, 2));
+    // const category = new Category({
+    //     name: req.body.name
+    // });
+    // try {
+    //     await category.save();
+    //     res.json({response: category, success: true, message: "Category added successfully"});
+    // } catch (error) {
+    //     console.error('Error adding category:', error);
+    //     res.status(500).json({response: null, success: false, message: 'Error adding category' });
+    // }
 }
 
 exports.getCategories = async (req, res) => {
     try {
-        const categories = await Category.find().exec();
+        const query = req.query.type ? {subCategories: 0} : {};
+        const categories = await Category.find({},query, {sort: {name: 1}}).exec();
         res.json({response: categories, success: true, message: "Categories fetched successfully"});
     } catch (error) {
         console.error('Error fetching categories:', error);

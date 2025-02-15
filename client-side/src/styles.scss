@@ -1,16 +1,29 @@
-/* You can add global styles to this file, and also import other style files */
-//@font-face {
-//  font-family: "MyFont";
-//  src: url("assets/fonts/Poppins-Bold.ttf") format("truetype");
-//  font-weight: 700;
-//}
 @use "themes" as *;
 @use "@nebular/theme/styles/globals" as *;
+@import "themes";
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 @include nb-install() {
   @include nb-theme-global();
 }
 @import "bootstrap/scss/bootstrap";
+/* width */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  z-index: -10;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #e4e4e4;
+  cursor: pointer;
+  border-radius: 0.15625rem;
+}
 *{
   font-family: 'Poppins', sans-serif !important;
 }
@@ -94,4 +107,6 @@ input[type="text"]:focus {
   }
 }
 
-
+.dropdown-item.active{
+  background-color: black !important;
+}
