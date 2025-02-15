@@ -13,7 +13,7 @@
 | Bootstrap |         |          |
 | NGX-Bootstrap |    |          |
 | PrimeNG   |         |          |
-##### For DB also separate readme file is there inside the repo.
+##### For database implementations and the actions I performed within the database, I have documented those scenarios in a separate README file located within the repository..
 ## Features (Planned & Implemented)
 ### ✅ Implemented
 - **Product Listing & Management** – Showcasing various interior decor products.
