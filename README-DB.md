@@ -57,12 +57,12 @@ for (const c of categories) {
 }
 
 ```
- If the category ID (_id) exists:
+ #### If the category ID (_id) exists:
   * it checks if subcategories are provided.
   * If subcategories exist, it updates the category by pushing the new subcategories into subCategories using push with each.
 
 
-If the category ID (_id) doesn't exist:
+#### If the category ID (_id) doesn't exist:
   * it creates a new category.
   * If subcategories exist, they are included during category creation.
 
