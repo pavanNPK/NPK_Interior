@@ -59,12 +59,22 @@ exports.addCategory = async (req, res) => {
 
 exports.getCategories = async (req, res) => {
     try {
-        const query = req.query.type ? {subCategories: 0} : {};
-        const categories = await Category.find({},query, {sort: {name: 1}}).exec();
-        res.json({response: categories, success: true, message: "Categories fetched successfully"});
+        let searchQuery = {}; // Default query
+        if (req.query.search) {
+            searchQuery = {
+                $or: [
+                    { name: { $regex: req.query.search, $options: 'i' } },
+                    { "subCategories.name": { $regex: req.query.search, $options: 'i' } }
+                ]
+            };
+        }
+        // Projection: Exclude `subCategories` when `type` is present
+        const projection = req.query.type ? { subCategories: 0 } : {};
+        const categories = await Category.find(searchQuery, projection).sort({ name: 1 }).exec();
+        res.json({ response: categories, success: true, message: "Categories fetched successfully" });
     } catch (error) {
         console.error('Error fetching categories:', error);
-        res.status(500).json({response: null, success: false, message: 'Error fetching categories' });
+        res.status(500).json({ response: null, success: false, message: 'Error fetching categories' });
     }
 }
 

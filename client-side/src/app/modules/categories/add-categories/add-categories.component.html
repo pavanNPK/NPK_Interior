@@ -9,7 +9,7 @@
           <nb-icon icon="arrow-back-outline"></nb-icon>
         </button>
       </div>
-      <h5 class="fw-semibold m-0">Add Categories & Sub Categories</h5>
+      <h5 class="fw-semibold m-0">Add Categories</h5>
     </div>
   </div>
 
@@ -114,8 +114,11 @@
     <div class="mt-3 d-flex justify-content-between">
       <button nbButton class="bg-black text-white" (click)="addCategory()" type="button">+ Category</button>
       <div class="d-flex gap-3">
-        <button nbButton class="bg-transparent " type="button" style="border: 1px solid black !important;">No</button>
-        <button nbButton class="bg-black text-white" type="button" (click)="addCategories()">Submit</button>
+        <button nbButton class="bg-transparent "
+                (click)="backToPrev()"
+                [nbTooltip]="'Cancel and go back to previous page. If you cancel, you will lost the data.'" type="button" style="border: 1px solid black !important;">Cancel</button>
+        <button nbButton class="bg-black text-white"
+                type="button" (click)="addCategories()">Save</button>
       </div>
     </div>
   </div>

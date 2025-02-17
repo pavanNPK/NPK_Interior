@@ -1,0 +1,19 @@
+::ng-deep {
+  .viewCategoriesMain{
+    .viewCategories{
+      .viewCategoryAccordion{
+        box-shadow: none !important;
+        .viewCategoryAccordionItem{
+          margin-bottom: 1rem;
+          border-radius: 8px;
+          .viewCategoryAccordionItemHeader{
+            padding: 14px !important;
+            > nb-icon.expansion-indicator{
+              //display: none !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}

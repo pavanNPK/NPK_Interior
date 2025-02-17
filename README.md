@@ -6,7 +6,7 @@
 ## Project Structure
 ### For the `user` what will be provided?
     
-    ├── Categories              # Added the categories & sub categories.
+[//]: # (    ├── Categories              # Added the categories & sub categories.)
     ├── Prodcuts                # Each category has its own sub category with its own products.
     ├── Deals                   # What's on sale and special offers.
     ├── Upcomings               # Upcoming products.
@@ -49,41 +49,40 @@
 ## Features (For Users)
 > **Only `Read` operation is allowed**
 
-| Feature   | Implement |
-|-----------|---------|
-| Category  |         |
-| Prodcuts  |         |     
-| Deals   |         |
-| Upcomings |         |      
-| Orders |         |      
-| Wishlisht |         |      
-| Cart |         |      
-| Re-Order |         |      
-| Pay & Rewards |         |      
-| Settings   |         |      
-| Notifications   |         |      
-| Manage Account     |         |      
-| Autentication     |         |      
+| Feature   | Implemented |
+|-----------|-------------|
+| Prodcuts  |             |     
+| Deals   |             |
+| Upcomings |             |      
+| Orders |             |      
+| Wishlisht |             |      
+| Cart |             |      
+| Re-Order |             |      
+| Pay & Rewards |             |      
+| Settings   |             |      
+| Notifications   |             |      
+| Manage Account     |             |      
+| Autentication     |             |      
 
 ## Features (For Admin)
 > *He can manage all the operations and features. As well as, `Users` accounts is managed by admin*.
 > *Only when`Required`**
 
-| Feature   | Implement |
-|-----------|-----------|
-| Category  | C         |
-| Prodcuts  |           |     
-| Deals   |           |
-| Upcomings |           |      
-| Orders |           |      
-| Wishlisht |           |      
-| Cart |           |      
-| Re-Order |           |      
-| Pay & Rewards |           |      
-| Settings   |           |      
-| Notifications   |           |      
-| Manage Account     |           |      
-| Autentication     |           |      
+| Feature   | Implemented |
+|-----------|-------------|
+| Category  | CRD         |
+| Prodcuts  |             |     
+| Deals   |             |
+| Upcomings |             |      
+| Orders |             |      
+| Wishlisht |             |      
+| Cart |             |      
+| Re-Order |             |      
+| Pay & Rewards |             |      
+| Settings   |             |      
+| Notifications   |             |      
+| Manage Account     |             |      
+| Autentication     |             |      
 
 ## Project Structure
 

@@ -62,7 +62,7 @@ export class AddCategoriesComponent implements OnInit {
     this.loadCategories();
   }
   loadCategories() {
-    this.cs.getCategories('loadCategories').subscribe({
+    this.cs.getCategories('loadCategories', '').subscribe({
       next: (response: ResponseWithError<CategoriesDTO[]>) => {
         if (response.success)
           this.categoriesDTO = response.response || [];
@@ -245,7 +245,10 @@ export class AddCategoriesComponent implements OnInit {
 
   trimLeadingSpace(event: any) {
     const input = event.target;
-    input.value = input.value.replace(/^\s+/, ''); // Removes leading spaces only
+    // Remove leading spaces only (but allow spaces between words)
+    input.value = input.value.replace(/^\s+/, '');
+    // Allow only alphabetic characters and spaces after a character has been entered
+    input.value = input.value.replace(/[^a-zA-Z ]/g, '');
     input.dispatchEvent(new Event('input')); // Updates the form control
   }
 

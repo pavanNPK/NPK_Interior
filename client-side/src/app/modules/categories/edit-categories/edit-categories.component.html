@@ -1,1 +1,101 @@
-<p>edit-categories works!</p>
+<div class="addCategoriesMain">
+  <div class="appLayoutHeader">
+    <div class="appLayoutHeaderText d-flex gap-2 align-items-center">
+      <div>
+        <button nbButton size="small"
+                (click)="backToPrev()"
+                nbTooltip="Back to previous page" nbTooltipPlacement="bottom"
+                class="rounded-2 fw-semibold">
+          <nb-icon icon="arrow-back-outline"></nb-icon>
+        </button>
+      </div>
+      <h5 class="fw-semibold m-0">Update Category</h5>
+    </div>
+  </div>
+
+  <div class="appLayoutBody">
+    <div class="addCategories" *ngIf="loading">
+      <div [formGroup]="editCategoriesForm" class="card p-3 border-0">
+        <div class="row">
+          <p class="fw-semibold mb-2"> Categories</p>
+          <div class="col-sm-12 col-md-4 col-lg-3 col-xl-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="w-100">
+                <label class="label fw-semibold">Name</label>
+                <input type="text" nbInput class="form-control"
+                       (keyup)="trimLeadingSpace($event)"
+                       [ngClass]="{ 'is-invalid': submitted && c.name?.errors }"
+                       fullWidth formControlName="name" placeholder="Enter category">
+                <div *ngIf="submitted && c.name?.errors" class="invalid-feedback">
+                  <div *ngIf="c.name?.errors?.['required']">Please enter the category name.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+            <div class="d-flex align-items-center gap-3">
+              <div class="w-100">
+                <label class="label fw-semibold">Description</label>
+                <input type="text" nbInput class="form-control"
+                       fullWidth formControlName="description" placeholder="Enter category description">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div >
+          <p-divider type="solid"> </p-divider>
+          <div formArrayName="subCategories">
+            <p class="fw-semibold mb-2">Sub Categories - count: {{sc.controls.length}}</p>
+            <div *ngFor="let sub of sc.controls; let i = index" [formGroupName]="i">
+              <div class="row mb-3">
+                <div class="col-sm-12 col-md-4 col-lg-3 col-xl-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="mt-4">
+                      <p>{{i+1}}.</p>
+                    </div>
+                    <div class="w-100">
+                      <label class="label fw-semibold">Name</label>
+                      <input type="text" nbInput class="form-control"
+                             [ngClass]="{ 'is-invalid': submitted && sc.controls[i].get('name')?.errors }"
+                             fullWidth formControlName="name" placeholder="Enter sub category">
+                      <div *ngIf="submitted && sc.controls[i].get('name')?.errors" class="invalid-feedback">
+                        <div *ngIf="sc.controls[i].get('name')?.errors?.['required']">Please enter the sub category name.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-11 col-md-6 col-lg-6 col-xl-6">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="w-100">
+                      <label class="label fw-semibold">Description</label>
+                      <input type="text" nbInput class="form-control"
+                             fullWidth formControlName="description" placeholder="Enter category description">
+                    </div>
+                    <div *ngIf="sc.controls.length > 1" class="col-1 mt-3">
+                      <button nbButton size="small" status="danger"
+                              (click)="removeSubCategory(i)"
+                              nbTooltip="Delete {{i + 1}} index category" nbTooltipPlacement="bottom"
+                              class="rounded-2 fw-semibold">
+                        <nb-icon icon="trash-outline"></nb-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3 d-flex justify-content-between">
+        <button nbButton class="bg-black text-white" (click)="addSubCategory()" type="button">+ Sub Category</button>
+        <div class="d-flex gap-3">
+          <button nbButton class="bg-transparent "
+                  (click)="backToPrev()"
+                  [nbTooltip]="'Cancel and go back to previous page. If you cancel, you will lost the data.'" type="button" style="border: 1px solid black !important;">Cancel</button>
+          <button nbButton class="bg-black text-white"
+                  type="button" (click)="updateCategories()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
