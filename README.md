@@ -5,8 +5,10 @@
 
 ## Project Structure
 ### For the `user` what will be provided?
-    
+
 [//]: # (    ├── Categories              # Added the categories & sub categories.)
+
+    
     ├── Prodcuts                # Each category has its own sub category with its own products.
     ├── Deals                   # What's on sale and special offers.
     ├── Upcomings               # Upcoming products.
