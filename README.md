@@ -72,7 +72,7 @@
 
 | Feature   | Implemented |
 |-----------|-------------|
-| Category  | CRD         |
+| Category  | CRUD         |
 | Prodcuts  |             |     
 | Deals   |             |
 | Upcomings |             |      
