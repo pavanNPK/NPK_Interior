@@ -14,6 +14,7 @@ exports.addCategory = async (req, res) => {
                         name: subCategory.name,
                         description: subCategory.description,
                         category_id: mongoose.Types.ObjectId(c._id),
+                        updatedOn: new Date()
                     }));
                     await Category.findByIdAndUpdate(
                         c._id,
@@ -28,7 +29,9 @@ exports.addCategory = async (req, res) => {
                 let newCategory = new Category({
                     _id: newCategoryId,
                     name: c.name,
-                    description: c.description
+                    description: c.description,
+                    createdOn: new Date(),
+                    updatedOn: new Date()
                 });
                 if (c.subCategories?.length > 0) {
                     newCategory.subCategories = c.subCategories.map((subCategory) => ({
@@ -36,14 +39,16 @@ exports.addCategory = async (req, res) => {
                         name: subCategory.name,
                         description: subCategory.description,
                         category_id: newCategoryId,
+                        createdOn: new Date(),
+                        updatedOn: new Date()
                     }));
                 }
                 let savedCategory = await newCategory.save();
                 // Now update subcategories with category_id
-                if (savedCategory.subCategories?.length > 0) {
+                if (savedCategory?.subCategories?.length > 0) {
                     await Category.findByIdAndUpdate(
                         savedCategory._id,
-                        { $set: { subCategories: savedCategory.subCategories } },
+                        { $set: { subCategories: savedCategory?.subCategories } },
                         { new: true }
                     );
                 }
@@ -90,21 +95,53 @@ exports.getCategoryById = async (req, res) => {
 }
 
 exports.updateCategory = async (req, res) => {
+    let { type } = req.params;
+    let data = req.body;
+    let id  = data._id;
     try {
-        const updatedCategory = await Category.findByIdAndUpdate(mongoose.Types.ObjectId(req.params.id), req.body, { new: true, upsert: true });
-        res.json({success: true, message: "Category updated successfully", response: updatedCategory});
+        let updatedCategory;
+        if (type === "Category") {
+            updatedCategory = await Category.findByIdAndUpdate(id, { ...data, updatedOn: new Date() }, { new: true });
+        } else if (type === "Sub Category") {
+            updatedCategory = await Category.findOneAndUpdate(
+                { "subCategories._id": data._id },
+                { $set: { "subCategories.$": { ...data, updatedOn: new Date() } } },
+                { new: true }
+            );
+        } else {
+            return res.status(400).json({ success: false, message: "Invalid request type" });
+        }
+        return updatedCategory
+            ? res.json({ success: true, message: `${type} updated successfully`, response: updatedCategory })
+            : res.status(404).json({ success: false, message: `${type} not found` });
     } catch (error) {
-        console.error('Error updating category:', error);
-        res.status(500).json({response: null, success: false, message: 'Error updating category' });
+        console.error("Error updating:", error);
+        res.status(500).json({ success: false, message: "Update failed" });
     }
-}
+};
 
 exports.deleteCategory = async (req, res) => {
+    let { type } = req.query;
+    let { id } = req.params;
     try {
-        await Category.findByIdAndDelete(req.params.id);
-        res.json({response: null, success: true, message: 'Category deleted successfully' });
+        if (type === "Category") {
+            const deleted = await Category.findByIdAndDelete(id);
+            return deleted
+                ? res.json({ success: true, message: "Category deleted successfully" })
+                : res.status(404).json({ success: false, message: "Category not found" });
+        }
+        if (type === "Sub Category") {
+            const updated = await Category.updateOne(
+                { "subCategories._id": id },
+                { $pull: { subCategories: { _id: id } } }
+            );
+            return updated
+                ? res.json({ success: true, message: "Subcategory deleted successfully" })
+                : res.status(404).json({ success: false, message: "Subcategory not found" });
+        }
+        res.status(400).json({ success: false, message: "Invalid request type" });
     } catch (error) {
-        console.error('Error deleting category:', error);
-        res.status(500).json({response: null, success: false, message: 'Error deleting category' });
+        console.error("Error deleting:", error);
+        res.status(500).json({ success: false, message: "Error deleting category/subcategory" });
     }
-}
+};

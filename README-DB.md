@@ -10,6 +10,8 @@ db.categories.find({}, { subCategories: 0 }).sort({ name: 1 })
 ```
 db.categories.find({}).sort({ name: 1 })
 ```
+-----------------------------------------------------------------------------------
+
 #### `POST /categories` - Insert the categories into database.
 
 ##### There ara some scenarios that we need to handle:
@@ -19,6 +21,40 @@ db.categories.find({}).sort({ name: 1 })
 | Category exists (c._id) but subCategories is empty/null       | Skipped, no update performed |
 | Category exists (c._id) and has subCategories	          | Updated, new subcategories added |
 | Category doesn't exist (c._id is missing)	       |     Created, including subcategories if provided    |          
+
+- __Example for inserting categories:__
+```
+categories.forEach(category => {
+    let categoryId = ObjectId(); // Generate a unique _id for the category
+    let timestamp = new Date();
+
+    let subCategories = category.subcategories.map(sub => ({
+        _id: ObjectId(), // Generate a unique _id for each subcategory
+        name: sub.name,
+        description: sub.description,
+        category_id: categoryId, // Link subcategories to the parent category
+        createdOn: timestamp,
+        updatedOn: timestamp
+    }));
+
+    db.categories.insertOne({
+        _id: categoryId,
+        name: category.name,
+        description: category.description,
+        subCategories: subCategories,
+        createdOn: timestamp,
+        updatedOn: timestamp
+    });
+});
+
+```
+- Here i'm inserting new keys `createdOn` and `updatedOn` in all the categories. As well as inside the subcategories of each category.:
+```
+db.categories.updateMany({}, {$set: { createdOn: new Date(), updatedOn: new Date() }})
+
+db.categories.updateMany({}, {$set: { "subCategories.$[].createdOn": new Date(),"subCategories.$[].updatedOn": new Date() }})
+```
+- __Example for inserting and updating categories / subcategories through the API:__
 
 ```
 for (const c of categories) {
@@ -67,7 +103,50 @@ for (const c of categories) {
   * If subcategories exist, they are included during category creation.
 
 
-#### This ensures:
-  * New categories are created only when needed.
-  * Subcategories are added only when provided.
-  * Existing categories remain unchanged if no subcategories are given.
+> #### This ensures:
+  >* New categories are created only when needed.
+  >* Subcategories are added only when provided.
+  >* Existing categories remain unchanged if no subcategories are given.
+
+-------------------------------------------------------------------------------------------------
+#### `UPDATE /categories` - Modify the categories / subcategories in database.
+
+__Example for updating the categories / subcategories through the API:__
+* `PUT /categories/:type, body: { _id, name, description, updatedOn }`
+
+>Based on the type, This will update the category / subcategory with the given _id.
+
+```aiignore
+if (type === "Category") {
+    updatedCategory = await Category.findByIdAndUpdate(id, { ...data, updatedOn: new Date() }, { new: true });
+} else if (type === "Sub Category") {
+    updatedCategory = await Category.findOneAndUpdate(
+        { "subCategories._id": data._id },
+        { $set: { "subCategories.$": { ...data, updatedOn: new Date() } } },
+        { new: true }
+    );
+}
+```
+-------------------------------------------------------------------------------------------------
+#### `DELETE /categories` - Remove the categories / subcategories from the database.
+
+__Example for removing the categories / subcategories through the API:__
+* `DELETE /categories/${id}?type=${type}}`
+
+>Based on the type, This will remove the category / subcategory with the given _id.
+
+```aiignore
+if (type === "Category") {
+    const deleted = await Category.findByIdAndDelete(id);
+}
+if (type === "Sub Category") {
+    const updated = await Category.updateOne(
+        { "subCategories._id": id },
+        { $pull: { subCategories: { _id: id } } }
+    );
+};
+```
+#### How it works:
+* type=category → Deletes the whole category using findByIdAndDelete(req.body._id).
+* type=subcategory →  Deletes a specific subcategory using findByIdAndUpdate(id, { $pull: { subCategories: { _id: id } } }).
+

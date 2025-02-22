@@ -32,7 +32,11 @@ export class CategoriesService {
     return this.http.get<ResponseWithError<CategoriesDTO>>('http://localhost:3000/categories/'+ id)
   }
 
-  deleteCategory(id: any): Observable<ResponseWithError<any>>{
-    return this.http.delete<ResponseWithError<any>>('http://localhost:3000/categories/'+id)
+  deleteCategory(id: string, type: string): Observable<ResponseWithError<any>>{
+    return this.http.delete<ResponseWithError<any>>(`http://localhost:3000/categories/${id}?type=${type}`)
+  }
+
+  updateCategory(data: any, type: string): Observable<ResponseWithError<CategoriesDTO>> {
+    return this.http.put<ResponseWithError<CategoriesDTO>>(`http://localhost:3000/categories/${type}`, data)
   }
 }

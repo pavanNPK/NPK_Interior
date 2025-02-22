@@ -13,8 +13,9 @@ import {
 } from "@nebular/theme";
 import {RouterLink} from "@angular/router";
 import {DividerModule} from "primeng/divider";
-import {NgForOf, NgIf} from "@angular/common";
-import {FormControl, ReactiveFormsModule} from "@angular/forms";
+import {DatePipe, NgClass, NgForOf, NgIf} from "@angular/common";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {NoDataComponent} from "../../core/components/no-data/no-data.component";
 
 @Component({
   selector: 'app-view-categories',
@@ -32,6 +33,9 @@ import {FormControl, ReactiveFormsModule} from "@angular/forms";
     NbFormFieldModule,
     ReactiveFormsModule,
     NbCardModule,
+    NoDataComponent,
+    DatePipe,
+    NgClass,
   ],
   templateUrl: './view-categories.component.html',
   styleUrl: './view-categories.component.scss'
@@ -41,9 +45,16 @@ export class ViewCategoriesComponent implements OnInit {
   categories: CategoriesDTO[] = [];
   categorySearch = new FormControl('');
   whenSearch: boolean = false;
+  loadForm: boolean = false;
+  submitted: boolean = false;
+  catType: string = '';
   catName: string = '';
   catId: string = '';
-  constructor(private dialogService: NbDialogService,private categoriesService: CategoriesService,private toastService: NbToastrService,) { }
+  categoryForm?: FormGroup | any;
+  constructor(private dialogService: NbDialogService,private categoriesService: CategoriesService,private toastService: NbToastrService,private fb: FormBuilder) { }
+  get c(){
+    return this.categoryForm?.controls;
+  }
   ngOnInit(): void {
     this.loadCategories('', this.categorySearch.value ? this.categorySearch.value : '', false);
   }
@@ -79,25 +90,76 @@ export class ViewCategoriesComponent implements OnInit {
   }
 
 
-  deleteCategory(_id: any, name: any, deleteCategoryDialog: any) {
+  deleteCategory(_id: any, name: any, deleteCategoryDialog: any, type: string) {
     this.catId = _id;
     this.catName = name;
+    this.catType = type;
     this.dialogService.open(deleteCategoryDialog, {closeOnBackdropClick: false});
   }
 
   delete(ref: any) {
-    this.categoriesService.deleteCategory(this.catId).subscribe(x => {
-      if (x.success) {
-        ref.close();
-        this.loadCategories('', '', false)
-        this.toastService.success('Successfully delete the Category', this.catName, {duration: 2000});
-      } else {
-        this.toastService.danger('Failed to delete the Category', this.catName, {duration: 2000});
+    this.categoriesService.deleteCategory(this.catId, this.catType).subscribe( {
+      next: (response: ResponseWithError<any>) => {
+        console.log(response)
+        if(response.success){
+          this.toastService.success('Successfully delete the Category', this.catName, {duration: 2000});
+          this.loadCategories('', '', false);
+          ref.close();
+        } else {
+          this.toastService.danger('Failed to delete the Category', this.catName, {duration: 2000});
+          ref.close()
+        }
+      },
+      error: (error) => {
+        this.toastService.danger(error, this.catName, {duration: 2000});
         ref.close()
-      }
-    }, error => {
-      this.toastService.danger(error, this.catName, {duration: 2000});
-      ref.close()
+      }, complete: () => (this.loading = false),
     })
+  }
+
+  updateCatSubCat(data: any, updateCategorySubCatDialog: any, type: string) {
+    this.catId = data._id;
+    this.catName = data.name;
+    this.catType = type;
+    this.categoryForm = this.fb.group({
+      name: [data.name, Validators.required],
+      description: [data.description],
+      _id: [data._id],
+      updatedOn: [new Date()]
+    })
+    this.loadForm = true;
+    this.dialogService.open(updateCategorySubCatDialog, {closeOnBackdropClick: false});
+  }
+
+  updateCategory(ref:any) {
+    this.submitted = true;
+    if (this.categoryForm.invalid) {
+      return;
+    } else {
+      console.log('NPK its valid 139..')
+      const formValues = this.categoryForm.value;
+      this.categoriesService.updateCategory(formValues, this.catType).subscribe({
+        next: (response: ResponseWithError<CategoriesDTO>) => {
+          if (response.success){
+            this.loadCategories('', '', false);
+            this.loadForm = false;
+            this.submitted = false;
+            ref.close();
+            this.toastService.success(`Successfully updated the ${this.catType}`, this.catName, {duration: 2000});
+          }
+          else{
+            this.toastService.danger(`Failed to update the ${this.catType}`, this.catName, {duration: 2000});
+          }
+        },
+        error: (error: any) => {
+          this.toastService.danger(error, this.catName, {duration: 2000});
+        },
+        complete: () => {
+          this.loading = false;
+          this.loadForm = false;
+          ref.close();
+        },
+      })
+    }
   }
 }

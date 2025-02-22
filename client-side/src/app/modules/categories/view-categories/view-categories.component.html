@@ -1,7 +1,13 @@
 <div class="viewCategoriesMain">
   <div class="appLayoutHeader">
     <div class="appLayoutHeaderText d-flex justify-content-between align-items-center">
-      <h5 class="fw-semibold m-0"> Categories & Sub Categories</h5>
+      <h5 class="fw-semibold m-0"> Categories & Sub Categories
+        <nb-icon icon="info-outline"
+                 class="cursor-pointer"
+                 nbTooltip="You can update categories and sub categories individually by
+                           clicking on the edit icon as well as delete the categories and sub categories."
+                 nbTooltipPlacement="bottom"></nb-icon>
+      </h5>
       <div class="d-flex gap-3 align-items-center">
         <nb-form-field>
           <nb-icon nbSuffix class="cursor-pointer" icon="search-outline" pack="eva"
@@ -29,7 +35,7 @@
     </div>
   </div>
   <div class="appLayoutBody">
-    <div class="viewCategories">
+    <div class="viewCategories" *ngIf="categories.length">
       <nb-accordion class="viewCategoryAccordion" [multi]="false">
         <nb-accordion-item class="viewCategoryAccordionItem"  *ngFor="let item of categories; let i = index">
           <nb-accordion-item-header class="viewCategoryAccordionItemHeader d-flex justify-content-between">
@@ -38,38 +44,127 @@
               <p class="m-0 label text-black-50 ms-3">{{item.description}}</p>
             </div>
             <div>
-              <button nbButton size="small"
-                      [routerLink]="['/categories/update']" [queryParams]="{cId: item._id}"
-                      nbTooltip="By clicking this you can modify the category{{item.subCategories?.length ? ' along with the sub categories.' : '.'}}" nbTooltipPlacement="bottom"
-                      class=" rounded-2 fw-semibold me-5">
-                <nb-icon icon="edit-outline"></nb-icon>
-              </button>
+<!--              <button nbButton size="small"-->
+<!--                      [routerLink]="['/categories/update']" [queryParams]="{cId: item._id}"-->
+<!--                      nbTooltip="By clicking this you can modify the category{{item.subCategories?.length ? ' along with the sub categories.' : '.'}}" nbTooltipPlacement="bottom"-->
+<!--                      class=" rounded-2 fw-semibold me-5">-->
+<!--                <nb-icon icon="edit-outline"></nb-icon>-->
+<!--              </button>-->
             </div>
           </nb-accordion-item-header>
           <nb-accordion-item-body class="viewCategoryAccordionItemBody">
             <div class="viewSubCategories" *ngFor="let subCategory of item.subCategories; let j = index">
-              <p class="mb-1 fw-semibold">{{i+1 + '.'}}{{j+1 + '. ' + subCategory.name}}</p>
-              <p class="m-0 label text-black-50 ms-3">{{subCategory.description}}</p>
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="mb-1 fw-semibold">{{i+1 + '.'}}{{j+1 + '. ' + subCategory.name}}</p>
+                  <p class="m-0 label text-black-50 ms-3">{{subCategory.description}}</p>
+                </div>
+                <div>
+                  <button nbButton size="small"
+                          (click)="updateCatSubCat(subCategory, updateCategorySubCatDialog, 'Sub Category')"
+                          nbTooltip="By clicking this you can modify the sub category." nbTooltipPlacement="bottom"
+                          class=" rounded-2 fw-semibold me-3">
+                    <nb-icon icon="edit-outline"></nb-icon>
+                  </button>
+                  <button nbButton size="small" status="danger"
+                          (click)="deleteCategory(subCategory._id, subCategory.name, deleteCategoryDialog, 'Sub Category');"
+                          nbTooltip="By clicking this you can remove the sub category." nbTooltipPlacement="bottom"
+                          class=" rounded-2 fw-semibold">
+                    <nb-icon icon="trash-outline"></nb-icon>
+                  </button>
+                </div>
+              </div>
+              <p class="m-0 text-end text-black-50">
+                <small>
+                  <span class="fw-semibold">Last Updated:</span> {{subCategory.updatedOn | date}}
+                </small>
+              </p>
               <p-divider type="solid"></p-divider>
             </div>
             <div *ngIf="!item.subCategories?.length">
               <p class="m-0 text-center text-black-50">No Sub Categories found...</p>
             </div>
-            <div class="text-end">
-              <button nbButton size="small"
-                      (click)="deleteCategory(item._id, item.name, deleteCategoryDialog);"
-                      status="danger"
-                      nbTooltip="Delete the entire category data{{item.subCategories?.length ? ' along with the sub categories.' : '.'}}" nbTooltipPlacement="bottom"
-                      class=" rounded-2 fw-semibold">Delete
-                <nb-icon icon="trash-outline"></nb-icon>
-              </button>
+            <div class="d-flex justify-content-between">
+              <div>
+                <p class="m-0 text-end text-black-50">
+                  <small>
+                    <span class="fw-semibold">Last Created:</span> {{item.createdOn | date}}
+                  </small>
+                </p>
+                <p class="m-0 text-end text-black-50">
+                  <small>
+                    <span class="fw-semibold">Last Updated:</span> {{item.updatedOn | date}}
+                  </small>
+                </p>
+              </div>
+              <div>
+                <button nbButton
+                        (click)="updateCatSubCat(item, updateCategorySubCatDialog, 'Category')"
+                        nbTooltip="You can modify the category." nbTooltipPlacement="bottom"
+                        class=" rounded-2 fw-semibold me-3"> Edit
+                  <nb-icon icon="edit-outline"></nb-icon>
+                </button>
+                <button nbButton
+                        (click)="deleteCategory(item._id, item.name, deleteCategoryDialog, 'Category');"
+                        status="danger"
+                        nbTooltip="Delete the entire category data{{item.subCategories?.length ? ' along with the sub categories.' : '.'}}" nbTooltipPlacement="bottom"
+                        class=" rounded-2 fw-semibold">Delete
+                  <nb-icon icon="trash-outline"></nb-icon>
+                </button>
+              </div>
             </div>
           </nb-accordion-item-body>
         </nb-accordion-item>
       </nb-accordion>
     </div>
+    <div>
+      <app-no-data *ngIf="!categories.length"></app-no-data>
+    </div>
   </div>
 </div>
+<ng-template #updateCategorySubCatDialog let-data let-ref="dialogRef" id="updateCategorySubCat" >
+  <nb-card class="globalDialogBox" *ngIf="loadForm">
+    <nb-card-header class="globalDialogBoxCardHeader">
+      <h5 class="m-0 fw-semibold">Update {{ catType }}</h5>
+    </nb-card-header>
+    <nb-card-body class="globalDialogBoxCardBody">
+      <div class="globalDialogBoxForm text-start">
+        <div [formGroup]="categoryForm">
+          <div>
+            <label class="label fw-semibold">Name</label>
+            <input type="text" nbInput class="form-control"
+                   (keyup)="trimLeadingSpace($event)"
+                   [ngClass]="{ 'is-invalid': submitted && c.name?.errors }"
+                   fullWidth formControlName="name" placeholder="Enter category">
+            <div *ngIf="submitted && c.name?.errors" class="invalid-feedback">
+              <div *ngIf="c.name?.errors?.['required']">Please enter the category name.</div>
+            </div>
+          </div>
+          <div>
+            <label class="label fw-semibold">Description</label>
+            <textarea type="text" nbInput class="form-control"
+                   (keyup)="trimLeadingSpace($event)" style="max-height: 100px;"
+                   rows="5"
+                   [ngClass]="{ 'is-invalid': submitted && c.description?.errors }"
+                   fullWidth formControlName="description" placeholder="Enter description">
+            </textarea>
+            <div *ngIf="submitted && c.description?.errors" class="invalid-feedback">
+              <div *ngIf="c.description?.errors?.['required']">Please enter the category description.</div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between mt-3 gap-3">
+          <button nbButton class="bg-transparent "
+                  (click)="ref.close()"
+                  type="button" style="border: 1px solid black !important;">Cancel</button>
+          <button nbButton class="bg-black text-white"
+                  type="button" (click)="updateCategory(ref)">Update</button>
+        </div>
+      </div>
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
 <ng-template #deleteCategoryDialog let-data let-ref="dialogRef" id="deleteCategory">
   <nb-card class="globalDialogBox">
     <nb-card-body class="globalDialogBoxCardBody">
@@ -83,7 +178,8 @@
       </div>
       <div class="globalDialogBoxText">
         <h5 class="m-0 fw-semibold">Are you sure?</h5>
-        <p class="">Delete the <span class="text-danger">{{catName}}</span> category</p>
+        <p class="mb-1 fw-semibold">Delete the - <span class="text-danger">{{catName}}</span> - {{ catType }}</p>
+        <p><small class="mb-1">You cannot undo this action after deletion. {{catType === 'Category' ? 'All sub categories will be deleted.' : ' This sub category will be deleted.'}}</small></p>
       </div>
       <div class="d-flex justify-content-center gap-3">
         <button nbButton class="bg-transparent "
