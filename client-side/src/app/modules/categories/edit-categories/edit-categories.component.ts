@@ -49,7 +49,6 @@ export class EditCategoriesComponent implements OnInit{
     });
   }
   getCategory(id: string){
-    console.log(id)
     this.cs.getCategoryById(id).subscribe({
       next: (response: ResponseWithError<CategoriesDTO>) => {
         if (response.success)

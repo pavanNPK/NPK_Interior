@@ -100,7 +100,6 @@ export class ViewCategoriesComponent implements OnInit {
   delete(ref: any) {
     this.categoriesService.deleteCategory(this.catId, this.catType).subscribe( {
       next: (response: ResponseWithError<any>) => {
-        console.log(response)
         if(response.success){
           this.toastService.success('Successfully delete the Category', this.catName, {duration: 2000});
           this.loadCategories('', '', false);
@@ -136,7 +135,6 @@ export class ViewCategoriesComponent implements OnInit {
     if (this.categoryForm.invalid) {
       return;
     } else {
-      console.log('NPK its valid 139..')
       const formValues = this.categoryForm.value;
       this.categoriesService.updateCategory(formValues, this.catType).subscribe({
         next: (response: ResponseWithError<CategoriesDTO>) => {
