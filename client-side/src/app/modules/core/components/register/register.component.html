@@ -1,0 +1,74 @@
+<div class="registerPage" style="height: 100vh">
+  <div class="registerForm row m-0 h-100" *ngIf="loading">
+    <div class="d-sm-none d-md-none d-lg-block d-xl-block col-sm-12 col-md-12 col-lg-6 col-xl-6 m-auto text-center">
+      <img src="./assets/core/credentials.png" alt="register" class="w-75">
+    </div>
+    <div class="w-full d-sm-none d-md-none d-lg-block d-xl-block col-sm-12 col-md-12 col-lg-1 col-xl-1">
+      <p-divider layout="vertical" class="!hidden md:!flex">
+        <div class="text-center">
+          <p class="m-0 fw-semibold">NPK</p>
+          <p class="m-0"><small>Interiors</small></p>
+        </div>
+      </p-divider>
+    </div>
+    <div class="col-sm-12 col-md-12 col-lg-5 col-xl-5 m-auto p-sm-5 p-md-5 ps-lg-0 ps-xl-0">
+      <div class="registerFormDiv">
+        <div class="text-center mb-3">
+          <img src="./assets/core/logo.png" alt="logo">
+        </div>
+        <form [formGroup]="registerForm">
+          <div class="d-flex gap-3">
+            <nb-form-field class="mb-3">
+              <input nbInput fullWidth formControlName="firstName" placeholder="Enter your first name" />
+            </nb-form-field>
+            <nb-form-field class="mb-3">
+              <input nbInput fullWidth formControlName="lastName" placeholder="Enter your last name" />
+            </nb-form-field>
+          </div>
+          <nb-form-field class="mb-3">
+            <button nbSuffix nbButton ghost >
+              <nb-icon icon="person-outline"
+                       pack="eva">
+              </nb-icon>
+            </button>
+            <input nbInput fullWidth formControlName="userName" placeholder="Enter your user name" />
+          </nb-form-field>
+          <nb-form-field class="mb-3">
+            <button nbSuffix nbButton ghost >
+              <nb-icon icon="email-outline"
+                       pack="eva">
+              </nb-icon>
+            </button>
+            <input nbInput fullWidth formControlName="email" placeholder="Enter your email" />
+          </nb-form-field>
+          <nb-form-field class="mb-3">
+            <input [type]="getInputType()" nbInput type="password" fullWidth formControlName="password" placeholder="Enter your password">
+            <button nbSuffix nbButton ghost (click)="showPassword = !showPassword">
+              <nb-icon [icon]="showPassword ? 'eye-outline' : 'eye-off-2-outline'"
+                       pack="eva"
+                       [attr.aria-label]="showPassword ? 'hide password' : 'show password'">
+              </nb-icon>
+            </button>
+          </nb-form-field>
+        </form>
+        <div class="">
+          <p-button label="register"  (click)="register()" severity="contrast" />
+        </div>
+        <div class="mt-3">
+          <p class="m-0 small">Do you have an account? <span [routerLink]="['/login']" class="fw-semibold text-decoration-underline cursor-pointer">Login</span></p>
+        </div>
+        <div>
+          <p-divider layout="horizontal" align="center">
+            <div class="text-center">
+              <p class="m-0">or sign in with</p>
+            </div>
+          </p-divider>
+          <div class="w-100 text-center">
+            <nb-icon icon="google-outline" class="cursor-pointer me-3" style="width: 1.5rem"></nb-icon>
+            <nb-icon icon="facebook-outline" class="cursor-pointer me-3" style="width: 1.5rem"></nb-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
