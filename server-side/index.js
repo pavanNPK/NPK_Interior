@@ -36,8 +36,11 @@ app.use(express.static('public'));        // Serve static files from 'public' di
 app.use(cors());                          // Enable CORS for all routes
 
 // Connect to MongoDB database
-mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Connected to MongoDB'))                // Log success message
+// mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
+// we are removing the useNewUrlParser and useUnifiedTopology options to avoid deprecation warnings.
+// we are update form 5 to 8
+mongoose.connect(dbUrl)
+    .then(() => console.log('Successfully Connected to MongoDB.....'))                // Log success message
     .catch(err => console.error('MongoDB connection error:', err)); // Log any connection errors
 
 // Define routes

@@ -1,6 +1,6 @@
 server-side/.env
-server-side/uploads
-.qodo
-.idea
+server-side/uploads/
+.qodo/
+.idea/
 node_modules/
 package-lock.json
