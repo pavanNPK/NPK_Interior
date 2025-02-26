@@ -75,7 +75,7 @@
               </div>
             </div>
           </div>
-          <div class="">
+          <div class="" *ngIf="isSendOTP">
             <div>
               <nb-form-field class="mb-3"
                              [ngClass]="{ 'is-invalid': submitted && r.otp?.errors, 'mb-0': submitted && r.otp?.errors, 'mb-3': !(submitted && r.otp?.errors) }">
@@ -84,7 +84,7 @@
                            pack="eva">
                   </nb-icon>
                 </button>
-                <input nbInput fullWidth formControlName="otp" placeholder="Enter registered email OTP"
+                <input nbInput fullWidth type="text" formControlName="otp" placeholder="Enter registered email OTP"
                        (keyup)="trimLeadingSpace($event)"/>
               </nb-form-field>
               <div *ngIf="submitted && r.otp?.errors" class="invalid-feedback mb-1">
@@ -93,7 +93,7 @@
               </div>
             </div>
           </div>
-          <div class="">
+          <div class="" *ngIf="isOTPSuccess">
             <nb-form-field class="mb-3"
                            [ngClass]="{ 'is-invalid': submitted && r.otp?.errors, 'mb-0': submitted && r.otp?.errors, 'mb-3': !(submitted && r.password?.errors) }">
               <input [type]="getInputType()" nbInput fullWidth formControlName="password" placeholder="Enter your password">
@@ -116,8 +116,8 @@
         </form>
         <div class="">
           <p-button label="register"  (click)="register()" severity="contrast" *ngIf="isRegister" />
-          <p-button label="confirm OTP"  (click)="register()" severity="contrast" *ngIf="isSendOTP" />
-          <p-button label="submit"  (click)="register()" severity="contrast" *ngIf="isOTPSuccess" />
+          <p-button label="confirm OTP"  (click)="confirmOTP()" severity="contrast" *ngIf="isSendOTP" />
+          <p-button label="submit"  (click)="registerUser()" severity="contrast" *ngIf="isOTPSuccess" />
         </div>
         <div class="mt-3">
           <p class="m-0 small">Do you have an account? <span [routerLink]="['/login']" class="fw-semibold text-decoration-underline cursor-pointer">Login</span></p>
@@ -136,4 +136,7 @@
       </div>
     </div>
   </div>
+</div>
+<div class="card flex justify-center">
+  <p-toast [showTransformOptions]="'translateY(100%)'" [showTransitionOptions]="'100ms'" [hideTransitionOptions]="'100ms'"/>
 </div>

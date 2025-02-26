@@ -12,7 +12,8 @@ import cors from 'cors';                  // Cross-Origin Resource Sharing middl
 import productRoutes from './routes/products.route.js';      // Product API routes
 import ratingRoutes from './routes/ratings.route.js';        // Rating API routes
 import categoryRoutes from './routes/categories.routes.js';  // Category API routes
-import { upload, uploadFiles } from './controllers/upload.controller.js';  // File upload controller functions
+import userRoutes from "./routes/user.routes.js";  // User API routes
+import { upload, uploadFiles } from './controllers/upload.controller.js'; // File upload controller functions
 
 // In ES modules, __dirname is not available, so we need to recreate it
 // Get the current file's path from the import.meta.url (ES modules feature)
@@ -48,6 +49,7 @@ app.get('/', (req, res) => res.send('Hello World!')); // Simple root route
 app.use('/products', productRoutes);      // Mount product routes under /products
 app.use('/ratings', ratingRoutes);        // Mount rating routes under /ratings
 app.use('/categories', categoryRoutes);   // Mount category routes under /categories
+app.use('/users', userRoutes);
 
 // Set up static file serving for uploads directory
 // This makes files in the uploads folder accessible via /uploads URL path

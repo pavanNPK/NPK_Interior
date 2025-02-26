@@ -10,10 +10,16 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
-  Validators
+  Validators,
 } from "@angular/forms";
 import {RouterLink} from "@angular/router";
 import {TooltipModule} from "primeng/tooltip";
+import {RegisterUserDTO} from "../../../../models/userDTO";
+import {UserService} from "../../../../services/user.service";
+import {ResponseWithError} from "../../../../models/commonDTO";
+import {MessageService} from "primeng/api";
+import {Toast, ToastModule} from "primeng/toast";
+import {Ripple, RippleModule} from "primeng/ripple";
 
 @Component({
   selector: 'app-register',
@@ -30,7 +36,10 @@ import {TooltipModule} from "primeng/tooltip";
     RouterLink,
     NgClass,
     TooltipModule,
+    ToastModule,
+    RippleModule,
   ],
+  providers: [MessageService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
@@ -44,7 +53,7 @@ export class RegisterComponent implements OnInit{
   isSendOTP : boolean = false;
   isSendOTPEdit : boolean = false;
   isOTPSuccess: boolean = false;
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private us: UserService, private ms: MessageService) {
   }
   get r(){
     return this.registerForm.controls
@@ -66,19 +75,21 @@ export class RegisterComponent implements OnInit{
       lastName: ['', Validators.required],
       userName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(8)]], // Max 8 characters
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.pattern(/.*[A-Z].*/),  // Uppercase
-        Validators.pattern(/.*[a-z].*/),  // Lowercase
-        Validators.pattern(/.*[0-9].*/),  // Number
-        Validators.pattern(/.*[!@#$%^&*()].*/),  // Special char
-      ]],
-      otp: ['', [
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(6),
-      ]],
+      // password: ['', [
+      //   Validators.required,
+      //   Validators.minLength(8),
+      //   Validators.pattern(/.*[A-Z].*/),  // Uppercase
+      //   Validators.pattern(/.*[a-z].*/),  // Lowercase
+      //   Validators.pattern(/.*[0-9].*/),  // Number
+      //   Validators.pattern(/.*[!@#$%^&*()].*/),  // Special char
+      // ]],
+      // otp: ['', [
+      //   Validators.required,
+      //   Validators.minLength(6),
+      //   Validators.maxLength(6),
+      // ]],
+      password: [''],
+      otp: [''],
     });
   }
   get passwordErrors() {
@@ -105,10 +116,37 @@ export class RegisterComponent implements OnInit{
     if(this.registerForm.invalid){
       return;
     } else {
-      if (this.registerForm.email){
-
-      }
+      console.log(this.registerForm.value);
+      const data = new RegisterUserDTO();
+      data.firstName = this.registerForm.value.firstName;
+      data.lastName = this.registerForm.value.lastName;
+      data.userName = this.registerForm.value.userName;
+      data.email = this.registerForm.value.email;
+      data.role = 'end_user';
+      console.log(data)
+      this.us.registerUser(data).subscribe({
+        next: (res: ResponseWithError<any>) => {
+          if(res.success){
+            this.isRegister = false;
+            this.submitted = false;
+            this.isSendOTP = true;
+            this.ms.add({ severity: 'success', summary: 'OTP', detail: 'OTP has been sent to your email.' });
+          } else {
+            this.ms.add({ severity: 'error', summary: 'Duplicate', detail: 'Email already registered' });
+          }
+        },
+        error: (err) => {
+        },
+        complete: () => {
+          console.log('Registration completed');
+        }
+      })
     }
   }
+  confirmOTP(){
 
+  }
+  registerUser(){
+
+  }
 }
