@@ -1,4 +1,5 @@
-.env
+server-side/.env
+server-side/uploads
 .qodo
 .idea
 node_modules/
