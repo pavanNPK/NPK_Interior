@@ -1,2 +1,5 @@
+.env
+.qodo
+.idea
 node_modules/
 package-lock.json
