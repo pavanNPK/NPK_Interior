@@ -1,5 +1,7 @@
-const mongoose = require('mongoose');
+// Import mongoose using ES module syntax
+import mongoose from 'mongoose';
 
+// Define the product schema
 const productSchema = new mongoose.Schema({
     productName: String,
     productType: String,
@@ -8,4 +10,6 @@ const productSchema = new mongoose.Schema({
     productImage: { type: Object }  // Adjust if storing images differently
 });
 
-module.exports = mongoose.model('Product', productSchema);
+// Create and export the Product model using ES module syntax
+const Product = mongoose.model('Product', productSchema);
+export default Product;

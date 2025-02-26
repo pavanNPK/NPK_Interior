@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+// Import mongoose using ES module syntax
+import mongoose from 'mongoose';
 
 const ratingSchema = new mongoose.Schema({
     // The product that the user is rating
@@ -36,4 +37,6 @@ const ratingSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Rating', ratingSchema);
+// Create and export the Product model using ES module syntax
+const Rating = mongoose.model('Rating', ratingSchema);
+export default Rating;

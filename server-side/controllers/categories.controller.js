@@ -1,7 +1,9 @@
-const Category = require('../models/categories.model');
-const mongoose = require('mongoose');
+// Import mongoose and the Category model with ES module syntax
+import mongoose from 'mongoose';
+import Category from '../models/categories.model.js';
 
-exports.addCategory = async (req, res) => {
+// Function to add category - using named export
+export const addCategory = async (req, res) => {
     try {
         let categories = req.body;
         for (const c of categories) {
@@ -61,8 +63,8 @@ exports.addCategory = async (req, res) => {
     }
 };
 
-
-exports.getCategories = async (req, res) => {
+// Function to get all categories
+export const getCategories = async (req, res) => {
     try {
         let searchQuery = {}; // Default query
         if (req.query.search) {
@@ -81,9 +83,10 @@ exports.getCategories = async (req, res) => {
         console.error('Error fetching categories:', error);
         res.status(500).json({ response: null, success: false, message: 'Error fetching categories' });
     }
-}
+};
 
-exports.getCategoryById = async (req, res) => {
+// Function to get a category by ID
+export const getCategoryById = async (req, res) => {
     const id = req.params.id;
     try {
         const category = await Category.findById(mongoose.Types.ObjectId(id)).exec();
@@ -92,9 +95,10 @@ exports.getCategoryById = async (req, res) => {
         console.error('Error fetching category by id:', error);
         res.status(404).json({response: null, success: false, message: 'Category not found' });
     }
-}
+};
 
-exports.updateCategory = async (req, res) => {
+// Function to update a category
+export const updateCategory = async (req, res) => {
     let { type } = req.params;
     let data = req.body;
     let id  = data._id;
@@ -120,7 +124,8 @@ exports.updateCategory = async (req, res) => {
     }
 };
 
-exports.deleteCategory = async (req, res) => {
+// Function to delete a category
+export const deleteCategory = async (req, res) => {
     let { type } = req.query;
     let { id } = req.params;
     try {

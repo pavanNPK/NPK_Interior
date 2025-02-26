@@ -17,47 +17,112 @@
           <img src="./assets/core/logo.png" alt="logo">
         </div>
         <form [formGroup]="registerForm">
-          <div class="d-flex gap-3">
-            <nb-form-field class="mb-3">
-              <input nbInput fullWidth formControlName="firstName" placeholder="Enter your first name" />
-            </nb-form-field>
-            <nb-form-field class="mb-3">
-              <input nbInput fullWidth formControlName="lastName" placeholder="Enter your last name" />
-            </nb-form-field>
+          <div>
+            <div class="d-flex gap-3" *ngIf="isRegister">
+              <div>
+                <nb-form-field
+                  [ngClass]="{ 'is-invalid': submitted && r.firstName?.errors, 'mb-0': submitted && r.firstName?.errors, 'mb-3': !(submitted && r.firstName?.errors) }">
+                  <input nbInput fullWidth formControlName="firstName" placeholder="Enter your first name">
+                </nb-form-field>
+                <div *ngIf="submitted && r.firstName?.errors" class="invalid-feedback mb-1">
+                  <div *ngIf="r.firstName?.errors?.['required']">Please enter the first name.</div>
+                </div>
+              </div>
+              <div>
+                <nb-form-field class="mb-3"
+                               [ngClass]="{ 'is-invalid': submitted && r.lastName?.errors, 'mb-0': submitted && r.lastName?.errors, 'mb-3': !(submitted && r.lastName?.errors) }">
+                  <input nbInput fullWidth formControlName="lastName" placeholder="Enter your last name" >
+                </nb-form-field>
+                <div *ngIf="submitted && r.lastName?.errors" class="invalid-feedback mb-1">
+                  <div *ngIf="r.lastName?.errors?.['required']">Please enter the last name.</div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="isRegister">
+              <nb-form-field class="mb-3"
+                             [ngClass]="{ 'is-invalid': submitted && r.userName?.errors, 'mb-0': submitted && r.userName?.errors, 'mb-3': !(submitted && r.userName?.errors) }">
+                <button nbSuffix nbButton ghost >
+                  <nb-icon icon="person-outline"
+                           pack="eva">
+                  </nb-icon>
+                </button>
+                <input nbInput fullWidth formControlName="userName" placeholder="Enter your user name">
+              </nb-form-field>
+              <div *ngIf="submitted && r.userName?.errors" class="invalid-feedback mb-1">
+                <div *ngIf="r.userName?.errors?.['required']">Please enter the username.</div>
+                <div *ngIf="r.userName.errors?.['minlength']">Username must be at least 3 characters.</div>
+                <div *ngIf="r.userName.errors?.['maxlength']">Username cannot exceed 8 characters.</div>
+              </div>
+            </div>
+            <div>
+              <nb-form-field class="mb-3"
+                             [ngClass]="{ 'is-invalid': submitted && r.email?.errors, 'mb-0': submitted && r.email?.errors, 'mb-3': !(submitted && r.email?.errors) }">
+                <button nbSuffix nbButton ghost >
+                  <div class="">
+                    <nb-icon icon="email-outline"
+                             pack="eva">
+                    </nb-icon>
+                    <nb-icon icon="edit-outline" pTooltip="Edit Email" class="ms-2" *ngIf="isSendOTP"
+                             pack="eva">
+                    </nb-icon>
+                  </div>
+                </button>
+                <input nbInput fullWidth formControlName="email" placeholder="Enter your email" [readOnly]="isSendOTPEdit">
+              </nb-form-field>
+              <div *ngIf="submitted && r.email?.errors" class="invalid-feedback mb-1">
+                <div *ngIf="r.email?.errors?.['required']">Please enter the email.</div>
+                <div *ngIf="r.email?.errors?.['email']">Email is not valid.</div>
+              </div>
+            </div>
           </div>
-          <nb-form-field class="mb-3">
-            <button nbSuffix nbButton ghost >
-              <nb-icon icon="person-outline"
-                       pack="eva">
-              </nb-icon>
-            </button>
-            <input nbInput fullWidth formControlName="userName" placeholder="Enter your user name" />
-          </nb-form-field>
-          <nb-form-field class="mb-3">
-            <button nbSuffix nbButton ghost >
-              <nb-icon icon="email-outline"
-                       pack="eva">
-              </nb-icon>
-            </button>
-            <input nbInput fullWidth formControlName="email" placeholder="Enter your email" />
-          </nb-form-field>
-          <nb-form-field class="mb-3">
-            <input [type]="getInputType()" nbInput type="password" fullWidth formControlName="password" placeholder="Enter your password">
-            <button nbSuffix nbButton ghost (click)="showPassword = !showPassword">
-              <nb-icon [icon]="showPassword ? 'eye-outline' : 'eye-off-2-outline'"
-                       pack="eva"
-                       [attr.aria-label]="showPassword ? 'hide password' : 'show password'">
-              </nb-icon>
-            </button>
-          </nb-form-field>
+          <div class="">
+            <div>
+              <nb-form-field class="mb-3"
+                             [ngClass]="{ 'is-invalid': submitted && r.otp?.errors, 'mb-0': submitted && r.otp?.errors, 'mb-3': !(submitted && r.otp?.errors) }">
+                <button nbSuffix nbButton >
+                  <nb-icon icon="lock-outline"
+                           pack="eva">
+                  </nb-icon>
+                </button>
+                <input nbInput fullWidth formControlName="otp" placeholder="Enter registered email OTP"
+                       (keyup)="trimLeadingSpace($event)"/>
+              </nb-form-field>
+              <div *ngIf="submitted && r.otp?.errors" class="invalid-feedback mb-1">
+                <div *ngIf="r.otp?.errors?.['required']">Please enter the OTP.</div>
+                <div *ngIf="r.otp?.errors?.['minlength'] || r.otp?.errors?.['maxlength']">OTP must be exactly 6 characters.</div>
+              </div>
+            </div>
+          </div>
+          <div class="">
+            <nb-form-field class="mb-3"
+                           [ngClass]="{ 'is-invalid': submitted && r.otp?.errors, 'mb-0': submitted && r.otp?.errors, 'mb-3': !(submitted && r.password?.errors) }">
+              <input [type]="getInputType()" nbInput fullWidth formControlName="password" placeholder="Enter your password">
+              <button nbSuffix nbButton ghost (click)="showPassword = !showPassword">
+                <nb-icon [icon]="showPassword ? 'eye-outline' : 'eye-off-2-outline'"
+                         pack="eva"
+                         [attr.aria-label]="showPassword ? 'hide password' : 'show password'">
+                </nb-icon>
+              </button>
+            </nb-form-field>
+            <div *ngIf="submitted && r.password?.errors" class="invalid-feedback mb-1">
+              <div *ngIf="passwordErrors.required">Password is required.</div>
+              <div *ngIf="passwordErrors.minlength">Password must be 8+ characters.</div>
+              <div *ngIf="passwordErrors.uppercase">Missing uppercase letter.</div>
+              <div *ngIf="passwordErrors.lowercase">Missing lowercase letter.</div>
+              <div *ngIf="passwordErrors.number">Missing number.</div>
+              <div *ngIf="passwordErrors.special">Missing special character.</div>
+            </div>
+          </div>
         </form>
         <div class="">
-          <p-button label="register"  (click)="register()" severity="contrast" />
+          <p-button label="register"  (click)="register()" severity="contrast" *ngIf="isRegister" />
+          <p-button label="confirm OTP"  (click)="register()" severity="contrast" *ngIf="isSendOTP" />
+          <p-button label="submit"  (click)="register()" severity="contrast" *ngIf="isOTPSuccess" />
         </div>
         <div class="mt-3">
           <p class="m-0 small">Do you have an account? <span [routerLink]="['/login']" class="fw-semibold text-decoration-underline cursor-pointer">Login</span></p>
         </div>
-        <div>
+        <div class="d-none">
           <p-divider layout="horizontal" align="center">
             <div class="text-center">
               <p class="m-0">or sign in with</p>

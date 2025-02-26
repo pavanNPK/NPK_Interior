@@ -1,11 +1,24 @@
-const express = require('express');
+// Import express using ES module syntax
+import express from 'express';
+
+// Create a router instance
 const router = express.Router();
-const ratingsController = require('../controllers/ratings.controller');
 
-router.post('/', ratingsController.addRating);
-router.get('/', ratingsController.getRatings);
-router.get('/:id', ratingsController.getRatingsByProduct);
-router.put('/:id', ratingsController.updateRating);
-router.delete('/:id', ratingsController.deleteRating);
+// Import ratings controller using ES module syntax
+import {
+    addRating,
+    getRatings,
+    getRatingsByProduct,
+    updateRating,
+    deleteRating
+} from '../controllers/ratings.controller.js';
 
-module.exports = router;
+// Define routes
+router.post('/', addRating);
+router.get('/', getRatings);
+router.get('/:id', getRatingsByProduct);
+router.put('/:id', updateRating);
+router.delete('/:id', deleteRating);
+
+// Export router using ES module syntax
+export default router;

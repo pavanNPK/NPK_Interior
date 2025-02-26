@@ -1,7 +1,10 @@
-const express = require('express');
+// Import required modules using ES module syntax
+import express from 'express';
+import mongoose from 'mongoose';
+import Product from '../models/product.model.js';
+
+// Create a router instance
 const router = express.Router();
-const mongoose = require('mongoose');
-const Product = require('../models/product.model');
 
 // Get all products
 router.get('/', async (req, res) => {
@@ -13,6 +16,7 @@ router.get('/', async (req, res) => {
         res.status(500).json({ response: null, success: false, message: 'Error fetching products' });
     }
 });
+
 // Get product by id
 router.get('/:id', async (req, res) => {
     const id = req.params.id;
@@ -24,6 +28,7 @@ router.get('/:id', async (req, res) => {
         res.status(404).json({response: null, success: false, message: 'Product not found' });
     }
 });
+
 // Create a new product
 router.post('/', async (req, res) => {
     const product = new Product(req.body);
@@ -44,6 +49,7 @@ router.post('/', async (req, res) => {
         res.status(500).json({response: null, success: false, message: 'Error creating product' });
     }
 });
+
 // Update a product
 router.put('/:id', async (req, res) => {
     const id = req.params.id;
@@ -60,6 +66,7 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({response: null, success: false, message: 'Error updating product' });
     }
 });
+
 // Delete a product
 router.delete('/:id', async (req, res) => {
     const id = req.params.id;
@@ -71,4 +78,6 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({response: null, success: false, message: 'Error deleting product' });
     }
 });
-module.exports = router;    
+
+// Export the router using ES module syntax
+export default router;

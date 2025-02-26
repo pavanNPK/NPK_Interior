@@ -1,11 +1,24 @@
-const express = require('express');
+// Import express
+import express from 'express';
+
+// Create a router instance
 const router = express.Router();
-const categoriesController = require('../controllers/categories.controller');
 
-router.post('/', categoriesController.addCategory);
-router.get('/', categoriesController.getCategories);
-router.get('/:id', categoriesController.getCategoryById);
-router.put('/:type', categoriesController.updateCategory);
-router.delete('/:id', categoriesController.deleteCategory);
+// Import all named exports from the categories controller
+import {
+    addCategory,
+    getCategories,
+    getCategoryById,
+    updateCategory,
+    deleteCategory
+} from '../controllers/categories.controller.js';
 
-module.exports = router;
+// Define routes with the imported functions
+router.post('/', addCategory);
+router.get('/', getCategories);
+router.get('/:id', getCategoryById);
+router.put('/:type', updateCategory);
+router.delete('/:id', deleteCategory);
+
+// Export the router
+export default router;
