@@ -20,6 +20,7 @@
           <div>
             <div class="d-flex gap-3" *ngIf="isRegister">
               <div>
+                <label class="small fw-semibold">First Name</label>
                 <nb-form-field
                   [ngClass]="{ 'is-invalid': submitted && r.firstName?.errors, 'mb-0': submitted && r.firstName?.errors, 'mb-3': !(submitted && r.firstName?.errors) }">
                   <input nbInput fullWidth formControlName="firstName" placeholder="Enter your first name">
@@ -29,6 +30,7 @@
                 </div>
               </div>
               <div>
+                <label class="small fw-semibold">Last Name</label>
                 <nb-form-field class="mb-3"
                                [ngClass]="{ 'is-invalid': submitted && r.lastName?.errors, 'mb-0': submitted && r.lastName?.errors, 'mb-3': !(submitted && r.lastName?.errors) }">
                   <input nbInput fullWidth formControlName="lastName" placeholder="Enter your last name" >
@@ -39,6 +41,7 @@
               </div>
             </div>
             <div *ngIf="isRegister">
+              <label class="small fw-semibold">User Name</label>
               <nb-form-field class="mb-3"
                              [ngClass]="{ 'is-invalid': submitted && r.userName?.errors, 'mb-0': submitted && r.userName?.errors, 'mb-3': !(submitted && r.userName?.errors) }">
                 <button nbSuffix nbButton ghost >
@@ -55,14 +58,24 @@
               </div>
             </div>
             <div>
+              <label class="small fw-semibold">Email</label>
               <nb-form-field class="mb-3"
                              [ngClass]="{ 'is-invalid': submitted && r.email?.errors, 'mb-0': submitted && r.email?.errors, 'mb-3': !(submitted && r.email?.errors) }">
                 <button nbSuffix nbButton ghost >
-                  <div class="">
+                  <div class="" *ngIf="!reEnterEmail">
                     <nb-icon icon="email-outline"
                              pack="eva">
                     </nb-icon>
-                    <nb-icon icon="edit-outline" pTooltip="Edit Email" class="ms-2" *ngIf="isSendOTP"
+                    <nb-icon icon="edit-outline" pTooltip="Edit Email" class="ms-2" *ngIf="isSendOTP" (click)="editEmail()"
+                             pack="eva">
+                    </nb-icon>
+                  </div>
+                  <div class="" *ngIf="reEnterEmail">
+                    <nb-icon icon="checkmark-outline" pTooltip="Resend/Save" class="ms-2"
+                             (click)="saveEmail()"
+                             pack="eva">
+                    </nb-icon>
+                    <nb-icon icon="close-outline" pTooltip="Cancel" class="ms-2" (click)="cancelEmail()"
                              pack="eva">
                     </nb-icon>
                   </div>
@@ -77,6 +90,7 @@
           </div>
           <div class="" *ngIf="isSendOTP">
             <div>
+              <label class="small fw-semibold">OTP</label>
               <nb-form-field class="mb-3"
                              [ngClass]="{ 'is-invalid': submitted && r.otp?.errors, 'mb-0': submitted && r.otp?.errors, 'mb-3': !(submitted && r.otp?.errors) }">
                 <button nbSuffix nbButton >
@@ -94,9 +108,10 @@
             </div>
           </div>
           <div class="" *ngIf="isOTPSuccess">
+            <label class="small fw-semibold">Password</label>
             <nb-form-field class="mb-3"
-                           [ngClass]="{ 'is-invalid': submitted && r.otp?.errors, 'mb-0': submitted && r.otp?.errors, 'mb-3': !(submitted && r.password?.errors) }">
-              <input [type]="getInputType()" nbInput fullWidth formControlName="password" placeholder="Enter your password">
+                           [ngClass]="{ 'is-invalid': submitted && r.password?.errors, 'mb-0': submitted && r.password?.errors, 'mb-3': !(submitted && r.password?.errors) }">
+              <input  [type]="showPassword ? 'text' : 'password'" nbInput fullWidth formControlName="password" placeholder="Enter your password">
               <button nbSuffix nbButton ghost (click)="showPassword = !showPassword">
                 <nb-icon [icon]="showPassword ? 'eye-outline' : 'eye-off-2-outline'"
                          pack="eva"
@@ -113,9 +128,26 @@
               <div *ngIf="passwordErrors.special">Missing special character.</div>
             </div>
           </div>
+          <div class="" *ngIf="isOTPSuccess">
+            <label class="small fw-semibold">Confirm Password</label>
+            <nb-form-field class="mb-3"
+                           [ngClass]="{ 'is-invalid': submitted && r.confirmPassword?.errors, 'mb-0': submitted && r.confirmPassword?.errors, 'mb-3': !(submitted && r.confirmPassword?.errors) }">
+              <input  [type]="showCPassword ? 'text' : 'password'" nbInput fullWidth formControlName="confirmPassword" placeholder="Confirm your password">
+              <button nbSuffix nbButton ghost (click)="showCPassword = !showCPassword">
+                <nb-icon [icon]="showCPassword ? 'eye-outline' : 'eye-off-2-outline'"
+                         pack="eva"
+                         [attr.aria-label]="showCPassword ? 'hide password' : 'show password'">
+                </nb-icon>
+              </button>
+            </nb-form-field>
+            <div *ngIf="submitted && r.confirmPassword?.errors" class="invalid-feedback mb-1">
+              <div *ngIf="r.confirmPassword?.errors?.['required']">Please enter the confirm password.</div>
+              <div *ngIf="r.confirmPassword?.errors?.['mustMatch']">Passwords must match.</div>
+            </div>
+          </div>
         </form>
         <div class="">
-          <p-button label="register"  (click)="register()" severity="contrast" *ngIf="isRegister" />
+          <p-button label="register"  (click)="sendOTP()" severity="contrast" *ngIf="isRegister" />
           <p-button label="confirm OTP"  (click)="confirmOTP()" severity="contrast" *ngIf="isSendOTP" />
           <p-button label="submit"  (click)="registerUser()" severity="contrast" *ngIf="isOTPSuccess" />
         </div>
@@ -137,6 +169,6 @@
     </div>
   </div>
 </div>
-<div class="card flex justify-center">
+<div class="card flex justify-center border-0">
   <p-toast [showTransformOptions]="'translateY(100%)'" [showTransitionOptions]="'100ms'" [hideTransitionOptions]="'100ms'"/>
 </div>

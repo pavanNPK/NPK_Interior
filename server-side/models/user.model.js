@@ -1,4 +1,3 @@
-// Import mongoose using ES module syntax
 import mongoose from 'mongoose';
 
 // Define the user schema
@@ -13,13 +12,23 @@ const userSchema = new mongoose.Schema({
     role: String,
     email: { type: String, unique: true },
     password: String,
-    isVerified: Boolean,
+    isVerified: { type: Boolean, default: false },
     otp: {
-        type: Number,
-        expireAt: { type: Date, default: () => Date.now() + 10 * 60 * 1000 }
-    }
+        type: Number
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    verifiedOn: { type: Date }
 });
 
-// Create and export the User model using ES module syntax
+// Create a TTL index on createdAt, but only for unverified users
+userSchema.index({ createdAt: 1 }, {
+    expireAfterSeconds: 7200,  // 2 hours
+    partialFilterExpression: { isVerified: false }  // Only apply to unverified users
+});
+
+// Create and export the User model
 const User = mongoose.model('User', userSchema);
 export default User;

@@ -26,14 +26,14 @@
 
 ## Tech Stack
 
-| Client    | Server  | Database |
-|-----------|---------|----------|
-| Angular   | Node.js | MongoDB  |
-| SCSS      | Express |          |
-| Nebular   |         |          |
-| Bootstrap |         |          |
-| NGX-Bootstrap |    |          |
-| PrimeNG   |         |          |
+| Client    | Server        | Database |
+|-----------|---------------|----------|
+| Angular   | Node.js       | MongoDB  |
+| SCSS      | Express       |          |
+| Nebular   | Redis         |          |
+| Bootstrap | Node Mailer   |          |
+| NGX-Bootstrap | JWT & bcrypt |          |
+| PrimeNG   |               |          |
 
 ## Features (Planned)
 - **Product Listing & Management** – Showcasing various interior decor products.
@@ -72,7 +72,7 @@
 
 | Feature   | Implemented |
 |-----------|-------------|
-| Category  | CRUD         |
+| Category  | CRUD        |
 | Prodcuts  |             |     
 | Deals   |             |
 | Upcomings |             |      
@@ -84,7 +84,7 @@
 | Settings   |             |      
 | Notifications   |             |      
 | Manage Account     |             |      
-| Autentication     |             |      
+| Autentication     | CR          |      
 
 ## Project Structure
 
