@@ -160,12 +160,18 @@ export const registerUser = async (req, res, next) => {
                 $set: {
                     password: hashedPassword,
                     isVerified: true,
-                    verifiedOn: new Date()
+                    verifiedOn: new Date(),
                 }
             }
         );
         // Send registration email
         await sendRegistrationEmail(userName, email);
+
+        // Get database name from user object (user.code)
+        const dbName = user.code; // Example: 'npk_customer1', 'npk_projectX', etc.
+
+        // Create a new database dynamically
+        await createDatabase(dbName, { email, userName, firstName: user.firstName, lastName: user.lastName, user_id: user._id });
 
         res.json({ response: user, success: true, message: "User updated and verified successfully" });
     } catch (error) {
@@ -174,7 +180,49 @@ export const registerUser = async (req, res, next) => {
     }
 }
 
+
+// Function to dynamically create a new database using user.code
+const createDatabase = async (dbName, userData) => {
+    try {
+        const DB_URL = process.env.DB_URL;
+        const dbURI = DB_URL.replace("npk_interior", dbName);
+        const newDbConnection = mongoose.createConnection(dbURI);
+
+        // Define the "users" schema
+        const UserSchema = new mongoose.Schema({
+            email: String,
+            firstName: String,
+            lastName: String,
+            userName: String,
+            user_id: String,
+            createdOn: { type: Date, default: Date.now }
+        });
+
+        // Create the "initials" collection
+        const UserModel = newDbConnection.model('initial', UserSchema);
+
+        // Insert the first user record
+        await UserModel.insertOne({
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            userName: userData.userName,
+            user_id: userData.user_id,
+            createdOn: new Date()
+        });
+
+        console.log(`Database '${dbName}' created with 'initial' collection and initial user.`);
+        return newDbConnection;
+    } catch (error) {
+        console.error(`Failed to create database '${dbName}':`, error);
+        throw error;
+    }
+};
+
+
 const sendRegistrationEmail = async (name, email) => {
+    const currentYear = new Date().getFullYear(); // Get current year
+
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -184,7 +232,7 @@ const sendRegistrationEmail = async (name, email) => {
     });
 
     const mailOptions = {
-        from: `"Your Company Name" <${process.env.EMAIL_USER}>`,
+        from: `"NPK Interior" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: "🎉 Welcome to Our Platform, " + name + "!",
         html: `
@@ -205,12 +253,11 @@ const sendRegistrationEmail = async (name, email) => {
             </a>
         </div>
 
-        <p style="font-size: 14px; color: #555; text-align: center;">Have questions? Check our <a href="#" style="color: #444; text-decoration: none;">Knowledge Base</a> or contact our <a href="#" style="color: #444; text-decoration: none;">24/7 support team</a>.</p>
+        <p style="font-size: 14px; color: #555; text-align: center;">Have questions? Check our <a href="https://www.synycs.com/aboutus.html" style="color: #444; ">Knowledge Base</a> or contact our <a href="#" style="color: #444; text-decoration: none;">24/7 support team</a>.</p>
 
         <p style="font-size: 14px; color: #555; text-align: center;">Best Regards,</p>
         <p style="font-size: 12px; color: #444; text-align: center;"><strong>NPK Interior Team</strong></p>
-        <p style="font-size: 10px; color: #777; text-align: center;">npk@npkinterior.com | +91 9898989898</p>
-
+        <p style="font-size: 10px; color: #777; text-align: center;"><a href="mailto:npk@npkinterior.com" style="text-decoration: none; color: #777;">npk@npkinterior.com</a> | <a href="tel:+919898989898" style="text-decoration: none; color: #777;">+91 9898989898</a></p>
         <div style="text-align: center; margin-top: 20px; font-size: 12px;">
             <a href="https://www.synycs.com" style="text-decoration: none; font-weight: bold">Visit Our Website</a> |
             <a href="https://www.synycs.com/contact.html" style="text-decoration: none; font-weight: bold">Contact Us</a>
@@ -220,7 +267,7 @@ const sendRegistrationEmail = async (name, email) => {
 
         <p style="font-size: 12px; color: #777; text-align: center;">You received this email because you signed up for NPK Interior.</p>
 
-        <p style="font-size: 12px; color: #777; text-align: center;">&copy; 2025 NPK Interior. All rights reserved.</p>
+        <p style="font-size: 12px; color: #777; text-align: center;">&copy; ${currentYear}  NPK Interior. All rights reserved.</p>
 
     </div>
             `

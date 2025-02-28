@@ -13,9 +13,7 @@ const userSchema = new mongoose.Schema({
     email: { type: String, unique: true },
     password: String,
     isVerified: { type: Boolean, default: false },
-    otp: {
-        type: Number
-    },
+    otp: Number,
     createdAt: {
         type: Date,
         default: Date.now
@@ -23,12 +21,12 @@ const userSchema = new mongoose.Schema({
     verifiedOn: { type: Date }
 });
 
-// Create a TTL index on createdAt, but only for unverified users
+// Create TTL index for unverified users (delete after 3 minutes)
 userSchema.index({ createdAt: 1 }, {
-    expireAfterSeconds: 7200,  // 2 hours
-    partialFilterExpression: { isVerified: false }  // Only apply to unverified users
+    name: 'createdAtIndex',
+    expireAfterSeconds: 180,  // 3 minutes
+    partialFilterExpression: { isVerified: false }  // Apply only to unverified users
 });
 
-// Create and export the User model
 const User = mongoose.model('User', userSchema);
 export default User;

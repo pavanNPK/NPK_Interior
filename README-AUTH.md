@@ -1,10 +1,13 @@
 ## Authentication
 For **NPK Interior**, we are building a modern e-commerce platform for home interior decor. We are providing a secure login/signup system using JWT authentication. This will allow users to create an account and log in to access their personalized experience.
 
-## Security
-
 To ensure the security of our platform, we are using a combination of encryption and authentication measures to protect user data and prevent unauthorized access.
 
+-----------------------------------------------------------------------------------
+## We uses `TTL` For Users.
+
+A `TTL` index in MongoDB is used to automatically delete expired documents after a specific period of time. It helps in managing temporary data without needing manual cleanup.
+Using TTL is a smart way to handle temporary users. It reduces workload, keeps the database efficient, and improves security. 🚀
 -----------------------------------------------------------------------------------
 ## Register
 #### `POST /register` - Register a new user. 
@@ -56,28 +59,37 @@ To ensure the security of our platform, we are using a combination of encryption
 ```aiignore
   await User.updateOne({ email }, { $set: { isVerified: true, password: hashedPassword } });
 ```
-- Remove the user automatically if the `OTP` is not verified in 5 minutes. And, if its verified but he is not provided the `password`, we will remove the user. After 2 hours.
+- Remove the user automatically if the `OTP` is not verified in 5 minutes. And, if its verified but he is not provided the `password`, we will remove the user. After 3 minutes.
 ### How it works:
 
 - Creates a time-to-live (TTL) index on the createdAt field
 - Uses `partialFilterExpression` to only apply the TTL to documents where `isVerified` is false
-- Sets the expiration time to 7200 seconds (2 hours)
+- Sets the expiration time to 7200 seconds (3 minutes)
 
-This way, only unverified users will be automatically deleted after 2 hours, while verified users will remain in the database indefinitely.
+This way, only unverified users will be automatically deleted after 3 minutes,
+while verified users will remain in the database indefinitely.
 
 > Note: MongoDB's TTL cleanup process runs approximately once per minute, so there might be a slight delay between when a document expires and when it's actually removed.
 #### Prevent Deletion When User is Verified
 
-- If a user verifies their account within 2 hours, remove the `createdAt` field to prevent auto-deletion.
+- If a user verifies their account within 3 minutes, remove the `createdAt` field to prevent auto-deletion.
 ```aiignore
-// Create a TTL index on createdAt, but only for unverified users
+~ Create a TTL index on createdAt, but only for unverified users
+
 userSchema.index({ createdAt: 1 }, {
-    expireAfterSeconds: 7200,  // 2 hours
-    partialFilterExpression: { isVerified: false }  // Only apply to unverified users
+    name: 'createdAtIndex',
+    expireAfterSeconds: 180,  // 3 minutes
+    partialFilterExpression: { isVerified: false }  // Apply only to unverified users
 });
+
 ```
 #### Check if TTL Index is Created
 ```aiignore
  db.users.getIndexes()
+```
+
+#### Drop the existing TTL index
+```aiignore
+ db.users.dropIndex("createdAtIndex");
 ```
 -----------------------------------------------------------------------------------

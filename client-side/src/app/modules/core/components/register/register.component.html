@@ -17,6 +17,9 @@
           <img src="./assets/core/logo.png" alt="logo">
         </div>
         <form [formGroup]="registerForm">
+          <div *ngIf="isSendOTP">
+            <p class="small text-center">The One Time Password (OTP) was sent to your email address; please enter it. OTP is good for 5 minutes.</p>
+          </div>
           <div>
             <div class="d-flex gap-3" *ngIf="isRegister">
               <div>
@@ -54,7 +57,7 @@
               <div *ngIf="submitted && r.userName?.errors" class="invalid-feedback mb-1">
                 <div *ngIf="r.userName?.errors?.['required']">Please enter the username.</div>
                 <div *ngIf="r.userName.errors?.['minlength']">Username must be at least 3 characters.</div>
-                <div *ngIf="r.userName.errors?.['maxlength']">Username cannot exceed 8 characters.</div>
+                <div *ngIf="r.userName.errors?.['maxlength']">Username cannot exceed 10 characters.</div>
               </div>
             </div>
             <div>
@@ -66,12 +69,12 @@
                     <nb-icon icon="email-outline"
                              pack="eva">
                     </nb-icon>
-                    <nb-icon icon="edit-outline" pTooltip="Edit Email" class="ms-2" *ngIf="isSendOTP" (click)="editEmail()"
+                    <nb-icon icon="edit-outline" pTooltip="Resend/Edit" class="ms-2" *ngIf="isSendOTP" (click)="editEmail()"
                              pack="eva">
                     </nb-icon>
                   </div>
                   <div class="" *ngIf="reEnterEmail">
-                    <nb-icon icon="checkmark-outline" pTooltip="Resend/Save" class="ms-2"
+                    <nb-icon icon="checkmark-outline" pTooltip="Save" class="ms-2"
                              (click)="saveEmail()"
                              pack="eva">
                     </nb-icon>
