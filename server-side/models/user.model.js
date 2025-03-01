@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
 // Create TTL index for unverified users (delete after 3 minutes)
 userSchema.index({ createdAt: 1 }, {
     name: 'createdAtIndex',
-    expireAfterSeconds: 180,  // 3 minutes
+    expireAfterSeconds: 1200,  // 20 minutes
     partialFilterExpression: { isVerified: false }  // Apply only to unverified users
 });
 

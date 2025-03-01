@@ -83,7 +83,7 @@
                     </nb-icon>
                   </div>
                 </button>
-                <input nbInput fullWidth formControlName="email" placeholder="Enter your email" [readOnly]="isSendOTPEdit">
+                <input nbInput fullWidth formControlName="email" placeholder="example@ex.com" [readOnly]="isSendOTPEdit">
               </nb-form-field>
               <div *ngIf="submitted && r.email?.errors" class="invalid-feedback mb-1">
                 <div *ngIf="r.email?.errors?.['required']">Please enter the email.</div>

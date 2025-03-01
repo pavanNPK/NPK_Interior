@@ -92,7 +92,7 @@ const sendOtpEmail = async (email, otp) => {
     });
 
     const mailOptions = {
-        from: '"NPK Interior" <pavansynycs@gmail.com>',
+        from: `"NPK Interior" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: '🔑 Your OTP Code - NPK Interior',
         html: `
@@ -284,17 +284,94 @@ const sendRegistrationEmail = async (name, email) => {
 export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email, password }, {}, { lean: true }).exec();
-        if (user) {
-            res.json({response: user, success: true, message: "User logged in successfully"});
-        } else {
-            res.status(401).json({response: null, success: false, message: 'Invalid credentials' });
+        // Find User
+        const user = await User.findOne({ email }, {}, { lean: true }).exec();
+        if (!user) {
+            return res.json({response: 'notFound', success: false, message: 'User not found' });
         }
+        // Verify Password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.json({response: 'notMatched', success: false, message: 'Invalid credentials' });
+        }
+
+        res.json({response: user, success: true, message: "User logged in successfully"});
     } catch (error) {
         console.error('Error logging in user:', error);
-        res.status(500).json({response: null, success: false, message: 'Error logging in user' });
+        res.json({response: null, success: false, message: 'Error logging in user' });
     }
 };
+
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email }, {}, { lean: true }).exec();
+        if (!user) {
+            return res.json({response: 'notFound', success: false, message: 'User not found' });
+        }
+        const emailSent = await sendForgotPasswordEmail(email);
+        if (!emailSent) {
+            return res.status(500).json({
+                response: null,
+                success: false,
+                message: 'Error sending forgot password email'
+            });
+        }
+        res.json({response: email, success: true, message: 'Email sent successfully' });
+    } catch (error) {
+        console.error('Error sending OTP:', error);
+        res.json({response: null, success: false, message: 'Error sending OTP' });
+    }
+};
+const sendForgotPasswordEmail = async (email) => {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER, // Replace it with your email
+            pass: process.env.EMAIL_PASS  // Replace it with your email password
+        }
+    });
+    const user = await User.findOne({ email }, {}, { lean: true }).exec();
+    if (!user) {
+        return false;
+    }
+    const mailOptions = {
+        from: `"NPK Interior" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: '🔐 Reset Your Account Password - NPK Interior',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9; text-align: center;">
+                <h1 style="color: #333;">Reset Your Password</h1>
+                <p style="color: #555;">Hello <strong>${user.firstName} ${user.lastName}</strong>,</p>
+                <p style="color: #555;">We received a request to reset your password. No worries! You can set a new password by clicking the button below.</p>
+                
+                <a href="https://www.google.com" style="background: linear-gradient(135deg, #555, #555); color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin: 15px 0;">
+                    Reset Password
+                </a>
+            
+                <p style="color: #555;">If you did not request this change, you can safely ignore this email. Your current password will remain unchanged.</p>
+                
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
+                
+                <p style="font-size: 12px; color: #777;">Need help? Contact our support team.</p>
+                
+                <p style="font-size: 12px; color: #777;">Best Regards,<br><strong>NPK Interior Team</strong></p>
+            
+                <img src="https://53.fs1.hubspotusercontent-na1.net/hub/53/hubfs/image8-2.jpg?width=600&name=image8-2.jpg" 
+                    alt="NPK Interior Logo" 
+                    style="width: 100px; margin-top: 15px;">
+            </div>
+        `
+    };
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`OTP sent to ${email}`);
+        return true; // Return true if email is sent successfully
+    } catch (error) {
+        console.error('Error sending forgot password email:', error);
+        return false;
+    }
+}
 
 // Function to get a user by ID
 export const getUser = async (req, res) => {

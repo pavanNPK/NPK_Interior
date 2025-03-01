@@ -59,26 +59,26 @@ Using TTL is a smart way to handle temporary users. It reduces workload, keeps t
 ```aiignore
   await User.updateOne({ email }, { $set: { isVerified: true, password: hashedPassword } });
 ```
-- Remove the user automatically if the `OTP` is not verified in 5 minutes. And, if its verified but he is not provided the `password`, we will remove the user. After 3 minutes.
+- Remove the user automatically if the `OTP` is not verified in 5 minutes. And, if its verified but he is not provided the `password`, we will remove the user. After 20 minutes.
 ### How it works:
 
 - Creates a time-to-live (TTL) index on the createdAt field
 - Uses `partialFilterExpression` to only apply the TTL to documents where `isVerified` is false
-- Sets the expiration time to 7200 seconds (3 minutes)
+- Sets the expiration time to 7200 seconds (20 minutes)
 
-This way, only unverified users will be automatically deleted after 3 minutes,
+This way, only unverified users will be automatically deleted after 20 minutes,
 while verified users will remain in the database indefinitely.
 
 > Note: MongoDB's TTL cleanup process runs approximately once per minute, so there might be a slight delay between when a document expires and when it's actually removed.
 #### Prevent Deletion When User is Verified
 
-- If a user verifies their account within 3 minutes, remove the `createdAt` field to prevent auto-deletion.
+- If a user verifies their account within 20 minutes, remove the `createdAt` field to prevent auto-deletion.
 ```aiignore
 ~ Create a TTL index on createdAt, but only for unverified users
 
 userSchema.index({ createdAt: 1 }, {
     name: 'createdAtIndex',
-    expireAfterSeconds: 180,  // 3 minutes
+    expireAfterSeconds: 1200,  // 20 minutes
     partialFilterExpression: { isVerified: false }  // Apply only to unverified users
 });
 

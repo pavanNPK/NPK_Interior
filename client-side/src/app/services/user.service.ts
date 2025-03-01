@@ -19,4 +19,10 @@ export class UserService {
   registerUser(data: any): Observable<ResponseWithError<any>> {
     return this.http.post<ResponseWithError<any>>('http://localhost:3000/users/register', data);
   }
+  loginUser(data: any): Observable<ResponseWithError<any>> {
+    return this.http.post<ResponseWithError<any>>('http://localhost:3000/users/login', data);
+  }
+  forgotPassword(data: any): Observable<ResponseWithError<any>> {
+    return this.http.post<ResponseWithError<any>>('http://localhost:3000/users/forgotPassword', data);
+  }
 }

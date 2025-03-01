@@ -10,7 +10,7 @@ import {
     registerUser,
     getUser,
     updateUser,
-    deleteUser, confirmOTP, sendOTP
+    deleteUser, confirmOTP, sendOTP, forgotPassword
 } from '../controllers/user.controller.js';
 
 // Define routes
@@ -18,6 +18,7 @@ router.post('/login', loginUser);
 router.post('/register', registerUser);
 router.post('/sendOTP', sendOTP);
 router.post('/confirmOTP', confirmOTP);
+router.post('/forgotPassword', forgotPassword);
 router.get('/', getUser);
 router.put('/', updateUser);
 router.delete('/', deleteUser);

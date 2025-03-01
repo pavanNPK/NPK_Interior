@@ -11,6 +11,9 @@
     border-radius: 5px;
     border: 1px solid rgba(0, 0, 0, 0.5);
     padding: .5rem;
+    input:focus {
+      background: transparent !important;
+    }
     input::placeholder{
       opacity: 50%
     }
@@ -29,5 +32,8 @@
       width: 100%;
       border-radius: 8px
     }
+  }
+  .p-toast .p-toast-message .p-toast-message-content {
+    padding: 5px 0 5px 1rem !important;
   }
 }
