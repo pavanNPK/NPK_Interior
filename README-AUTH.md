@@ -8,7 +8,9 @@ To ensure the security of our platform, we are using a combination of encryption
 
 A `TTL` index in MongoDB is used to automatically delete expired documents after a specific period of time. It helps in managing temporary data without needing manual cleanup.
 Using TTL is a smart way to handle temporary users. It reduces workload, keeps the database efficient, and improves security. 🚀
+
 -----------------------------------------------------------------------------------
+
 ## Register
 #### `POST /register` - Register a new user. 
 -  First, we will check if the user already exists in the database. If not, we will insert the user into the database. If the user already exists, we will return an error message.
