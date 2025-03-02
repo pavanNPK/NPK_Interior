@@ -70,8 +70,11 @@ export class NavbarComponent implements OnInit {
       : null;
   }
 
-
   logOut() {
     this.as.logout();
+  }
+
+  openInNewTab(comPrivacyPolicy: string) {
+    window.open(comPrivacyPolicy, '_blank');
   }
 }

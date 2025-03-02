@@ -1,0 +1,19 @@
+.pageNotFound{
+  height: 100vh;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.notFoundImage{
+  width: 12rem;
+}
+::ng-deep {
+  .pageNotFoundButtons{
+    border-radius: 8px !important;
+    button{
+      border-radius: 8px !important;
+    }
+  }
+}

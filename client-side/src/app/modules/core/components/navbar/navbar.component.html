@@ -12,7 +12,7 @@
         <div>
           <nb-icon class="cursor-pointer me-3"
                    nbTooltip="Menu"
-                   (click)="sidebarVisible = true; showProfile = false"
+                   (click)="sidebarVisible = !sidebarVisible; showProfile = false"
                    nbTooltipPlacement="bottom"
                    style="font-size: 30px"
                    nbPrefix icon="grid-outline"
@@ -29,27 +29,30 @@
         <div class="navUserActions d-flex justify-content-between align-items-center">
           <div class="navUserAction">
             <nb-icon nbPrefix icon="home-outline" pack="eva"
+                     (click)="sidebarVisible = false"
                      nbTooltip="Home" nbTooltipPlacement="bottom"  [routerLink]="['/']"></nb-icon>
           </div>
           <div class="navUserAction">
-            <nb-icon nbPrefix icon="bell-outline" nbTooltip="Notifications"  nbTooltipPlacement="bottom" pack="eva"></nb-icon>
+            <nb-icon nbPrefix icon="bell-outline" nbTooltip="Notifications"
+                     (click)="sidebarVisible = false"
+                     nbTooltipPlacement="bottom" pack="eva"></nb-icon>
           </div>
           <div class="navUserAction">
             <nb-icon nbPrefix icon="shopping-bag-outline"
-
+                     (click)="sidebarVisible = false"
                      nbTooltip="Cart" nbTooltipPlacement="bottom"
                      [routerLink]="['/cart/view']" pack="eva"></nb-icon>
           </div>
           <div class="navUserAction">
             <nb-icon nbPrefix icon="heart-outline"
-
+                     (click)="sidebarVisible = false"
                      nbTooltip="Wishlist" nbTooltipPlacement="bottom"
                      [routerLink]="['/wishlist/view']"
                      pack="eva"></nb-icon>
           </div>
           <div class="navUserAction">
             <nb-icon nbPrefix icon="settings-2-outline"
-
+                     (click)="sidebarVisible = false"
                      nbTooltip="Settings" nbTooltipPlacement="bottom"
                      [routerLink]="['/settings/view']"
                      pack="eva"></nb-icon>
@@ -69,7 +72,7 @@
                     <p class="fw-semibold mb-1 mt-2">{{ userData?.firstName }} {{userData?.lastName}}</p>
                     <small class="text-black-50 d-block mb-1 small">{{ userData?.email }}</small>
                     <button nbButton size="small"
-                            (click)="op.toggle($event)"
+                            (click)="op.toggle($event); sidebarVisible = false"
                             [routerLink]="['/manage-account/config']"
                             class=" rounded-2 mt-2 fw-semibold">
                       <nb-icon icon="person-outline"></nb-icon>Manage Account</button>
@@ -83,8 +86,8 @@
                   </div>
                   <div class="profileManagementBottom bg-body-tertiary rounded-bottom-2 px-3 py-2">
                     <div>
-                      <small class="text-black-50 me-3 cursor-pointer">Privacy Policy</small>
-                      <small class="text-black-50 cursor-pointer">Terms & Conditions</small>
+                      <small class="text-black-50 me-3 cursor-pointer" (click)="openInNewTab('privacy-policy')">Privacy Policy</small>
+                      <small class="text-black-50 cursor-pointer" (click)="openInNewTab('terms-and-conditions')">Terms & Conditions</small>
                     </div>
                     <div>
                       <small class="text-black-50">©2025. All Rights Reserved</small>
