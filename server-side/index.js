@@ -7,6 +7,12 @@ import dotenv from 'dotenv';              // To load environment variables from 
 import express from 'express';            // Web framework
 import mongoose from 'mongoose';          // MongoDB ODM library
 import cors from 'cors';                  // Cross-Origin Resource Sharing middleware
+import helmet from 'helmet';              // Security middleware
+import rateLimit from 'express-rate-limit'; // Rate limiting
+import mongoSanitize from 'express-mongo-sanitize'; // Prevent NoSQL injection
+import xss from 'xss-clean';              // Prevent XSS attacks
+import compression from 'compression';    // Compress responses
+
 
 // Import custom route modules - note the .js extension required in ES modules
 import productRoutes from './routes/products.route.js';      // Product API routes
@@ -35,6 +41,18 @@ const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/ECW';
 app.use(express.json());                  // Parse JSON request bodies
 app.use(express.static('public'));        // Serve static files from 'public' directory
 app.use(cors());                          // Enable CORS for all routes
+app.use(helmet());                           // Secure HTTP headers
+app.use(mongoSanitize());                    // Prevent NoSQL injection
+app.use(xss());                              // Prevent XSS attacks
+app.use(compression());                      // Compress responses
+// Rate limiting (Prevent brute-force attacks)
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window`
+    message: 'Too many requests from this IP, please try again later.'
+});
+app.use(limiter);
+
 
 // Connect to MongoDB database
 // mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })

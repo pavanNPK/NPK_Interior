@@ -15,6 +15,7 @@ import {NgOptimizedImage} from "@angular/common";
 import {SidebarModule} from "primeng/sidebar";
 import {AvatarModule} from "primeng/avatar";
 import {OverlayPanelModule} from "primeng/overlaypanel";
+import {AuthService} from "../../../../services/auth.service";
 
 @Component({
   selector: 'app-navbar',
@@ -53,9 +54,13 @@ export class NavbarComponent implements OnInit {
   ]
   showProfile: boolean = false;
   sidebarVisible: boolean = false;
-  constructor( ) {
+  constructor(private as: AuthService) {
   }
   ngOnInit(): void {
 
+  }
+
+  logOut() {
+    this.as.logout();
   }
 }

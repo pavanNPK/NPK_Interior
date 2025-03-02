@@ -10,5 +10,8 @@
         <p class="m-0">{{ i + 1 + ' ' + item.productName }}</p>
       }
     </div>
+    <div>
+      <app-no-data *ngIf="!products.length"></app-no-data>
+    </div>
   </div>
 </div>

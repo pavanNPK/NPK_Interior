@@ -10,6 +10,7 @@ import {UserService} from "../../../../services/user.service";
 import {RegisterUserDTO} from "../../../../models/userDTO";
 import {ResponseWithError} from "../../../../models/commonDTO";
 import {ToastModule} from "primeng/toast";
+import {AuthService} from "../../../../services/auth.service";
 
 @Component({
   selector: 'app-login',
@@ -38,12 +39,16 @@ export class LoginComponent implements OnInit{
   loading: boolean = false;
   showPassword : boolean = false;
   ifForgot: boolean = false;
-  constructor(private fb: FormBuilder, private us: UserService, private ms: MessageService, private router: Router) {
+  constructor(private fb: FormBuilder,private as: AuthService, private us: UserService, private ms: MessageService, private router: Router) {
   }
   get l(){
     return this.loginForm.controls
   }
   ngOnInit() {
+    // Check if user is already authenticated
+    if (this.as.isAuthenticated()) {
+      return this.redirectAfterLogin();
+    }
     this.loadForm();
     this.loading = true;
   }
@@ -59,6 +64,20 @@ export class LoginComponent implements OnInit{
       email: ['', Validators.required],
       password: ['', Validators.required],
     })
+  }
+  redirectAfterLogin() {
+    let redirectUrl = '/';
+
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        redirectUrl = localStorage.getItem('redirectUrl') || '/';
+        localStorage.removeItem('redirectUrl');
+      }
+    } catch (e) {
+      console.error('localStorage not available:', e);
+    }
+
+    this.router.navigateByUrl(redirectUrl);
   }
 
   forgotPassword() {
@@ -111,25 +130,58 @@ export class LoginComponent implements OnInit{
       const data = new RegisterUserDTO();
       data.email = this.loginForm.value.email;
       data.password = this.loginForm.value.password;
-      this.us.loginUser(data).subscribe({
-        next: (res: ResponseWithError<any>) => {
-          if(res.success){
-            this.loginForm.reset();
-            this.router.navigate(['']);
-            this.submitted = false;
-          } else if(res.response === 'notFound'){
-            this.ms.add({severity: 'warn', summary: 'User', detail: res.message});
-          } else if (res.response === 'notMatched') {
-            this.ms.add({severity: 'error', summary: 'User', detail: res.message});
-          } else {
-            this.ms.add({severity: 'error', summary: 'Error', detail: res.message});
+      // this.as.login(data.email: , data.password).subscribe({
+      //   next: (res: ResponseWithError<any>) => {
+      //     if(res.success){
+      //       this.loginForm.reset();
+      //       this.router.navigate(['']);
+      //       this.submitted = false;
+      //     } else if(res.response === 'notFound'){
+      //       this.ms.add({severity: 'warn', summary: 'User', detail: res.message});
+      //     } else if (res.response === 'notMatched') {
+      //       this.ms.add({severity: 'error', summary: 'User', detail: res.message});
+      //     } else {
+      //       this.ms.add({severity: 'error', summary: 'Error', detail: res.message});
+      //     }
+      //   },
+      //   error: (err: any) => {
+      //     this.loading = false;
+      //     this.ms.add({severity: 'error', summary: 'Error', detail: err.error.message});
+      //   }
+      // })
+      this.as.login(this.loginForm.value.email, this.loginForm.value.password)
+        .subscribe({
+          next: (response) => {
+            if (response.success) {
+                    this.loginForm.reset();
+                    this.submitted = false;
+              // Navigate to return url or dashboard
+              this.navigateAfterLogin();
+              this.router.navigate(['/categories/view/']);
+            } else { // @ts-ignore
+              if(response.response === 'notFound'){
+                            this.ms.add({severity: 'warn', summary: 'User', detail: response.message});
+                          } else { // @ts-ignore
+                if (response.response === 'notMatched') {
+                                            this.ms.add({severity: 'error', summary: 'User', detail: response.message});
+                                          } else {
+                                            this.ms.add({severity: 'error', summary: 'Error', detail: response.message});
+                                          }
+              }
+            }
+          },
+          error: (error) => {
+            console.error('Login error:', error);
+            this.loading = false;
+                this.ms.add({severity: 'error', summary: 'Error', detail: error});
           }
-        },
-        error: (err: any) => {
-          this.loading = false;
-          this.ms.add({severity: 'error', summary: 'Error', detail: err.error.message});
-        }
-      })
+        });
     }
+  }
+  navigateAfterLogin() {
+      // Check if there's a stored redirect URL
+      const redirectUrl = localStorage.getItem('redirectUrl') || '/dashboard';
+      localStorage.removeItem('redirectUrl'); // Clear the stored URL
+      this.router.navigateByUrl(redirectUrl);
   }
 }

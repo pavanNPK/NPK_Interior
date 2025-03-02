@@ -142,6 +142,7 @@ export class ViewCategoriesComponent implements OnInit {
             this.loadCategories('', '', false);
             this.loadForm = false;
             this.submitted = false;
+            this.categorySearch.setValue('');
             ref.close();
             this.toastService.success(`Successfully updated the ${this.catType}`, this.catName, {duration: 2000});
           }

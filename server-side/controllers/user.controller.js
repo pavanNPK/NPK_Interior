@@ -3,6 +3,9 @@ import User from '../models/user.model.js';
 import nodemailer from 'nodemailer';
 import Redis from 'ioredis'; // Use Redis to store OTP temporarily
 import bcrypt from 'bcrypt'; // Use bcrypt for password hashing
+import jwt from 'jsonwebtoken';
+import {generateToken} from '../middleware/auth.middleware.js';
+
 
 const redis = new Redis({
     host: process.env.REDIS_HOST, // Ensure Redis is accessible on this IP
@@ -171,7 +174,7 @@ export const registerUser = async (req, res, next) => {
         const dbName = user.code; // Example: 'npk_customer1', 'npk_projectX', etc.
 
         // Create a new database dynamically
-        await createDatabase(dbName, { email, userName, firstName: user.firstName, lastName: user.lastName, user_id: user._id });
+        await createDatabase(dbName, { email, userName, firstName: user.firstName, lastName: user.lastName, user_id: user._id, role: user.role, code: user.code });
 
         res.json({ response: user, success: true, message: "User updated and verified successfully" });
     } catch (error) {
@@ -179,7 +182,6 @@ export const registerUser = async (req, res, next) => {
         res.status(500).json({response: null, success: false, message: 'Error registering user' });
     }
 }
-
 
 // Function to dynamically create a new database using user.code
 const createDatabase = async (dbName, userData) => {
@@ -218,7 +220,6 @@ const createDatabase = async (dbName, userData) => {
         throw error;
     }
 };
-
 
 const sendRegistrationEmail = async (name, email) => {
     const currentYear = new Date().getFullYear(); // Get current year
@@ -287,7 +288,7 @@ export const loginUser = async (req, res) => {
         // Find User
         const user = await User.findOne({ email }, {}, { lean: true }).exec();
         if (!user) {
-            return res.json({response: 'notFound', success: false, message: 'User not found' });
+            return res.json({response: 'notFound', success: false, message: 'Please verify your account first' });
         }
         // Verify Password
         const isMatch = await bcrypt.compare(password, user.password);
@@ -295,7 +296,38 @@ export const loginUser = async (req, res) => {
             return res.json({response: 'notMatched', success: false, message: 'Invalid credentials' });
         }
 
-        res.json({response: user, success: true, message: "User logged in successfully"});
+        // Generate JWT token
+        const token = generateToken(user);
+
+
+        // Generate refresh token
+        const refreshToken = jwt.sign(
+            { id: user._id },
+            process.env.REFRESH_TOKEN_SECRET || 'refresh-secret-key',
+            { expiresIn: '7d' }
+        );
+
+        // Return user without sensitive info
+        // Exclude the password field from the user object
+        // Only include the specific fields you want to return
+        const userWithoutSensitiveInfo = {
+            _id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            userName: user.userName,
+            role: user.role,
+            code: user.code
+        };
+
+        res.json({
+            response: {
+                user: userWithoutSensitiveInfo,
+                token,
+                refreshToken
+            },
+            success: true,
+            message: "User logged in successfully"
+        });
     } catch (error) {
         console.error('Error logging in user:', error);
         res.json({response: null, success: false, message: 'Error logging in user' });
@@ -309,7 +341,21 @@ export const forgotPassword = async (req, res) => {
         if (!user) {
             return res.json({response: 'notFound', success: false, message: 'User not found' });
         }
-        const emailSent = await sendForgotPasswordEmail(email);
+
+        // Generate password reset token
+        const resetToken = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET || 'default-jwt-secret',
+            { expiresIn: '15m' }
+        );
+
+        // Store reset token in Redis
+        await redis.set(`resetToken:${user._id}`, resetToken, 'EX', 900); // 15 minutes
+
+        const resetUrl = `${process.env.FRONTEND_URL || 'https://npkinterior.com'}/reset-password/${resetToken}`;
+
+
+        const emailSent = await sendForgotPasswordEmail(email, resetUrl);
         if (!emailSent) {
             return res.status(500).json({
                 response: null,
@@ -323,7 +369,8 @@ export const forgotPassword = async (req, res) => {
         res.json({response: null, success: false, message: 'Error sending OTP' });
     }
 };
-const sendForgotPasswordEmail = async (email) => {
+
+const sendForgotPasswordEmail = async (email, resetUrl) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -345,7 +392,7 @@ const sendForgotPasswordEmail = async (email) => {
                 <p style="color: #555;">Hello <strong>${user.firstName} ${user.lastName}</strong>,</p>
                 <p style="color: #555;">We received a request to reset your password. No worries! You can set a new password by clicking the button below.</p>
                 
-                <a href="https://www.google.com" style="background: linear-gradient(135deg, #555, #555); color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin: 15px 0;">
+                <a href="${resetUrl}" style="background: linear-gradient(135deg, #555, #555); color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin: 15px 0;">
                     Reset Password
                 </a>
             
@@ -370,6 +417,48 @@ const sendForgotPasswordEmail = async (email) => {
     } catch (error) {
         console.error('Error sending forgot password email:', error);
         return false;
+    }
+}
+
+export const resetPassword = async (req, res) => {
+    try {
+        const {newPassword} = req.body;
+        const token = req.params.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-jwt-secret');
+        // Check if token exists in Redis
+        const storedToken = await redis.get(`resetToken:${decoded.id}`);
+        if (!storedToken || storedToken !== token) {
+            return res.status(400).json({
+                response: null,
+                success: false,
+                message: 'Invalid or expired reset token'
+            });
+        }
+        const userId = decoded.id;
+        const user = await User.findById(userId, {}, {lean: true}).exec();
+        if (!user) {
+            return res.json({response: null, success: false, message: 'User not found'});
+        }
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        // Update user password
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        // Delete the reset token from Redis
+        await redis.del(`resetToken:${decoded.id}`);
+
+        res.json({response: user, success: true, message: 'Password reset successfully'});
+    }catch (error) {
+        console.error('Error resetting password:', error);
+        if (error.name === 'TokenExpiredError') {
+            return res.json({
+                response: null,
+                success: false,
+                message: 'Password reset token has expired'
+            });
+        }
+        res.json({response: null, success: false, message: 'Error resetting password' });
     }
 }
 

@@ -25,4 +25,7 @@ export class UserService {
   forgotPassword(data: any): Observable<ResponseWithError<any>> {
     return this.http.post<ResponseWithError<any>>('http://localhost:3000/users/forgotPassword', data);
   }
+  refreshToken(data: { refreshToken: string }): Observable<ResponseWithError<any>> {
+    return this.http.post<ResponseWithError<any>>(`http://localhost:3000/users/refreshToken`, data);
+  }
 }

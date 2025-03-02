@@ -2,13 +2,16 @@ import {Component, OnInit} from '@angular/core';
 import {ProductsService} from "../../../services/products.service";
 import {ProductsDTO} from "../../../models/productsDTO";
 import {ResponseWithError} from "../../../models/commonDTO";
-import {NgForOf} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
+import {NoDataComponent} from "../../core/components/no-data/no-data.component";
 
 @Component({
   selector: 'app-view-products',
   standalone: true,
   imports: [
-    NgForOf
+    NgForOf,
+    NgIf,
+    NoDataComponent
   ],
   templateUrl: './view-products.component.html',
   styleUrl: './view-products.component.scss'

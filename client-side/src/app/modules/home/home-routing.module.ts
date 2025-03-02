@@ -1,11 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {HomeComponent} from "./home.component";
+import {authGuard, authChildGuard} from "../../shared/gaurds/auth.guard";
 
 const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+    canActivate: [authGuard],
+    canActivateChild: [authChildGuard],
     children: [
       { path: 'products', loadChildren: () => import('../products/products.module').then(m => m.ProductsModule) },
       { path: 'dashboard', loadChildren: () => import('../dashboard/dashboard.module').then(m => m.DashboardModule) },

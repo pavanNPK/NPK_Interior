@@ -3,9 +3,9 @@ import {AccessDeniedComponent} from "./modules/core/components/access-denied/acc
 import {PageNotFoundComponent} from "./modules/core/components/page-not-found/page-not-found.component";
 import {LoginComponent} from "./modules/core/components/login/login.component";
 import {RegisterComponent} from "./modules/core/components/register/register.component";
-
+import {authGuard, authLoadGuard} from "./shared/gaurds/auth.guard";
 export const routes: Routes = [
-  { path: '', loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule) },
+  { path: '', loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule), canMatch: [authLoadGuard], canActivate: [authGuard] },
   { path: 'access-denied', component: AccessDeniedComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },

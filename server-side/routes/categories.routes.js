@@ -13,12 +13,14 @@ import {
     deleteCategory
 } from '../controllers/categories.controller.js';
 
+import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware.js';
+
 // Define routes with the imported functions
-router.post('/', addCategory);
-router.get('/', getCategories);
-router.get('/:id', getCategoryById);
-router.put('/:type', updateCategory);
-router.delete('/:id', deleteCategory);
+router.post('/',  authenticateToken, authorizeRoles('admin', 'end_user'),addCategory);
+router.get('/', authenticateToken, authorizeRoles('admin', 'end_user'), getCategories);
+router.get('/:id', authenticateToken, authorizeRoles('admin', 'end_user'), getCategoryById);
+router.put('/:type',  authenticateToken, authorizeRoles('admin', 'end_user'),updateCategory);
+router.delete('/:id',  authenticateToken, authorizeRoles('admin', 'end_user'),deleteCategory);
 
 // Export the router
 export default router;

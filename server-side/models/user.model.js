@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 // Define the user schema
 const userSchema = new mongoose.Schema({
+    _id: { type: mongoose.Schema.Types.ObjectId },
     firstName: String,
     lastName: String,
     userName: String,
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    verifiedOn: { type: Date }
+    verifiedOn: { type: Date },
 });
 
 // Create TTL index for unverified users (delete after 3 minutes)
