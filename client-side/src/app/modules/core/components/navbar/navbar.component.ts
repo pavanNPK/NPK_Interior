@@ -11,11 +11,12 @@ import {
 import {RouterLink} from "@angular/router";
 import {MenuModule} from "primeng/menu";
 import {DividerModule} from "primeng/divider";
-import {NgOptimizedImage} from "@angular/common";
+import {DatePipe, NgIf, NgOptimizedImage} from "@angular/common";
 import {SidebarModule} from "primeng/sidebar";
 import {AvatarModule} from "primeng/avatar";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {AuthService} from "../../../../services/auth.service";
+import {RegisterUserDTO, UserDTO} from "../../../../models/userDTO";
 
 @Component({
   selector: 'app-navbar',
@@ -35,7 +36,9 @@ import {AuthService} from "../../../../services/auth.service";
     SidebarModule,
     AvatarModule,
     NbMenuModule,
-    OverlayPanelModule
+    OverlayPanelModule,
+    NgIf,
+    DatePipe
   ],
   providers: [],
   templateUrl: './navbar.component.html',
@@ -51,14 +54,22 @@ export class NavbarComponent implements OnInit {
     {title: 'Pay & Rewards', icon: 'award-outline', link: '/pay-rewards/view'},
     {title: 'Customer', icon: 'people-outline', link: '/customer/contact'},
     // {title: 'Wishlist', icon: 'people-outline', link: '/wishlist/view'},
-  ]
+  ];
   showProfile: boolean = false;
   sidebarVisible: boolean = false;
+  userData?: UserDTO | any;
+  lastLoggedIn?: any;
   constructor(private as: AuthService) {
   }
-  ngOnInit(): void {
-
+  ngOnInit() {
+    const storedUser = localStorage.getItem('user');
+    this.userData = storedUser ? JSON.parse(storedUser) : null;
+    // Get lastLoggedIn value directly
+    this.lastLoggedIn = this.userData?._id
+      ? JSON.parse(localStorage.getItem('lastLoggedIn') || '{}')[this.userData._id] || null
+      : null;
   }
+
 
   logOut() {
     this.as.logout();

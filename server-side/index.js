@@ -40,7 +40,10 @@ const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/ECW';
 // Set up Express middleware
 app.use(express.json());                  // Parse JSON request bodies
 app.use(express.static('public'));        // Serve static files from 'public' directory
-app.use(cors());                          // Enable CORS for all routes
+app.use(cors({
+    origin: 'http://localhost:4200', // Allow only your frontend
+    credentials: true  // Allows cookies & sessions
+}));                         // Enable CORS for all routes
 app.use(helmet());                           // Secure HTTP headers
 app.use(mongoSanitize());                    // Prevent NoSQL injection
 app.use(xss());                              // Prevent XSS attacks

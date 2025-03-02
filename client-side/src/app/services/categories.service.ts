@@ -4,6 +4,7 @@ import {ResponseWithError} from "../models/commonDTO";
 import {map, Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import * as http from "node:http";
+import {DOMAIN_URL, GET_ALL_CATEGORIES} from "../constants/API-DTO";
 
 @Injectable({
   providedIn: 'root'
@@ -14,13 +15,9 @@ export class CategoriesService {
   }
 
   getCategories(type: string, search: string): Observable<ResponseWithError<CategoriesDTO[]>> {
-    return this.http.get<ResponseWithError<CategoriesDTO[]>>('http://localhost:3000/categories', {
-      params: {
-        type,
-        search
-      }
-    })
-      .pipe(map(response => response));
+    return this.http.get<ResponseWithError<CategoriesDTO[]>>(`${DOMAIN_URL}${GET_ALL_CATEGORIES}`, {
+      params: {type, search}
+    }).pipe(map(response => response));
   }
 
   addCategory(category: CategoriesDTO[]): Observable<ResponseWithError<CategoriesDTO[]>> {

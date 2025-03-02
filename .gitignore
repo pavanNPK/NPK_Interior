@@ -4,3 +4,5 @@ server-side/uploads/
 .idea/
 node_modules/
 package-lock.json
+qodana.yaml
+client-side/src/app/constants/

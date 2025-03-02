@@ -316,7 +316,8 @@ export const loginUser = async (req, res) => {
             lastName: user.lastName,
             userName: user.userName,
             role: user.role,
-            code: user.code
+            code: user.code,
+            email: user.email,
         };
 
         res.json({
@@ -352,8 +353,7 @@ export const forgotPassword = async (req, res) => {
         // Store reset token in Redis
         await redis.set(`resetToken:${user._id}`, resetToken, 'EX', 900); // 15 minutes
 
-        const resetUrl = `${process.env.FRONTEND_URL || 'https://npkinterior.com'}/reset-password/${resetToken}`;
-
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:4200'}/reset-password`;
 
         const emailSent = await sendForgotPasswordEmail(email, resetUrl);
         if (!emailSent) {
@@ -363,6 +363,21 @@ export const forgotPassword = async (req, res) => {
                 message: 'Error sending forgot password email'
             });
         }
+        // Set secure, HTTP-only cookie (token is not accessible by JavaScript)
+        // res.cookie('resetToken', resetToken, {
+        //     httpOnly: true,    // Prevents client-side JavaScript access
+        //     secure: process.env.NODE_ENV === 'production', // Secure in HTTPS (only in production)
+        //     sameSite: 'Strict', // Prevents CSRF attacks
+        //     maxAge: 900000 // 15 minutes
+        // });
+        res.cookie('resetToken', resetToken, {
+            httpOnly: false, // Allows frontend to access it
+            secure: false,   // Set to true only in production
+            sameSite: 'Lax', // Allows cookie for same-origin requests
+            maxAge: 900000,   // 15 minutes
+            path: '/'
+        });
+
         res.json({response: email, success: true, message: 'Email sent successfully' });
     } catch (error) {
         console.error('Error sending OTP:', error);
@@ -422,8 +437,7 @@ const sendForgotPasswordEmail = async (email, resetUrl) => {
 
 export const resetPassword = async (req, res) => {
     try {
-        const {newPassword} = req.body;
-        const token = req.params.token;
+        const {password, token} = req.body;
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-jwt-secret');
         // Check if token exists in Redis
         const storedToken = await redis.get(`resetToken:${decoded.id}`);
@@ -435,18 +449,21 @@ export const resetPassword = async (req, res) => {
             });
         }
         const userId = decoded.id;
-        const user = await User.findById(userId, {}, {lean: true}).exec();
+        const user = await User.findById(userId).exec();
         if (!user) {
             return res.json({response: null, success: false, message: 'User not found'});
         }
         // Hash the new password
         const salt = await bcrypt.genSalt(10);
         // Update user password
-        user.password = await bcrypt.hash(newPassword, salt);
+        user.password = await bcrypt.hash(password, salt);
         await user.save();
 
         // Delete the reset token from Redis
         await redis.del(`resetToken:${decoded.id}`);
+
+        // send email template
+        await sendChangedPasswordEmail(user.firstName + user.lastName, user.email);
 
         res.json({response: user, success: true, message: 'Password reset successfully'});
     }catch (error) {
@@ -459,6 +476,41 @@ export const resetPassword = async (req, res) => {
             });
         }
         res.json({response: null, success: false, message: 'Error resetting password' });
+    }
+}
+
+const sendChangedPasswordEmail = async (userName, email) => {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER, // Replace it with your email
+            pass: process.env.EMAIL_PASS  // Replace it with your email password
+        }
+    });
+    const mailOptions = {
+        from: `"NPK Interior" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: '🔐 Password Changed Successfully - NPK Interior',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9; text-align: center;">
+                <h1 style="color: #333;">Password Changed Successfully</h1>
+                <p style="color: #555;">Hello <strong>${userName}</strong>,</p>
+                <p style="color: #555;">Your password has been changed successfully. You can now log in with the new password.</p>
+                <p style="color: #555;">If you did not request this change, you can safely ignore this email. Your current password will remain unchanged.</p>
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
+                <p style="font-size: 12px; color: #777;">Need help? Contact our support team.</p>
+                <p style="font-size: 12px; color: #777;">Best Regards,<br><strong>NPK Interior Team</strong></p>
+                <img src="https://53.fs1.hubspotusercontent-na1.net/hub/53/hubfs/image8-2.jpg?width=600&name=image8-2.jpg" 
+                    alt="NPK Interior Logo" 
+                    style="width: 100px; margin-top: 15px;">
+            </div>
+        `
+    };
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent to ${email} for password change`);
+    } catch (error) {
+        console.error('Error sending password changed email:', error);
     }
 }
 

@@ -55,7 +55,7 @@
                      pack="eva"></nb-icon>
           </div>
           <div class="navUserActionProfile">
-            <nb-user size="medium" name="Pavan NPK"
+            <nb-user size="medium" name="{{userData?.userName}}"
                      (click)="op.toggle($event)"
                      picture="./assets/profile/userPic.webp">
             </nb-user>
@@ -66,8 +66,8 @@
                     <nb-user size="large" onlyPicture class="d-flex justify-content-center"
                              picture="./assets/profile/userPic.webp">
                     </nb-user>
-                    <p class="fw-semibold mb-1 mt-2">Pavan Kumar Narendravarapu</p>
-                    <small class="text-black-50 d-block mb-1 small">pavankumardummy&#64;gmail.com</small>
+                    <p class="fw-semibold mb-1 mt-2">{{ userData?.firstName }} {{userData?.lastName}}</p>
+                    <small class="text-black-50 d-block mb-1 small">{{ userData?.email }}</small>
                     <button nbButton size="small"
                             (click)="op.toggle($event)"
                             [routerLink]="['/manage-account/config']"
@@ -78,7 +78,7 @@
                   <div class=" pb-2">
                     <button nbButton size="small"  class=" rounded-2 fw-semibold" (click)="logOut()"><nb-icon icon="power"></nb-icon>Sign Out</button>
                     <div class="pt-2">
-                      <small class="text-black-50">Last Login: 3 days ago</small>
+                      <small class="text-black-50" *ngIf="lastLoggedIn">Last Login: {{ lastLoggedIn | date:'dd/MM/yyyy hh:mm a' }}</small>
                     </div>
                   </div>
                   <div class="profileManagementBottom bg-body-tertiary rounded-bottom-2 px-3 py-2">

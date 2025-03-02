@@ -43,8 +43,13 @@ export const authChildGuard: CanActivateChildFn = (childRoute, state) => {
 };
 
 // Prevents unauthorized module loading
+// Prevents unauthorized module loading
 export const authLoadGuard: CanMatchFn = (route, segments) => {
   const url = `/${segments.map(s => s.path).join('/')}`;
   console.log('Auth Load Guard checking:', url);
+  // Skip auth check for public routes
+  if (url === '/login' || url === '/register' || url === '/reset-password' || url === '/access-denied') {
+    return true;
+  }
   return checkAuth(url);
 };

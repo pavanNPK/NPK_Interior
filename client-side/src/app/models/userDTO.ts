@@ -15,3 +15,13 @@ export class RegisterUserDTO {
   updatedAt?: Date;
   deletedAt?: Date;
 }
+export class UserDTO {
+  firstName?: string;
+  lastName?: string;
+  userName?: string;
+  email?: string;
+  role?: string;
+  code?: string;
+  _id?: string;
+  lastLoggedIn?: any;
+}

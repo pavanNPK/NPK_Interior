@@ -53,6 +53,20 @@ export class AuthService {
 
   // Logout user
   logout(): void {
+    // Get the current user before logging out
+    const currentUser = this.getUserFromLocalStorage();
+
+    // Store the lastLoggedIn timestamp for this user if we have a user
+    if (currentUser && currentUser._id) {
+      // Create a mapping of user IDs to their last login times
+      const lastLoggedInData = JSON.parse(localStorage.getItem('lastLoggedIn') || '{}');
+
+      // Update the lastLoggedIn time for this specific user
+      lastLoggedInData[currentUser._id] = new Date().toISOString();
+
+      // Save the updated lastLoggedIn data back to localStorage
+      localStorage.setItem('lastLoggedIn', JSON.stringify(lastLoggedInData));
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');

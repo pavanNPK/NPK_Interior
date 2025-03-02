@@ -4,10 +4,17 @@ import {PageNotFoundComponent} from "./modules/core/components/page-not-found/pa
 import {LoginComponent} from "./modules/core/components/login/login.component";
 import {RegisterComponent} from "./modules/core/components/register/register.component";
 import {authGuard, authLoadGuard} from "./shared/gaurds/auth.guard";
+import {ResetPasswordComponent} from "./modules/core/components/reset-password/reset-password.component";
 export const routes: Routes = [
-  { path: '', loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule), canMatch: [authLoadGuard], canActivate: [authGuard] },
+  {
+    path: '',
+    loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule),
+    canMatch: [authLoadGuard],
+    canActivate: [authGuard]
+  },
   { path: 'access-denied', component: AccessDeniedComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { path: '**', component: PageNotFoundComponent }
 ];
