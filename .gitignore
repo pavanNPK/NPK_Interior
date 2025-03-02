@@ -5,4 +5,4 @@ server-side/uploads/
 node_modules/
 package-lock.json
 qodana.yaml
-client-side/src/app/constants/
+client-side/src/app/constants/API-DTO.ts
