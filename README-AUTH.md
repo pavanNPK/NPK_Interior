@@ -137,7 +137,7 @@ userSchema.index({ createdAt: 1 }, {
 1. User provides username and password.
 2. Server validates user credentials.
 3. If successful, the server generates an access token and refresh token.
-4. Access token is sent in the Authorization header of later requests. And, r
+4. Access token is sent in the Authorization header of later requests.
 5. The refresh token is securely stored.
 6. If the access token expires, the server generates a new access token using the refresh token.
 7. Again, the access token is sent in the Authorization header of later requests.
