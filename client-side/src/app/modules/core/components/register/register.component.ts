@@ -106,7 +106,7 @@ export class RegisterComponent implements OnInit{
       data.lastName = this.registerForm.value.lastName;
       data.userName = this.registerForm.value.userName;
       data.email = this.registerForm.value.email;
-      data.role = 'end_user';
+      data.role = 'shopper';
       this.us.sendOTP(data).subscribe({
         next: (res: ResponseWithError<any>) => {
           if(res.success){
@@ -194,7 +194,7 @@ export class RegisterComponent implements OnInit{
         this.ms.add({ severity: 'warn', summary: 'Password', detail: 'Password and Confirm Password do not match' });
         return;
       }
-      data.role = 'end_user';
+      data.role = 'shopper';
       this.us.registerUser(data).subscribe({
         next: (res: ResponseWithError<any>) => {
           if(res.success){
@@ -240,4 +240,6 @@ export class RegisterComponent implements OnInit{
     this.reEnterEmail = false;
     this.isSendOTPEdit = true;
   }
+
+    protected readonly window = window;
 }

@@ -26,14 +26,14 @@ router.post('/resetPassword', resetPassword);
 router.post('/refreshToken', refreshToken);
 
 // Admin routes (authentication + authorization required)
-router.get('/admin/users', authenticateToken, authorizeRoles('admin'), (req, res) => {
+router.get('/admin/users', authenticateToken, authorizeRoles('supervise'), (req, res) => {
     // Admin-only functionality to get all user's
     // Implementation would go here
     res.json({ message: 'Admin access granted' });
 });
-router.get('/:id', authenticateToken, authorizeRoles('admin'), getUser);
-router.put('/:id', authenticateToken, authorizeRoles('admin'), updateUser);
-router.delete('/:id', authenticateToken, authorizeRoles('admin'), deleteUser);
+router.get('/:id', authenticateToken, authorizeRoles('supervise'), getUser);
+router.put('/:id', authenticateToken, authorizeRoles('supervise'), updateUser);
+router.delete('/:id', authenticateToken, authorizeRoles('supervise'), deleteUser);
 
 // Export router using ES module syntax
 export default router;

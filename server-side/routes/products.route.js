@@ -14,11 +14,11 @@ import {
 import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware.js';
 
 // Define routes
-router.post('/',  authenticateToken, authorizeRoles('admin', 'end_user'),addProduct);
-router.get('/', authenticateToken, authorizeRoles('admin', 'end_user'), getProducts);
-router.get('/:id', authenticateToken, authorizeRoles('admin', 'end_user'), getProductById);
-router.put('/:id',  authenticateToken, authorizeRoles('admin', 'end_user'),updateProduct);
-router.delete('/:id',  authenticateToken, authorizeRoles('admin', 'end_user'),deleteProduct);
+router.post('/',  authenticateToken, authorizeRoles('supervise', 'shopper'),addProduct);
+router.get('/', authenticateToken, authorizeRoles('supervise', 'shopper'), getProducts);
+router.get('/:id', authenticateToken, authorizeRoles('supervise', 'shopper'), getProductById);
+router.put('/:id',  authenticateToken, authorizeRoles('supervise', 'shopper'),updateProduct);
+router.delete('/:id',  authenticateToken, authorizeRoles('supervise', 'shopper'),deleteProduct);
 
 // Export the router
 export default router;

@@ -52,8 +52,12 @@ export const authorizeRoles = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
             return res.json({
+                response: null,
+                role: "notAllowed",
                 success: false,
-                message: `Role (${req.user.role}) is not allowed to access this resource. Allowed roles are: ${roles.join(', ')}`
+                // message: `Role (${req.user.role}) is not allowed to access this resource.
+                // Allowed roles are: ${roles.join(', ')}`
+                message: `Role is not allowed to access this resource.`
             });
         }
         next();

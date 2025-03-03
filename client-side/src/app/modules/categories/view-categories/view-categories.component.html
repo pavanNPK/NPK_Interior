@@ -1,4 +1,4 @@
-<div class="viewCategoriesMain">
+<div class="viewCategoriesMain" *ngIf="roleAllow">
   <div class="appLayoutHeader">
     <div class="appLayoutHeaderText d-flex justify-content-between align-items-center">
       <h5 class="fw-semibold m-0"> Categories / Sub Categories
@@ -60,6 +60,12 @@
                   <p class="m-0 label text-black-50 ms-3">{{subCategory.description}}</p>
                 </div>
                 <div>
+                  <button nbButton size="small"
+                          (click)="viewProducts(subCategory._id)"
+                          nbTooltip="By clicking this you can see the products of this sub category." nbTooltipPlacement="bottom"
+                          class=" rounded-2 fw-semibold me-3">
+                    <nb-icon icon="eye-outline"></nb-icon>
+                  </button>
                   <button nbButton size="small"
                           (click)="updateCatSubCat(subCategory, updateCategorySubCatDialog, 'Sub Category')"
                           nbTooltip="By clicking this you can modify the sub category." nbTooltipPlacement="bottom"
@@ -191,3 +197,6 @@
     </nb-card-body>
   </nb-card>
 </ng-template>
+
+<app-access-denied *ngIf="!roleAllow"></app-access-denied>
+

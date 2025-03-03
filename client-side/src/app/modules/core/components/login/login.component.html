@@ -1,6 +1,6 @@
 <div class="loginPage" style="height: 100vh">
   <div class="loginForm row m-0 h-100" *ngIf="loading">
-    <div class="d-sm-none d-md-none d-lg-block d-xl-block col-sm-12 col-md-12 col-lg-6 col-xl-6 m-auto text-center">
+    <div class="d-sm-none d-md-none d-lg-block d-xl-block col-sm-12 col-md-12 col-lg-5 col-xl-5 m-auto text-center">
       <img src="./assets/core/credentials.png" alt="login" class="w-75">
     </div>
     <div class="w-full d-sm-none d-md-none d-lg-block d-xl-block col-sm-12 col-md-12 col-lg-1 col-xl-1">
@@ -11,10 +11,14 @@
         </div>
       </p-divider>
     </div>
-    <div class="col-sm-12 col-md-12 col-lg-5 col-xl-5 m-auto p-sm-5 p-md-5 ps-lg-0 ps-xl-0">
+    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 m-auto p-sm-5 p-md-5 ps-lg-0 ps-xl-0">
       <div class="loginFormDiv">
         <div class="text-center mb-3">
           <img src="./assets/core/logo.png" alt="logo">
+        </div>
+        <div class="text-center" *ngIf="!ifForgot">
+          <h5 class="fw-bold mb-1">Welcome</h5>
+          <p class="small text-center" >Please sign in to continue. Your personalized experience awaits.</p>
         </div>
         <form [formGroup]="loginForm">
           <div *ngIf="ifForgot">

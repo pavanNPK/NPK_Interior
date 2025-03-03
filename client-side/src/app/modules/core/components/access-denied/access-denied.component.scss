@@ -1,5 +1,5 @@
 .accessDenied{
-  height: 100vh;
+  height: 70vh;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -8,4 +8,5 @@
 }
 .notFoundImage{
   width: 12rem;
+  mix-blend-mode: multiply;
 }

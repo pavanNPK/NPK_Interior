@@ -16,7 +16,7 @@ import {SidebarModule} from "primeng/sidebar";
 import {AvatarModule} from "primeng/avatar";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {AuthService} from "../../../../services/auth.service";
-import {RegisterUserDTO, UserDTO} from "../../../../models/userDTO";
+import {UserDTO} from "../../../../models/userDTO";
 
 @Component({
   selector: 'app-navbar',
@@ -46,6 +46,7 @@ import {RegisterUserDTO, UserDTO} from "../../../../models/userDTO";
 })
 export class NavbarComponent implements OnInit {
   items:NbMenuItem[] = [
+    {title: 'Dashboard', icon: 'home-outline', link: '/dashboard/view'},
     {title: 'Categories', icon: 'clipboard-outline', link: '/categories/view'},
     {title: 'Products', icon: 'layout-outline', link: '/products/view'},
     {title: 'Deals', icon: 'gift-outline', link: '/deals/view'},
@@ -53,7 +54,9 @@ export class NavbarComponent implements OnInit {
     {title: 'Orders', icon: 'car-outline', link: '/orders/view'},
     {title: 'Pay & Rewards', icon: 'award-outline', link: '/pay-rewards/view'},
     {title: 'Customer', icon: 'people-outline', link: '/customer/contact'},
-    // {title: 'Wishlist', icon: 'people-outline', link: '/wishlist/view'},
+    {title: 'Wishlist', icon: 'heart-outline', link: '/wishlist/view'},
+    {title: 'Cart', icon: 'shopping-bag-outline', link: '/cart/view'},
+    {title: 'Settings', icon: 'settings-2-outline', link: '/settings/view'},
   ];
   showProfile: boolean = false;
   sidebarVisible: boolean = false;
