@@ -95,6 +95,50 @@ userSchema.index({ createdAt: 1 }, {
 ```aiignore
  db.users.dropIndex("createdAtIndex");
 ```
+
+-----------------------------------------------------------------------------------
+### Create DB for each user via `DB`
+
+```aiignore
+use main DB 
+// Get all (collections for registered users) from the current database
+const storeData = db.collectionHere.find({}).toArray();
+
+// Loop through each user
+storeData.forEach(user => {
+  // Skip if code is not defined
+  if (!user.code) {
+    print(`User ${user._id} has no code, skipping`);
+    return;
+  }
+  
+  // Get the code value to use as database name
+  const dbName = user.code;
+  
+  try {
+    // Connect to the new database (this creates it if it doesn't exist)
+    const targetDb = db.getSiblingDB(dbName);
+    
+    // Create a dummy collection to ensure database creation
+    // MongoDB only creates databases when they have at least one collection
+    targetDb.createCollection("new collection");
+    
+    // Create a document with the required fields
+    const userData = {
+      ...What data we want to insert
+    };
+    
+    // Insert the document into the initials collection
+    targetDb.initials.insertOne(userData);
+    
+    print(`Successfully created database '${dbName}' with initials for user ${user.firstName} ${user.lastName}`);
+  } catch (err) {
+    print(`Error creating database '${dbName}': ${err.message}`);
+  }
+});
+
+print("Database creation and data migration completed");
+```
 -----------------------------------------------------------------------------------
 ## Login
 #### `POST /login` - Login after verifying the user.

@@ -39,7 +39,7 @@ export const sendOTP = async (req, res, next) => {
                 const randomString = Math.random().toString(36).slice(2, 9);
                 const digitCount = (randomString.match(/\d/g) || []).length;
                 if (digitCount >= 2 && digitCount <= 3) {
-                    code = 'NPK_EU_' + randomString;
+                    code = 'NPK_SH_' + randomString;
                 }
             } while (!code || await User.findOne({ code }, {}, { lean: true }));
         }
