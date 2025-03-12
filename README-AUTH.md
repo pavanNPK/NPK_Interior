@@ -97,7 +97,7 @@ userSchema.index({ createdAt: 1 }, {
 ```
 
 -----------------------------------------------------------------------------------
-### Create DB for each user via `DB`
+### Create DB for each user
 
 ```aiignore
 use main DB 
