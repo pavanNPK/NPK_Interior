@@ -4,6 +4,8 @@ import {ProductsDTO} from "../../../models/productsDTO";
 import {ResponseWithError} from "../../../models/commonDTO";
 import {NgForOf, NgIf} from "@angular/common";
 import {NoDataComponent} from "../../core/components/no-data/no-data.component";
+import {NbButtonModule, NbIconModule, NbTooltipModule} from "@nebular/theme";
+import {RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-view-products',
@@ -11,7 +13,11 @@ import {NoDataComponent} from "../../core/components/no-data/no-data.component";
   imports: [
     NgForOf,
     NgIf,
-    NoDataComponent
+    NoDataComponent,
+    NbIconModule,
+    NbTooltipModule,
+    NbButtonModule,
+    RouterLink
   ],
   templateUrl: './view-products.component.html',
   styleUrl: './view-products.component.scss'

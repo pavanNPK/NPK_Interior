@@ -3,11 +3,34 @@ import mongoose from 'mongoose';
 
 // Define the product schema
 const productSchema = new mongoose.Schema({
-    productName: String,
-    productType: String,
-    productPrice: Number,
-    productDescription: String,
-    productImage: { type: Object }  // Adjust if storing images differently
+    name: { type: String, required: true },
+    slug: { type: String, unique: true },
+    description: { type: String, required: true },
+    category: {
+        id: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
+        name: { type: String, required: true }
+    },
+    subCategory: {
+        id: { type: mongoose.Schema.Types.ObjectId, ref: "Subcategory" },
+        name: { type: String }
+    },
+    price: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
+    stock: { type: Number, required: true },
+    images: [{ url: String, alt: String }],
+    specifications: {
+        material: String,
+        dimensions: String, // Example: "200x80x90 cm"
+        weight: String, // Example: "40 KG"
+        color: String,
+        finish: String, // Matte, Glossy, etc.
+        warranty: String, // Example: "2 Years"
+    },
+    additionalDetails: { type: String },
+    // seller: { type: mongoose.Schema.Types.ObjectId, ref: "Seller", required: true },
+    isFeatured: { type: Boolean, default: false },
+    isTrending: { type: Boolean, default: false },
+    isNewArrival: { type: Boolean, default: false },
 });
 
 // Create and export the Product model using ES module syntax

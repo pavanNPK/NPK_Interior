@@ -85,6 +85,29 @@ export const getCategories = async (req, res) => {
     }
 };
 
+export const getCatAndSubCat = async (req, res) => {
+    try {
+        const categories = await Category.aggregate([
+            { $sort: { name: 1 } },
+            { $project: {
+                _id: 1, name: 1,
+                subCategories: {
+                    $map: {
+                        input: "$subCategories",
+                        as: "sub",
+                        in: { _id: "$$sub._id", name: "$$sub.name" }
+                    }
+                }
+            }}
+        ]);
+
+        res.json({ response: categories, success: true, message: "Categories fetched successfully" });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ response: null, success: false, message: 'Error fetching categories' });
+    }
+}
+
 // Function to get a category by ID
 export const getCategoryById = async (req, res) => {
     const id = req.params.id;

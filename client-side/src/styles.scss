@@ -35,7 +35,32 @@ button, button:focus{
 .cursor-pointer{
   cursor: pointer;
 }
+input::-webkit-input-placeholder { /* Edge */
+  font-family: 'Poppins', sans-serif !important;
+}
+input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  font-family: 'Poppins', sans-serif !important;
+}
+input, textarea, select, button:focus {
+  box-shadow: none !important;
+}
+input::placeholder {
+  font-family: 'Poppins', sans-serif !important;
+}
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+input::placeholder, textarea::placeholder {
+  font: 13px 'Poppins', sans-serif !important;
+}
 .mainNavbar{
   width: 100%;
   .navUserCoverImg{

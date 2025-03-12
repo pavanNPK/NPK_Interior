@@ -192,16 +192,19 @@ export class AddCategoriesComponent implements OnInit {
       );
       this.cs.addCategory(categories).subscribe({
         next: (response: ResponseWithError<CategoriesDTO[]>) => {
-          if (response.success){
-            this.submitted = false;
-            this.addCategoriesForm.reset();
-            this.router.navigate(['/categories/view']);
-            this.toastService.success('Successfully added new categories', 'Categories', {duration: 2000});
+          if (response.role !== 'notAllowed') {
+            if (response.success) {
+              this.submitted = false;
+              this.addCategoriesForm.reset();
+              this.router.navigate(['/categories/view']);
+              this.toastService.success('Successfully added new categories', 'Categories', {duration: 2000});
+            } else {
+              this.toastService.danger('Failed to add new categories', 'Categories', {duration: 2000});
+            }
+            this.loading = false;
+          } else {
+            this.toastService.danger(`You don't have permission to create.`,  'Add Category', {duration: 2000});
           }
-          else{
-            this.toastService.danger('Failed to add new categories', 'Categories', {duration: 2000});
-          }
-          this.loading = false;
         },
         error: (error) => {
           this.loading = false;

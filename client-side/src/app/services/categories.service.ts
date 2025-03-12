@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import {CategoriesDTO} from "../models/categoriesDTO";
+import {CategoriesDTO, GetCatAndSubCatDTO} from "../models/categoriesDTO";
 import {ResponseWithError} from "../models/commonDTO";
 import {map, Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
-import * as http from "node:http";
-import {DOMAIN_URL, GET_ALL_CATEGORIES} from "../constants/API-DTO";
+import {DOMAIN_URL, GET_ALL_CAT_SUB_CAT, GET_ALL_CATEGORIES} from "../constants/API-DTO";
 
 @Injectable({
   providedIn: 'root'
@@ -35,5 +34,10 @@ export class CategoriesService {
 
   updateCategory(data: any, type: string): Observable<ResponseWithError<CategoriesDTO>> {
     return this.http.put<ResponseWithError<CategoriesDTO>>(`http://localhost:3000/categories/${type}`, data)
+  }
+
+  getCatAndSubCat(): Observable<ResponseWithError<GetCatAndSubCatDTO[]>> {
+    return this.http.get<ResponseWithError<GetCatAndSubCatDTO[]>>(`${DOMAIN_URL}${GET_ALL_CAT_SUB_CAT}`, {
+    }).pipe(map(response => response));
   }
 }

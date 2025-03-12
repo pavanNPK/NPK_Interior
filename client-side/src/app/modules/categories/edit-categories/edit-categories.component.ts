@@ -44,7 +44,7 @@ export class EditCategoriesComponent implements OnInit{
 
   ngOnInit() {
     this.route.queryParams.subscribe(x => {
-     this.catId = x['cId'];
+     this.catId = x['cId']; // Use get() instead of accessing directly (optional) this.catId = x.get('cId');
      this.getCategory(this.catId);
     });
   }
