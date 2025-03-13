@@ -10,7 +10,7 @@
         </button>
       </div>
       <h5 class="fw-semibold m-0">Add Products
-        <nb-icon nbPrefix icon="info-outline" class="cursor-pointer" nbTooltip="You can add the products. You need to select the category and subcategory." nbTooltipPlacement="bottom"></nb-icon>
+        <nb-icon nbPrefix icon="info-outline" class="cursor-pointer" nbTooltip="You can add the products. You need to select the category first and then subcategory." nbTooltipPlacement="bottom"></nb-icon>
       </h5>
     </div>
   </div>
@@ -21,49 +21,219 @@
         <div formArrayName="products">
           <div *ngFor="let pdt of p.controls; let i = index" [formGroupName]="i" class="card mb-3 border-0 p-4">
             <div class="row">
-              <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+              <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 <label class="label fw-semibold">Categories*</label>
-                <nb-select fullWidth formControlName="categoryId" placeholder="Select Category">
-                  <nb-option *ngFor="let category of categoriesData" [value]="category._id" (click)="p.at(i).get('categoryName')?.setValue(category.name);selectCategory(category);">
+                <nb-select fullWidth formControlName="categoryId" placeholder="Select Category" [ngClass]="{ 'is-invalid': submitted && pdt.get('categoryId')?.errors }">
+                  <nb-option *ngFor="let category of categoriesData" [value]="category._id" (click)="selectCategory(category, i);">
                     {{ category.name }}
                   </nb-option>
                 </nb-select>
+                <div *ngIf="submitted && pdt.get('categoryId')?.errors" class="invalid-feedback">
+                  <div *ngIf="pdt.get('categoryId')?.errors?.['required']">Please select the category.</div>
+                </div>
               </div>
-              <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" *ngIf="selectedSubCategories.length">
+              <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-3" >
                 <label class="label fw-semibold">Sub Categories*</label>
-                <nb-select fullWidth formControlName="subCategoryId" placeholder="Select Category">
-                  <nb-option *ngFor="let subCategory of selectedSubCategories" [value]="subCategory._id" (click)="p.at(i).get('subCategoryName')?.setValue(subCategory.name)">
+                <nb-select fullWidth formControlName="subCategoryId" placeholder="Select Sub Category" [ngClass]="{ 'is-invalid': submitted && pdt.get('subCategoryId')?.errors }">
+                  <nb-option *ngFor="let subCategory of selectedSubCategoriesMap[i]" [value]="subCategory._id" (click)="p.at(i).get('subCategoryName')?.setValue(subCategory.name)">
                     {{ subCategory.name }}
                   </nb-option>
                 </nb-select>
+                <div *ngIf="submitted && pdt.get('subCategoryId')?.errors" class="invalid-feedback">
+                  <div *ngIf="pdt.get('subCategoryId')?.errors?.['required']">Please select the sub category.</div>
+                </div>
               </div>
-              <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="w-100">
-                    <label class="label fw-semibold">Name*</label>
-                    <input type="text" nbInput class="form-control"
-                           fullWidth formControlName="name" placeholder="Enter product name">
+              <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-3">
+                <label class="label fw-semibold">Product Name*</label>
+                <input type="text" nbInput class="form-control"
+                       fullWidth formControlName="name" placeholder="Enter product name"
+                       [ngClass]="{ 'is-invalid': submitted && pdt.get('name')?.errors }" >
+                <div *ngIf="submitted && pdt.get('name')?.errors" class="invalid-feedback">
+                  <div *ngIf="pdt.get('name')?.errors?.['required']">Please enter the name.</div>
+                  <div *ngIf="pdt.get('name')?.errors?.['pattern']">Only alphabets are allowed.</div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
+                <label class="label fw-semibold">Price*</label>
+                <input type="number" nbInput class="form-control"
+                       fullWidth formControlName="price" placeholder="Enter product price"
+                       [ngClass]="{ 'is-invalid': submitted && pdt.get('price')?.errors }" >
+                <div *ngIf="submitted && pdt.get('price')?.errors" class="invalid-feedback">
+                  <div *ngIf="pdt.get('price')?.errors?.['required']">Please enter the price.</div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
+                <label class="label fw-semibold">Discount*</label>
+                <input type="number" nbInput class="form-control"
+                       fullWidth formControlName="discount" placeholder="Enter product discount"
+                       [ngClass]="{ 'is-invalid': submitted && pdt.get('discount')?.errors }" >
+                <div *ngIf="submitted && pdt.get('discount')?.errors" class="invalid-feedback">
+                  <div *ngIf="pdt.get('discount')?.errors?.['required']">Please enter the discount.</div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
+                <label class="label fw-semibold">Stock*</label>
+                <nb-select fullWidth formControlName="stock" placeholder="Select stock" [ngClass]="{ 'is-invalid': submitted && pdt.get('stock')?.errors }">
+                  <nb-option *ngFor="let stock of stockOptions" [value]="stock.value">
+                    {{ stock.label }}
+                  </nb-option>
+                </nb-select>
+                <div *ngIf="submitted && pdt.get('stock')?.errors" class="invalid-feedback">
+                  <div *ngIf="pdt.get('stock')?.errors?.['required']">Please select the stock.</div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3 mb-3">
+                <label class="label fw-semibold">Is-Featured*</label>
+                <div>
+                  <p-toggleButton
+                    formControlName="isFeatured"
+                    onLabel="True"
+                    offLabel="False" />
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3 mb-3">
+                <label class="label fw-semibold">Is-Trending*</label>
+                <div>
+                  <p-toggleButton
+                    formControlName="isTrending"
+                    onLabel="True"
+                    offLabel="False" />
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3 mb-3">
+                <label class="label fw-semibold">Is-NewArrival*</label>
+                <div>
+                  <p-toggleButton
+                    formControlName="isNewArrival"
+                    onLabel="True"
+                    offLabel="False" />
+                </div>
+              </div>
+            </div>
+            <!-- Nested FormGroup for Stock Information -->
+            <div formGroupName="specifications">
+              <div class="row">
+                <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
+                  <label class="label fw-semibold">Material*</label>
+                  <input type="text" nbInput class="form-control"
+                         fullWidth formControlName="material" placeholder="Enter material details"
+                         [ngClass]="{ 'is-invalid': submitted && pdt.get('specifications')?.get('material')?.errors }" >
+                  <div *ngIf="submitted && pdt.get('specifications')?.get('material')?.errors" class="invalid-feedback">
+                    <div *ngIf="pdt.get('specifications')?.get('material')?.errors?.['required']">Please enter the material.</div>
+                    <div *ngIf="pdt.get('specifications')?.get('material')?.errors?.['pattern']">Only alphabets are allowed.</div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
+                  <label class="label fw-semibold">Dimensions*</label>
+                  <input type="text" nbInput class="form-control"
+                         (input)="onDimensionInput($event, i)"
+                         fullWidth formControlName="dimensions" placeholder="Enter dimensions details"
+                         [ngClass]="{ 'is-invalid': submitted && pdt.get('specifications')?.get('dimensions')?.errors }" >
+                  <div *ngIf="submitted && pdt.get('specifications')?.get('dimensions')?.errors" class="invalid-feedback">
+                    <div *ngIf="pdt.get('specifications')?.get('dimensions')?.errors?.['required']">Please enter the dimensions.</div>
+                    <div *ngIf="pdt.get('specifications')?.get('dimensions')?.errors?.['invalidFormat']">
+                      format "LxWxH cm|mm|in".
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
+                  <label class="label fw-semibold">Weight*</label>
+                  <input type="text" nbInput class="form-control"
+                         fullWidth formControlName="weight" placeholder="Enter weight details"
+                         [ngClass]="{ 'is-invalid': submitted && pdt.get('specifications')?.get('weight')?.errors }" >
+                  <div *ngIf="submitted && pdt.get('specifications')?.get('weight')?.errors" class="invalid-feedback">
+                    <div *ngIf="pdt.get('specifications')?.get('weight')?.errors?.['required']">Please enter the weight.</div>
+                    <div *ngIf="pdt.get('specifications')?.get('weight')?.errors?.['invalidWeightFormat']">
+                      format "weight lb|kg|g|oz".
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
+                  <label class="label fw-semibold">Color*</label>
+                  <input type="text" nbInput class="form-control"
+                         fullWidth formControlName="color" placeholder="Enter color details"
+                         [ngClass]="{ 'is-invalid': submitted && pdt.get('specifications')?.get('color')?.errors }" >
+                  <div *ngIf="submitted && pdt.get('specifications')?.get('color')?.errors" class="invalid-feedback">
+                    <div *ngIf="pdt.get('specifications')?.get('color')?.errors?.['required']">Please enter the color.</div>
+                    <div *ngIf="pdt.get('specifications')?.get('color')?.errors?.['pattern']">Only alphabets are allowed.</div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
+                  <label class="label fw-semibold">Finishing*</label>
+                  <input type="text" nbInput class="form-control"
+                         fullWidth formControlName="finish" placeholder="Enter finishing details"
+                         [ngClass]="{ 'is-invalid': submitted && pdt.get('specifications')?.get('finish')?.errors }" >
+                  <div *ngIf="submitted && pdt.get('specifications')?.get('finish')?.errors" class="invalid-feedback">
+                    <div *ngIf="pdt.get('specifications')?.get('finish')?.errors?.['required']">Please enter the finishing.</div>
+                    <div *ngIf="pdt.get('specifications')?.get('finish')?.errors?.['pattern']">Only alphabets are allowed.</div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
+                  <label class="label fw-semibold">Warranty*</label>
+                  <input type="text" nbInput class="form-control"
+                         fullWidth formControlName="warranty" placeholder="Enter weight details"
+                         [ngClass]="{ 'is-invalid': submitted && pdt.get('specifications')?.get('warranty')?.errors }" >
+                  <div *ngIf="submitted && pdt.get('specifications')?.get('warranty')?.errors" class="invalid-feedback">
+                    <div *ngIf="pdt.get('specifications')?.get('warranty')?.errors?.['required']">Please enter the warranty.</div>
+                    <div *ngIf="pdt.get('specifications')?.get('warranty')?.errors?.['invalidWarrantyFormat']">
+                      format "6|12|18|24|30|36 months".
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6 d-none">
+            </div>
+            <div class="row">
+              <div class="col-12 mb-3">
                 <div class="d-flex align-items-center gap-3">
                   <div class="w-100">
-                    <label class="label fw-semibold">Description</label>
-                    <input type="text" nbInput class="form-control"
-                           fullWidth formControlName="description" placeholder="Enter product description">
+                    <label class="label fw-semibold">Product Description*</label>
+                    <textarea type="text" nbInput class="form-control" [minlength]="20" [maxlength]="150"
+                              fullWidth formControlName="description" placeholder="Enter product description"
+                              [ngClass]="{ 'is-invalid': submitted && pdt.get('description')?.errors }" ></textarea>
+                    <div *ngIf="submitted && pdt.get('description')?.errors" class="invalid-feedback">
+                      <div *ngIf="pdt.get('description')?.errors?.['required']">Please enter the description.</div>
+                      <div *ngIf="pdt.get('description')?.errors?.['minlength']">Description must be at least 20 characters.</div>
+                      <div *ngIf="pdt.get('description')?.errors?.['maxlength']">Description dont be more than 150 characters.</div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="w-100">
-                    <label class="label fw-semibold">Price</label>
-                    <input type="number" nbInput class="form-control"
-                           fullWidth formControlName="price" placeholder="Enter product price">
-                  </div>
+            </div>
+            <div class="row">
+              <div class="col-12 mb-3">
+                <div class="card flex justify-content-center border-0">
+                  <label class="label fw-semibold">Images*</label>
+                  <p-fileUpload
+                    [multiple]="true"
+                    [showUploadButton]="false"
+                    [showCancelButton]="false"
+                    (onSelect)="onFileSelect($event, i)"
+                    (onRemove)="removeFile($event, i)"
+                    accept="image/*"
+                    maxFileSize="1000000">
+                    <ng-template pTemplate="content">
+                      <ul *ngIf="uploadedFiles.length">
+                        <li *ngFor="let file of uploadedFiles">
+                          {{ file.name }} - {{ file.size }} bytes
+                        </li>
+                      </ul>
+                      <div class="m-0 text-center" *ngIf="!p.at(i).get('image')?.value?.[length]">
+                        <p class="m-0 fw-semibold">Drag and drop files here to upload. Or click to select files</p>
+                      </div>
+                    </ng-template>
+                  </p-fileUpload>
                 </div>
               </div>
+            </div>
+            <div *ngIf="p.controls.length > 1" class="col-1 mt-3">
+              <button nbButton status="danger" style="padding: 10px !important;"
+                      (click)="removeProduct(i)"
+                      nbTooltip="Delete the product form {{ i + 1 }}" nbTooltipPlacement="right"
+                      class="rounded-2 fw-semibold p-2"> Delete
+                <nb-icon icon="trash-outline"></nb-icon>
+              </button>
             </div>
           </div>
         </div>

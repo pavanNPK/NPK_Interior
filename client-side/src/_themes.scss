@@ -27,3 +27,49 @@ nb-option:focus.selected {
    background-color: #f7f9fc !important;
    border-color: #e4e9f2 !important;
 }
+p-togglebutton {
+  .p-button{
+    padding: 9px !important;
+    border-radius: 4px;
+    background: #f7f9fc;
+    border: 1px solid #e4e9f2;
+    box-shadow: none;
+    color: black ;
+  }
+  .p-button.p-highlight {
+    background: white;
+    color: black;
+  }
+}
+.p-fileupload {
+  .p-fileupload-buttonbar {
+    padding: 10px;
+    p-button{
+      margin-right: 10px
+    }
+  }
+  .p-fileupload-buttonbar .p-button {
+    height: 2.4rem;
+    padding: 10px;
+    background: black;
+    border: none !important;
+    border-radius: 5px;
+    box-shadow: none;
+  }
+  .p-fileupload-row {
+    background: whitesmoke;
+    border-radius: 10px;
+  }
+  .p-fileupload-row:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+  .p-fileupload-row > div {
+    padding: .5rem;
+    .p-button{
+      background: black;
+      border-radius: 50%;
+      height: 2rem;
+      width: 2rem;
+    }
+  }
+}

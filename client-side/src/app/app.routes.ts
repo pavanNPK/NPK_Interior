@@ -9,6 +9,7 @@ import {PrivacyPolicyComponent} from "./modules/core/components/privacy-policy/p
 import {
   TermsAndConditionsComponent
 } from "./modules/core/components/terms-and-conditions/terms-and-conditions.component";
+import {ReturnPolicyComponent} from "./modules/core/components/return-policy/return-policy.component";
 export const routes: Routes = [
   {
     path: '',
@@ -22,5 +23,6 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'privacy-policy', component: PrivacyPolicyComponent},
   { path: 'terms-and-conditions', component: TermsAndConditionsComponent},
+  { path: 'return-policy', component: ReturnPolicyComponent},
   { path: '**', component: PageNotFoundComponent }
 ];

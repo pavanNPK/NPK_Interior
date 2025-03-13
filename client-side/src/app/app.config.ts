@@ -1,9 +1,9 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideClientHydration } from '@angular/platform-browser';
+import {ApplicationConfig, importProvidersFrom} from '@angular/core';
+import {provideRouter} from '@angular/router';
+import {provideClientHydration} from '@angular/platform-browser';
 
-import { routes } from './app.routes';
-import { NbThemeModule, NbMenuModule } from '@nebular/theme';
+import {routes} from './app.routes';
+import {NbMenuModule, NbThemeModule} from '@nebular/theme';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi} from "@angular/common/http";
 import {OverlaySpinnerInterceptor} from "./modules/core/interceptors/overlay-spinner.interceptor";

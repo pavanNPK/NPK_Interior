@@ -48,7 +48,7 @@ export const authLoadGuard: CanMatchFn = (route, segments) => {
   const url = `/${segments.map(s => s.path).join('/')}`;
   console.log('Auth Load Guard checking:', url);
   // Skip auth check for public routes
-  if (url === '/login' || url === '/register' || url === '/reset-password' || url === '/access-denied' || url === '/privacy-policy' || url === '/terms-and-conditions') {
+  if (url === '/login' || url === '/register' || url === '/reset-password' || url === '/access-denied' || url === '/privacy-policy' || url === '/terms-and-conditions' || url === '/return-policy') {
     return true;
   }
   return checkAuth(url);
