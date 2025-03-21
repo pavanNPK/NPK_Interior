@@ -8,11 +8,14 @@ import {generateToken} from '../middleware/auth.middleware.js';
 
 
 const redis = new Redis({
-    host: process.env.REDIS_HOST, // Ensure Redis is accessible on this IP
+    host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,
-    connectTimeout: 10000, // Increase timeout to 10 seconds
-    retryStrategy: (times) => Math.min(times * 50, 2000), // Retry strategy
-}); // Initialize Redis
+    connectTimeout: 10000,
+    retryStrategy: (times) => Math.min(times * 50, 2000),
+});
+
+redis.on("connect", () => console.log("✅ Connected to Redis"));
+redis.on("error", (err) => console.error("❌ Redis Error:", err));
 
 // Function to register a new user
 export const sendOTP = async (req, res, next) => {
@@ -340,7 +343,7 @@ export const forgotPassword = async (req, res) => {
         const { email } = req.body;
         const user = await User.findOne({ email }, {}, { lean: true }).exec();
         if (!user) {
-            return res.json({response: 'notFound', success: false, message: 'User not found' });
+            return res.json({response: 'notFound', success: false, message: 'Entered email is not registered' });
         }
 
         // Generate password reset token

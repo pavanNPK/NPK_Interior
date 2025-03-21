@@ -1,6 +1,8 @@
 // Import mongoose and the Category model with ES module syntax
 import mongoose from 'mongoose';
 import Product from '../models/product.model.js';
+import slugify from 'slugify';
+import {uploadFilesOnS3, uploadS3} from "./s3upload.controller.js";
 
 
 // Get all products
@@ -30,25 +32,65 @@ export const getProductById = async (req, res) => {
 
 // Add a product
 export const addProduct = async (req, res) => {
+    console.log(JSON.stringify(req.body, null, 2), "req.body NPK");
     try {
-        // Create a new Product instance with the data from the request body
-        const product = new Product(req.body);
-        // The 'save' method returns a promise that resolves to the saved document
-        // It will throw an error if the document is invalid or if there is a problem
-        // with the database connection
-        await product.save()
-            .then(result => {
-            })
-            .catch(err => {
-                console.error('Error saving product:', err);
-            });
-        res.status(201).json({response:product, success: true, message: "Product created successfully"});
+        const products = req.body; // Expecting an array of product objects
+
+        if (!Array.isArray(products) || products.length === 0) {
+            return res.status(400).json({ success: false, message: "Invalid product data" });
+        }
+
+        let savedProducts = [];
+
+        for (let product of products) {
+            // Generate initial slug
+            let slug = slugify(product.name, { lower: true, strict: true });
+
+            // Ensure unique slug
+            let existingProduct = await Product.findOne({ slug }, {}, { lean: true }).exec();
+            let count = 1;
+            while (existingProduct) {
+                slug = `${slug}-${count}`;
+                existingProduct = await Product.findOne({ slug }, {}, { lean: true }).exec();
+                count++;
+            }
+
+            // Set the folder name as the product slug for S3 uploads
+            req.query.folderName = slug;
+            req.files = product.images
+
+            // Handle image uploads to S3
+            const uploadedFiles = await uploadFilesOnS3(req, res);
+
+            console.log(uploadedFiles, 'uploadedFiles')
+
+
+            // Store uploaded images in the product object
+            product.slug = slug;
+            product.images = uploadedFiles;
+            product.createdAt = new Date();
+            product.updatedAt = new Date();
+
+            // Save the product
+            const newProduct = new Product(product);
+            const savedProduct = await newProduct.save();
+            savedProducts.push(savedProduct);
+        }
+
+        res.status(201).json({
+            success: true,
+            message: "Products created successfully",
+            response: savedProducts, // Return saved products
+        });
     } catch (error) {
-        console.error('Error creating product:', error);
-        res.status(500).json({response: null, success: false, message: 'Error creating product' }); // 500 Internal Server Error
+        console.error("Error creating product:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error creating product",
+            error: error.message,
+        });
     }
 };
-
 
 // Update a product
 export const updateProduct = async (req, res) => {

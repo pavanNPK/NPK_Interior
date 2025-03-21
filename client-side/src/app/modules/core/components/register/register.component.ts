@@ -241,5 +241,8 @@ export class RegisterComponent implements OnInit{
     this.isSendOTPEdit = true;
   }
 
-    protected readonly window = window;
+  openInNewTab(route: string) {
+    window.open(route, '_blank');
+  }
+
 }

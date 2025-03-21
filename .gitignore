@@ -1,5 +1,5 @@
 server-side/.env
-server-side/uploads/
+uploads/
 .qodo/
 .idea/
 node_modules/

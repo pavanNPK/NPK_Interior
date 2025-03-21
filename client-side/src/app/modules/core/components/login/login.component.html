@@ -36,10 +36,11 @@
                          pack="eva">
                 </nb-icon>
               </button>
-              <input nbInput fullWidth formControlName="email" placeholder="example@ex.com" />
+              <input nbInput type="email" fullWidth formControlName="email" placeholder="example@ex.com" />
             </nb-form-field>
             <div *ngIf="submitted && l.email?.errors" class="invalid-feedback mb-1">
               <div *ngIf="l.email?.errors?.['required']">Please enter your email.</div>
+              <div *ngIf="l.email?.errors?.['email']">Email is not valid.</div>
             </div>
             <div *ngIf="!ifForgot">
               <label class="small fw-semibold">Password</label>

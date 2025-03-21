@@ -20,6 +20,7 @@ import ratingRoutes from './routes/ratings.route.js';        // Rating API route
 import categoryRoutes from './routes/categories.routes.js';  // Category API routes
 import userRoutes from "./routes/user.routes.js";  // User API routes
 import { upload, uploadFiles } from './controllers/upload.controller.js'; // File upload controller functions
+import { uploadS3, uploadFilesOnS3 } from './controllers/s3upload.controller.js'; // File upload controller functions
 
 // In ES modules, __dirname is not available, so we need to recreate it
 // Get the current file's path from the import.meta.url (ES modules feature)
@@ -59,8 +60,8 @@ app.use(limiter);
 // we are removing the useNewUrlParser and useUnifiedTopology options to avoid deprecation warnings.
 // we are update form 5 to 8
 mongoose.connect(dbUrl)
-    .then(() => console.log('Successfully Connected to MongoDB.....'))                // Log success message
-    .catch(err => console.error('MongoDB connection error:', err)); // Log any connection errors
+    .then(() => console.log('✅ Successfully Connected to MongoDB.....'))                // Log success message
+    .catch(err => console.error('❌ MongoDB connection error:', err)); // Log any connection errors
 
 // Define routes
 app.get('/', (req, res) => res.send('Hello World!')); // Simple root route
@@ -69,6 +70,8 @@ app.use('/ratings', ratingRoutes);        // Mount rating routes under /ratings
 app.use('/categories', categoryRoutes);   // Mount category routes under /categories
 app.use('/users', userRoutes);
 
+
+// Set up file upload for a local
 // Set up static file serving for uploads directory
 // This makes files in the uploads folder accessible via /uploads URL path
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -78,6 +81,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.post('/uploads', upload.array('files', 12), (req, res, next) => {
     // Call the uploadFiles controller function and catch any async errors
     uploadFiles(req, res, next).catch(next);
+});
+
+// Set up file upload endpoint for S3
+// upload.array('files', 12) is middleware that handles multipart form data with max 12 files
+app.post('/s3-uploads', uploadS3.array('files', 12), (req, res, next) => {
+    // Call the uploadFilesOnS3 controller function and catch any async errors
+    uploadFilesOnS3(req, res, next).catch(next);
 });
 
 // Start the Express server

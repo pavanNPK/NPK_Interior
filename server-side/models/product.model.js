@@ -16,8 +16,8 @@ const productSchema = new mongoose.Schema({
     },
     price: { type: Number, required: true },
     discount: { type: Number, default: 0 },
-    stock: { type: Number, required: true },
-    images: [{ url: String, alt: String }],
+    stock: { type: String, required: true },
+    images: [{ key: String, originalName: String,  }],
     specifications: {
         material: String,
         dimensions: String, // Example: "200x80x90 cm"
@@ -31,6 +31,8 @@ const productSchema = new mongoose.Schema({
     isFeatured: { type: Boolean, default: false },
     isTrending: { type: Boolean, default: false },
     isNewArrival: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 });
 
 // Create and export the Product model using ES module syntax

@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import {ViewBoardComponent} from "./view-board/view-board.component";
 
 const routes: Routes = [
-  {path: 'view', component: ViewBoardComponent}
+  {path: 'view', component: ViewBoardComponent, title: 'NPK | Dashboard'}
 ];
 
 @NgModule({

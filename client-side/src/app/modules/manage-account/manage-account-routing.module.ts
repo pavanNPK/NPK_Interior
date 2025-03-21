@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import {ViewManageAccountComponent} from "./view-manage-account/view-manage-account.component";
 
 const routes: Routes = [
-  {path: 'config', component: ViewManageAccountComponent}
+  {path: 'config', component: ViewManageAccountComponent, title: 'NPK | Account'}
 ];
 
 @NgModule({

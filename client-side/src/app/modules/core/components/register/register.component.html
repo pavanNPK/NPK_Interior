@@ -159,7 +159,7 @@
           <p-button label="submit"  (click)="registerUser()" severity="contrast" *ngIf="isOTPSuccess" />
         </div>
         <div class="mt-3">
-          <p class="m-0 small">By continuing, you agree to our <span (click)="window.open('/terms-and-conditions', '_blank')" class="fw-semibold text-decoration-underline cursor-pointer">Terms & Conditions</span> and <span (click)="window.open('/privacy-policy', '_blank')" class="fw-semibold text-decoration-underline cursor-pointer">Privacy Policy</span>.</p>
+          <p class="m-0 small">By continuing, you agree to our <span (click)="openInNewTab('/terms-and-conditions')" class="fw-semibold text-decoration-underline cursor-pointer">Terms & Conditions</span> and <span (click)="openInNewTab('/privacy-policy')" class="fw-semibold text-decoration-underline cursor-pointer">Privacy Policy</span>.</p>
         </div>
         <div class="mt-1">
           <p class="m-0 small">Do you have an account? <span [routerLink]="['/login']" class="fw-semibold text-decoration-underline cursor-pointer">Login</span></p>

@@ -27,6 +27,9 @@ nb-option:focus.selected {
    background-color: #f7f9fc !important;
    border-color: #e4e9f2 !important;
 }
+.nb-theme-default nb-form-field .nb-form-field-addon-basic-highlight{
+  color: #8f9bb3 !important
+}
 p-togglebutton {
   .p-button{
     padding: 9px !important;
@@ -70,6 +73,11 @@ p-togglebutton {
       border-radius: 50%;
       height: 2rem;
       width: 2rem;
+    }
+  }
+  .p-fileupload-content{
+    p-progressbar{
+      display: none;
     }
   }
 }

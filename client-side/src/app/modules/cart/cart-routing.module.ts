@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import {ViewCartComponent} from "./view-cart/view-cart.component";
 
 const routes: Routes = [
-  {path: 'view', component: ViewCartComponent}
+  {path: 'view', component: ViewCartComponent, title: 'NPK | Cart'}
 ];
 
 @NgModule({

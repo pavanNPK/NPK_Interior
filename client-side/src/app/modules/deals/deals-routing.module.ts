@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import {ViewDealsComponent} from "./view-deals/view-deals.component";
 
 const routes: Routes = [
-  {path: 'view', component: ViewDealsComponent}
+  {path: 'view', component: ViewDealsComponent, title: 'NPK | Deals'}
 ];
 
 @NgModule({

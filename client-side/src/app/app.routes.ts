@@ -18,11 +18,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   { path: 'access-denied', component: AccessDeniedComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'privacy-policy', component: PrivacyPolicyComponent},
-  { path: 'terms-and-conditions', component: TermsAndConditionsComponent},
-  { path: 'return-policy', component: ReturnPolicyComponent},
-  { path: '**', component: PageNotFoundComponent }
+  { path: 'login', component: LoginComponent, title: 'NPK Interior | Login' },
+  { path: 'register', component: RegisterComponent, title: 'NPK Interior | Register' },
+  { path: 'reset-password', component: ResetPasswordComponent, title: 'NPK Interior | Reset Password' },
+  { path: 'privacy-policy', component: PrivacyPolicyComponent, title: 'NPK Interior | Privacy Policy' },
+  { path: 'terms-and-conditions', component: TermsAndConditionsComponent, title: 'NPK Interior | Terms & Conditions' },
+  { path: 'return-policy', component: ReturnPolicyComponent, title: 'NPK Interior | Return Policy' },
+  { path: '**', component: PageNotFoundComponent, title: 'NPK Interior | Page Not Found' }
 ];

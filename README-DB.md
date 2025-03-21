@@ -150,3 +150,88 @@ if (type === "Sub Category") {
 * type=category → Deletes the whole category using findByIdAndDelete(req.body._id).
 * type=subcategory →  Deletes a specific subcategory using findByIdAndUpdate(id, { $pull: { subCategories: { _id: id } } }).
 
+-----------------------------------------------------------------------------------
+
+## Products
+
+#### `POST /products` - Store all products from the database.
+* Before storing products, We are storing the images in `AWS S3` bucket. So, we can store the product images in the database in URL format.
+* Based on product name (Using `SLUG`), we are storing the products. And, we are storing the images.
+* By `SLUG` we can easily modify the products.
+
+__First connect the AWS S3 bucket:__
+
+```aiignore
+// For process.env we have to import dotenv and then use dotenv.config();
+// In ES modules, __dirname is not available, so we need to recreate it
+// Get the current file's path from the import.meta.url (ES modules feature)
+const __filename = fileURLToPath(import.meta.url);
+
+// Extract the directory path from the file path
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from .env file in the project directory
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
+// Create S3 client
+const s3Client = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+});
+
+const uploadS3 = multer({
+    storage: multerS3({
+        s3: s3Client,
+        bucket: process.env.AWS_BUCKET_NAME,
+        metadata: function (req, file, cb) {
+            // Set a metadata field for the uploaded file
+            // This could be used to store additional information about the file,
+            // For example, the field name of the file
+            cb(null, { fieldName: file.fieldname });
+        },
+        key: function (req, file, cb) {
+            // Set the key (file name) for the uploaded file
+            // This could be used to store the file in a specific folder or with a specific name
+            // In this case, we're creating a folder based on the productId query parameter
+            // and storing the file with a timestamp and the original file name
+            const productId = req.query.productId || 'default';
+            const fileName = `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`;
+            const fullPath = `uploads/${productId}/${fileName}`;
+            cb(null, fullPath);
+        }
+    }),
+    limits: {
+        // Set the maximum file size
+        // In this case, we're allowing up to 5MB files
+        fileSize: 1024 * 1024 * 5
+    }
+});
+// Controller function to handle uploads
+const uploadFilesOnS3 = async (req, res) => {
+    try {
+        const files = await uploadS3.array('files')(req, res);
+        res.status(200).json({ message: 'Files uploaded successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to upload files' });
+    }
+};
+```
+
+__After storing the images, we can store the products in the database:__
+
+```aiignore
+// Controller function to handle product creation
+const createProduct = async (req, res) => {
+    try {
+        const product = await Product.create(req.body);
+        res.status(201).json(product);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to create product' });
+    }
+};
+```

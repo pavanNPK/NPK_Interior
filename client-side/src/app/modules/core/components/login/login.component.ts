@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit{
 
   loadForm(){
     this.loginForm = this.fb.group({
-      email: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     })
   }
@@ -111,7 +111,7 @@ export class LoginComponent implements OnInit{
             this.submitted = false;
             this.ms.add({severity: 'success', summary: 'Forgot Password', detail: res.message});
           } else {
-            this.ms.add({severity: 'error', summary: 'Error', detail: res.message});
+            this.ms.add({severity: 'error', summary: 'User', detail: res.message});
           }
         },
         error: (err: any) => {
@@ -130,25 +130,6 @@ export class LoginComponent implements OnInit{
       const data = new RegisterUserDTO();
       data.email = this.loginForm.value.email;
       data.password = this.loginForm.value.password;
-      // this.as.login(data.email: , data.password).subscribe({
-      //   next: (res: ResponseWithError<any>) => {
-      //     if(res.success){
-      //       this.loginForm.reset();
-      //       this.router.navigate(['']);
-      //       this.submitted = false;
-      //     } else if(res.response === 'notFound'){
-      //       this.ms.add({severity: 'warn', summary: 'User', detail: res.message});
-      //     } else if (res.response === 'notMatched') {
-      //       this.ms.add({severity: 'error', summary: 'User', detail: res.message});
-      //     } else {
-      //       this.ms.add({severity: 'error', summary: 'Error', detail: res.message});
-      //     }
-      //   },
-      //   error: (err: any) => {
-      //     this.loading = false;
-      //     this.ms.add({severity: 'error', summary: 'Error', detail: err.error.message});
-      //   }
-      // })
       this.as.login(this.loginForm.value.email, this.loginForm.value.password)
         .subscribe({
           next: (response) => {
@@ -160,13 +141,13 @@ export class LoginComponent implements OnInit{
               this.router.navigate(['/categories/view/']);
             } else { // @ts-ignore
               if(response.response === 'notFound'){
-                            this.ms.add({severity: 'warn', summary: 'User', detail: response.message});
-                          } else { // @ts-ignore
+                this.ms.add({severity: 'warn', summary: 'User', detail: response.message});
+              } else { // @ts-ignore
                 if (response.response === 'notMatched') {
-                                            this.ms.add({severity: 'error', summary: 'User', detail: response.message});
-                                          } else {
-                                            this.ms.add({severity: 'error', summary: 'Error', detail: response.message});
-                                          }
+                  this.ms.add({severity: 'error', summary: 'User', detail: response.message});
+                } else {
+                  this.ms.add({severity: 'error', summary: 'Error', detail: response.message});
+                }
               }
             }
           },

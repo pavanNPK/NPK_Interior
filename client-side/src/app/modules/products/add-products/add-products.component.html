@@ -21,26 +21,30 @@
         <div formArrayName="products">
           <div *ngFor="let pdt of p.controls; let i = index" [formGroupName]="i" class="card mb-3 border-0 p-4">
             <div class="row">
-              <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-3">
+              <!-- Nested FormGroup for Stock Information -->
+              <div formGroupName="category" class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 <label class="label fw-semibold">Categories*</label>
-                <nb-select fullWidth formControlName="categoryId" placeholder="Select Category" [ngClass]="{ 'is-invalid': submitted && pdt.get('categoryId')?.errors }">
+                <nb-select fullWidth formControlName="id" placeholder="Select Category"
+                           [ngClass]="{ 'is-invalid': submitted && pdt.get('category.id')?.errors }">
                   <nb-option *ngFor="let category of categoriesData" [value]="category._id" (click)="selectCategory(category, i);">
                     {{ category.name }}
                   </nb-option>
                 </nb-select>
-                <div *ngIf="submitted && pdt.get('categoryId')?.errors" class="invalid-feedback">
-                  <div *ngIf="pdt.get('categoryId')?.errors?.['required']">Please select the category.</div>
+                <div *ngIf="submitted && pdt.get('category.id')?.errors" class="invalid-feedback">
+                  <div *ngIf="pdt.get('category.id')?.errors?.['required']">Please select the category.</div>
                 </div>
               </div>
-              <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-3" >
+              <!-- Nested FormGroup for Stock Information -->
+              <div formGroupName="subCategory" class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-3" >
                 <label class="label fw-semibold">Sub Categories*</label>
-                <nb-select fullWidth formControlName="subCategoryId" placeholder="Select Sub Category" [ngClass]="{ 'is-invalid': submitted && pdt.get('subCategoryId')?.errors }">
-                  <nb-option *ngFor="let subCategory of selectedSubCategoriesMap[i]" [value]="subCategory._id" (click)="p.at(i).get('subCategoryName')?.setValue(subCategory.name)">
+                <nb-select fullWidth formControlName="id" placeholder="Select Sub Category"
+                           [ngClass]="{ 'is-invalid': submitted && pdt.get('subCategory.id')?.errors }">
+                  <nb-option *ngFor="let subCategory of selectedSubCategoriesMap[i]" [value]="subCategory._id" (click)="p.at(i).get('subCategory.name')?.setValue(subCategory.name)">
                     {{ subCategory.name }}
                   </nb-option>
                 </nb-select>
-                <div *ngIf="submitted && pdt.get('subCategoryId')?.errors" class="invalid-feedback">
-                  <div *ngIf="pdt.get('subCategoryId')?.errors?.['required']">Please select the sub category.</div>
+                <div *ngIf="submitted && pdt.get('subCategory.id')?.errors" class="invalid-feedback">
+                  <div *ngIf="pdt.get('subCategory.id')?.errors?.['required']">Please select the sub category.</div>
                 </div>
               </div>
               <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-3">
@@ -66,9 +70,12 @@
               </div>
               <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
                 <label class="label fw-semibold">Discount*</label>
-                <input type="number" nbInput class="form-control"
-                       fullWidth formControlName="discount" placeholder="Enter product discount"
+                <nb-form-field>
+                  <nb-icon nbSuffix icon="percent-outline" pack="eva"></nb-icon>
+                  <input type="number" nbInput class="form-control"
+                       fullWidth formControlName="discount" placeholder="Enter product discount" min="0" max="100"
                        [ngClass]="{ 'is-invalid': submitted && pdt.get('discount')?.errors }" >
+                </nb-form-field>
                 <div *ngIf="submitted && pdt.get('discount')?.errors" class="invalid-feedback">
                   <div *ngIf="pdt.get('discount')?.errors?.['required']">Please enter the discount.</div>
                 </div>
@@ -208,10 +215,16 @@
                   <p-fileUpload
                     [multiple]="true"
                     [showUploadButton]="false"
+                    chooseLabel="Choose files"
+                    mode="advanced"
+                    [customUpload]="true"
+                    [auto]="true"
                     [showCancelButton]="false"
                     (onSelect)="onFileSelect($event, i)"
                     (onRemove)="removeFile($event, i)"
                     accept="image/*"
+                    fileLimit="5"
+                    invalidFileLimitMessageDetail="You can only upload up to 5 files."
                     maxFileSize="1000000">
                     <ng-template pTemplate="content">
                       <ul *ngIf="uploadedFiles.length">
@@ -219,11 +232,18 @@
                           {{ file.name }} - {{ file.size }} bytes
                         </li>
                       </ul>
-                      <div class="m-0 text-center" *ngIf="!p.at(i).get('image')?.value?.[length]">
-                        <p class="m-0 fw-semibold">Drag and drop files here to upload. Or click to select files</p>
+                      <div class=" text-center" *ngIf="getImageCount(i) < 1">
+                        <p class="mb-1 fw-semibold">Drag and drop files here to upload. Or click to choose files</p>
+                        <small class="">Duplicate files are not allowed & max file size is 1MB. Also, you can upload only 5 files.</small>
                       </div>
                     </ng-template>
                   </p-fileUpload>
+                </div>
+                <div *ngIf="submitted && getImageCount(i) < 1">
+                  <div class="text-danger small mt-1">Please upload the files.</div>
+                </div>
+                <div *ngIf="submitted && getImageCount(i) > 5">
+                  <div class="text-danger small mt-1">File limit exceeded.</div>
                 </div>
               </div>
             </div>
