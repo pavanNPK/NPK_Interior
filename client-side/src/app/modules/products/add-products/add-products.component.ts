@@ -176,9 +176,7 @@
         product.get('subCategory')?.get('name')?.setValue('');
         product.get('subCategory')?.get('id')?.setValue('');
       }
-      // this.selectedSubCategories = data.subCategories;
       this.selectedSubCategoriesMap[i] = data.subCategories;
-      console.log(this.addProductsForm.value)
     }
 
     removeProduct(i: number) {
@@ -188,11 +186,9 @@
     }
 
     onFileSelect(event: any, i: number) {
-      console.log(event.currentFiles)
       let filesMap = event.currentFiles.map((file: any) => {
         return file
       });
-      console.log(filesMap, 'filesMap')
       this.p.at(i).get('images')?.setValue(filesMap);
       this.getImageCount(i)
     }
@@ -209,14 +205,11 @@
     }
 
     addProducts() {
-      console.log(this.addProductsForm.value)
       this.submitted = true;
       if (this.p.controls.some((c, i) => this.getImageCount(i) > 5)) return;
       if (this.addProductsForm.invalid) return;
       const duplicateNames = this.addProductsForm.value.products.map((p: { name: string; }) => p.name);
-      console.log(duplicateNames, 'duplicateNames')
       const duplicates = duplicateNames.filter((name: string, index: number) => duplicateNames.indexOf(name) !== index);
-      console.log(duplicates, 'duplicates')
       if (duplicates.length > 0) {
         console.error(`${duplicates.length} duplicate product name(s) found: ${duplicates.join(', ')}`);
         return;
@@ -245,26 +238,15 @@
         }
       });
 
-      console.log(formData, 'formData')
-
-      // Log FormData contents
-      // @ts-ignore
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1], 'pair');
-      }
-
       this.ps.addProducts(formData).subscribe({
         next: (response: any) => {
-          console.log(response, 'response');
           if (response.role !== 'notAllowed') {
             if (response.success) {
               this.submitted = false;
               this.addProductsForm.reset();
               this.p.reset();
               this.uploadedFiles = [];
-              this.addProductsForm.markAsPristine();
-              this.addProductsForm.markAsUntouched();
-              this.addProductsForm.updateValueAndValidity();
+              this.router.navigate(['/products/view']);
               this.toastService.success('Successfully added new products', 'Products', {duration: 2000});
             } else {
               this.toastService.danger('Failed to add new products', 'Products', {duration: 2000});

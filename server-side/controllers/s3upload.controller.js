@@ -48,7 +48,6 @@ const uploadS3 = multer({
 
 // Controller function to handle uploads
 const uploadFilesOnS3 = async (req, res) => {
-    console.log(req.files, 'req.files npk s3 controller')
     try {
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ success: false, message: 'No files uploaded' });
@@ -61,8 +60,6 @@ const uploadFilesOnS3 = async (req, res) => {
             // size: file.size,
             type: file.mimetype
         }));
-
-        console.log(uploadedFiles, 'uploadedFiles npk s3 controller')
 
         res.status(200).json({
             success: true,
@@ -80,15 +77,12 @@ const uploadFilesOnS3 = async (req, res) => {
 };
 
 const getSignedUrlForS3 = async ( key) => {
-    console.log(key, 'key')
     try {
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: key
         };
-
         const command = new GetObjectCommand(params);
-
         // Link valid for 1 hour
         return await getSignedUrl(s3Client, command, {expiresIn: 3600});
     } catch (error) {
@@ -107,7 +101,6 @@ const uploadWithPutObject = async (buffer, path, type, folderName, fileName, ful
             Body: modifiedBuffer,
             ContentType: type
         };
-
         await s3Client.send(new PutObjectCommand(params));
 
         // Return the file details including name, key, and type
@@ -117,7 +110,6 @@ const uploadWithPutObject = async (buffer, path, type, folderName, fileName, ful
         throw error; // Throw error so the calling function can handle it properly
     }
 };
-
 
 // Export the configured multer instance and the upload controller function
 export { uploadS3, uploadFilesOnS3, getSignedUrlForS3, uploadWithPutObject };

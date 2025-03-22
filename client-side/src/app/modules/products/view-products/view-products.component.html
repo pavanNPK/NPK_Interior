@@ -1,20 +1,72 @@
 <div class="viewProductsMain">
   <div class="appLayoutHeader">
-    <div class="appLayoutHeaderText d-flex justify-content-between align-items-center p-2">
+    <div class="appLayoutHeaderText d-flex justify-content-between align-items-center">
       <h5 class="fw-semibold m-0"> Products</h5>
-      <button nbButton size="small"
-              [routerLink]="['/products/add']"
-              nbTooltip="By clicking this you can add the products" nbTooltipPlacement="bottom"
-              class=" rounded-2 fw-semibold">
-        <nb-icon icon="plus"></nb-icon>
-      </button>
+      <div class="d-flex gap-3 align-items-center">
+        <nb-form-field>
+          <nb-icon nbSuffix class="cursor-pointer" icon="search-outline" pack="eva"
+                   (click)="searchProducts()"></nb-icon>
+          <input type="text" nbInput class="form-control"
+                 [formControl]="productSearch"
+                 (keyup.enter)="searchProducts()"
+                 (keyup)="trimLeadingSpace($event)"
+                 nbTooltip="After entering the data, click on enter or search icon" nbTooltipPlacement="bottom-start"
+                 placeholder="Search by Product Name">
+        </nb-form-field>
+        <button nbButton size="small" *ngIf="whenSearch"
+                (click)="loadProducts(); productSearch.setValue('')"
+                nbTooltip="Reset the data" nbTooltipPlacement="bottom"
+                class=" rounded-2 fw-semibold">
+          <nb-icon icon="flip-2-outline"></nb-icon>
+        </button>
+        <button nbButton size="small"
+                [routerLink]="['/products/add']"
+                nbTooltip="By clicking this you can add the products" nbTooltipPlacement="bottom"
+                class=" rounded-2 fw-semibold">
+          <nb-icon icon="plus"></nb-icon>
+        </button>
+      </div>
     </div>
   </div>
   <div class="appLayoutBody">
+    <div *ngFor="let product of products">
+      <div class="card mb-3 border-0 p-4">
+        <div class="d-flex justify-content-between">
+          <div>
+            <p class="mb-1 fw-semibold">{{product.name}}</p>
+            <p class="m-0 label text-black-50 ms-3">{{product.description}}</p>
+            <div *ngFor="let i of product.images">
+              <img src="{{i.url}}" alt="" class="img-fluid">
+            </div>
+          </div>
+          <div class="d-flex gap-3">
+            <button nbButton size="small" nbTooltip="Edit the product" nbTooltipPlacement="bottom" class="fw-semibold">  <nb-icon icon="edit-outline"></nb-icon></button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div>
-      @for (item of products; track item; let i = $index) {
-        <p class="m-0">{{ i + 1 + ' ' + item.name }}</p>
-      }
+      <p-dataView #dv [value]="products" [paginator]="true" [rows]="10">
+        <ng-template #list let-items>
+          <div class="grid grid-cols-12 gap-4 grid-nogutter">
+            <div class="col-span-12" *ngFor="let item of items; let first = first">
+              {{item.name}}
+              <div
+                class="flex flex-col sm:flex-row sm:items-center p-6 gap-4"
+                [ngClass]="{ 'border-t border-surface-200 dark:border-surface-700': !first }"
+              >
+                <div class="md:w-40 relative">
+                  <img
+                    class="block xl:block mx-auto rounded-border w-full"
+                    ngSrc="{{ item.images[0].url }}"
+                    [alt]="item.name"
+                    fill/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </p-dataView>
     </div>
     <div>
       <app-no-data *ngIf="!products.length"></app-no-data>

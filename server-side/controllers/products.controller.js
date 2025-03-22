@@ -41,34 +41,41 @@ export const getProductById = async (req, res) => {
 };
 
 export const addProduct = async (req, res) => {
-    console.log("Received req.body:", JSON.stringify(req.body, null, 2));
-
     try {
-        console.log("======= Incoming Request =======");
-
         let productsData = [];
 
         // Handle structured and unstructured product data
+        // Check if the request body contains an array of products
         if (req.body.products && Array.isArray(req.body.products)) {
+            // If it does, assign it to the productsData array
             productsData = req.body.products;
         } else {
+            // Otherwise, we need to extract the products from the request body
             const productIndices = new Set();
 
+            // Iterate over each key in the request body
             Object.keys(req.body).forEach(key => {
+                // Check if the key matches the pattern "products[index][field]"
                 const match = key.match(/^products\[(\d+)]\[([^[\]]+)]$/);
                 if (match) {
+                    // If it does, add the index to the set of product indices
                     productIndices.add(parseInt(match[1]));
                 }
             });
 
+            // Iterate over each index in the set
             productIndices.forEach(index => {
                 const product = {};
+                // Iterate over each key in the request body
                 Object.keys(req.body).forEach(key => {
+                    // Check if the key matches the pattern "products[index][field]"
                     const match = key.match(/^products\[(\d+)]\[([^[\]]+)]$/);
                     if (match && parseInt(match[1]) === index) {
+                        // If it does, add the field and value to the product object
                         product[match[2]] = req.body[key];
                     }
                 });
+                // Add the product object to the productsData array
                 productsData.push(product);
             });
         }
@@ -76,8 +83,6 @@ export const addProduct = async (req, res) => {
         if (productsData.length === 0) {
             return res.status(400).json({ success: false, message: "No valid products found" });
         }
-
-        console.log("Parsed products array:", productsData);
 
         // Organize files by product index
         const filesByProductIndex = {};
@@ -129,8 +134,6 @@ export const addProduct = async (req, res) => {
 
             // Assign images to this specific product if you want keep this without s3 keep it
             // product.images = filesByProductIndex[productIndex] || [];
-            //
-            // console.log(`Product ${productIndex} has ${product.images.length} images`);
 
             // Generate unique slug
             let slug = slugify(product.name, { lower: true, strict: true });
@@ -158,7 +161,6 @@ export const addProduct = async (req, res) => {
 
                         // Upload image to S3
                         const s3Response = await uploadWithPutObject(image.base64, image.path, image.type, folderName, fileName, fullPath);
-                        console.log(s3Response, 's3Response')
                         s3UploadedImages.push(s3Response);
 
                         // Delete a local file after uploading

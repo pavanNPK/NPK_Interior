@@ -100,3 +100,14 @@ dimensionFormatValidator(): ValidatorFn {
 
 -----------------------------------------------------------------------------------
 
+#### Refer the formData in addProducts() function 
+
+```aiignore
+  addProducts() {
+    const formData = this.addProductsForm.value.products;
+    console.log('Form Data:', formData);
+  }
+  
+  ...just sample code
+  view enrtire code in add-products.component.ts
+}

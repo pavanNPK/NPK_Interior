@@ -219,19 +219,100 @@ const uploadFilesOnS3 = async (req, res) => {
         res.status(500).json({ error: 'Failed to upload files' });
     }
 };
+
+
+some changes happened upload files on S3 bucket one method is use uploadWithPutObject(buffer, path, type, folderName, fileName, fullPath)
+for getting the image url we can use getSignedUrl method from aws sdk getSignedUrl(key)
+
+we need the base64 data and then we can modified that
+
+let modifiedBuffer = Buffer.from(buffer.replace(/^data:image\/\w+;base64,/, ""),'base64')
+
 ```
 
 __After storing the images, we can store the products in the database:__
 
 ```aiignore
-// Controller function to handle product creation
+1. Controller function to handle product creation
+2. Here we are storing multiple products and along with each prodcut we uploading multiple files.
+3. We need to get the data as formData from client side. And, then we can read that based on index.
+4. For images also we need to assign index of products array.
+5. Then we need to convert the files as base64 format form server side to decrease the load.
+6. Before converting the files to base64, we need to store them into our local uploads and retrive that file and convert it to base64.
+7. After converting the files to base64, we can store them into the AWS S3 bucket.
+8. After storing the images in AWS S3 bucket, we can store the products in the database along with S3 image url.
+
 const createProduct = async (req, res) => {
     try {
-        const product = await Product.create(req.body);
-        res.status(201).json(product);
+
+       // Handle structured and unstructured product data
+        // Check if the request body contains an array of products
+        if (req.body.products && Array.isArray(req.body.products)) {
+            // If it does, assign it to the productsData array
+            productsData = req.body.products;
+        } else {
+            // Otherwise, we need to extract the products from the request body
+            const productIndices = new Set();
+
+            // Iterate over each key in the request body
+            Object.keys(req.body).forEach(key => {
+                // Check if the key matches the pattern "products[index][field]"
+                const match = key.match(/^products\[(\d+)]\[([^[\]]+)]$/);
+                if (match) {
+                    // If it does, add the index to the set of product indices
+                    productIndices.add(parseInt(match[1]));
+                }
+            });
+
+            // Iterate over each index in the set
+            productIndices.forEach(index => {
+                const product = {};
+                // Iterate over each key in the request body
+                Object.keys(req.body).forEach(key => {
+                    // Check if the key matches the pattern "products[index][field]"
+                    const match = key.match(/^products\[(\d+)]\[([^[\]]+)]$/);
+                    if (match && parseInt(match[1]) === index) {
+                        // If it does, add the field and value to the product object
+                        product[match[2]] = req.body[key];
+                    }
+                });
+                // Add the product object to the productsData array
+                productsData.push(product);
+            });
+        }
+       
+       ...look for entire code at products.controller.js
+       
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to create product' });
     }
+    
+    
+9. We are generating the slug that slug we are using the foldername to store the image url for AWS S3 bucket.
+
 };
+```
+
+-----------------------------------------------------------------------------------
+
+`GET /products` - Fetches all products from the database.
+
+```
+db.products.find({}, {}).sort({ name: 1 })
+```
+* While fetching the products, we are also fetching the images from AWS S3 bucket. So, we can get the images in URL format.
+* Signed URL, Expires in 1 hour.
+
+```angular2html
+if (products.length){
+  for (let i = 0; i < products.length; i++) {
+    if (products[i].images && Array.isArray(products[i].images) && products[i].images.length > 0) {
+      for (let j = 0; j < products[i].images.length; j++) {
+          // get signed url
+          products[i].images[j].url = await getSignedUrlForS3(products[i].images[j].key);
+      }
+    }
+  }
+}
 ```

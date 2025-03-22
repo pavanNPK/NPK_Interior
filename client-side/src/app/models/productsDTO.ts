@@ -12,7 +12,7 @@ export class ProductsDTO {
   price?: number;
   discount?: number;
   stock?: string;
-  images?: string[];
+  images?: ProductImagesDTO[];
   specifications?: {
     material: string;
     dimensions: string;
@@ -27,4 +27,11 @@ export class ProductsDTO {
   isNewArrival?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+}
+export class ProductImagesDTO {
+  key?: string;
+  type?: string;
+  name?: string;
+  url?: string;
+  file?: File;
 }
