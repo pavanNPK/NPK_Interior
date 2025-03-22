@@ -1,9 +1,11 @@
 import multer from 'multer';
 import path from 'path';
-import {PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
+import {GetObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 import multerS3 from 'multer-s3';
 import dotenv from 'dotenv';
-import {fileURLToPath} from 'url'; // To convert file:// URLs to file paths (needed for ES modules)
+import {fileURLToPath} from 'url';
+import {getSignedUrl} from "@aws-sdk/s3-request-presigner"; // To convert file:// URLs to file paths
+// (needed for ES modules)
 
 // In ES modules, __dirname is not available, so we need to recreate it
 // Get the current file's path from the import.meta.url (ES modules feature)
@@ -77,56 +79,45 @@ const uploadFilesOnS3 = async (req, res) => {
     }
 };
 
-const getSignedUrl = async (bucketName, key) => {
-    const params = {
-        Bucket: bucketName,
-        Key: key,
-        Expires: 3600 // Link valid for 1 hour
-    };
-    return await s3Client.presign('getObject', params).promise();
-};
-
-const uploadFilesOnS3Base64 = async (images, folderName) => {
+const getSignedUrlForS3 = async ( key) => {
+    console.log(key, 'key')
     try {
-        if (!Array.isArray(images) || images.length === 0) {
-            return [];
-        }
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: key
+        };
 
-        let uploadedFiles = [];
+        const command = new GetObjectCommand(params);
 
-        for (const image of images) {
-            const { base64, name, type } = image;
-
-            // Extract the Base64 string
-            const base64Data = Buffer.from(base64.split(",")[1], "base64");
-
-            // Define the file key in S3
-            const fileName = `${Date.now()}-${name.replace(/\s/g, "-")}`;
-            const fileKey = `uploads/${folderName}/${fileName}`;
-
-            // Upload to S3
-            const uploadParams = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: fileKey,
-                Body: base64Data,
-                ContentType: type,
-            };
-
-            await s3Client.send(new PutObjectCommand(uploadParams));
-
-            uploadedFiles.push({
-                key: fileKey,
-                originalName: name,
-                type,
-            });
-        }
-
-        return uploadedFiles;
+        // Link valid for 1 hour
+        return await getSignedUrl(s3Client, command, {expiresIn: 3600});
     } catch (error) {
-        console.error("S3 Upload Error:", error);
+        console.error("Error generating signed URL:", error);
         throw error;
     }
 };
 
+const uploadWithPutObject = async (buffer, path, type, folderName, fileName, fullPath) => {
+    try {
+        const filePath = `uploads/${folderName}/${fileName}`;
+        let modifiedBuffer = Buffer.from(buffer.replace(/^data:image\/\w+;base64,/, ""),'base64')
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: fullPath,
+            Body: modifiedBuffer,
+            ContentType: type
+        };
+
+        await s3Client.send(new PutObjectCommand(params));
+
+        // Return the file details including name, key, and type
+        return { name: fileName, key: filePath, type: type };
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        throw error; // Throw error so the calling function can handle it properly
+    }
+};
+
+
 // Export the configured multer instance and the upload controller function
-export { uploadS3, uploadFilesOnS3, getSignedUrl, uploadFilesOnS3Base64 };
+export { uploadS3, uploadFilesOnS3, getSignedUrlForS3, uploadWithPutObject };
