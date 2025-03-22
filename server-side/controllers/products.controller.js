@@ -2,7 +2,7 @@
 import mongoose from 'mongoose';
 import Product from '../models/product.model.js';
 import slugify from 'slugify';
-import {uploadFilesOnS3, uploadS3} from "./s3upload.controller.js";
+import fs from 'fs';
 
 
 // Get all products
@@ -29,49 +29,123 @@ export const getProductById = async (req, res) => {
     }
 };
 
-
-// Add a product
 export const addProduct = async (req, res) => {
-    console.log(JSON.stringify(req.body, null, 2), "req.body NPK");
-    try {
-        const products = req.body; // Expecting an array of product objects
+    console.log("Received req.body:", JSON.stringify(req.body, null, 2));
 
-        if (!Array.isArray(products) || products.length === 0) {
-            return res.status(400).json({ success: false, message: "Invalid product data" });
+    try {
+        console.log("======= Incoming Request =======");
+
+        // Check if the data is already in a structured format
+        let productsData = [];
+
+        if (req.body.products && Array.isArray(req.body.products)) {
+            // If the body already contains a product array, use it directly
+            productsData = req.body.products;
+        } else {
+            // Extract products from the format products[0][name], products[0][description], etc.
+            const productIndices = new Set();
+
+            // First, identify all product indices from the form data
+            Object.keys(req.body).forEach(key => {
+                const match = key.match(/^products\[(\d+)]\[([^[\]]+)]$/);
+                if (match) {
+                    productIndices.add(parseInt(match[1]));
+                }
+            });
+
+            // Then construct each product object
+            productIndices.forEach(index => {
+                const product = {};
+                Object.keys(req.body).forEach(key => {
+                    const match = key.match(/^products\[(\d+)]\[([^[\]]+)]$/);
+                    if (match && parseInt(match[1]) === index) {
+                        const fieldName = match[2];
+                        product[fieldName] = req.body[key];
+                    }
+                });
+                productsData.push(product);
+            });
         }
 
+        console.log("Parsed products array:", productsData);
+
+        if (productsData.length === 0) {
+            return res.status(400).json({ success: false, message: "No valid products found" });
+        }
+
+        // Group files by product index
+        const filesByProductIndex = {};
+
+        if (req.files && req.files.length > 0) {
+            req.files.forEach(file => {
+                // Get the product index from the field name (e.g., "images-0")
+                const match = file.fieldname.match(/^images-(\d+)$/);
+                if (match) {
+                    const productIndex = parseInt(match[1]);
+
+                    if (!filesByProductIndex[productIndex]) {
+                        filesByProductIndex[productIndex] = [];
+                    }
+
+                    // Convert image to Base64
+                    const imagePath = file.path;
+                    const imageBuffer = fs.readFileSync(imagePath);
+                    const base64Image = `data:${file.mimetype};base64,${imageBuffer.toString("base64")}`;
+
+                    filesByProductIndex[productIndex].push({
+                        name: file.originalname,
+                        type: file.mimetype,
+                        size: file.size,
+                        path: imagePath,
+                        base64: base64Image,
+                    });
+                }
+            });
+        }
+
+        // Process each product
         let savedProducts = [];
 
-        for (let product of products) {
-            // Generate initial slug
-            let slug = slugify(product.name, { lower: true, strict: true });
+        for (let productIndex = 0; productIndex < productsData.length; productIndex++) {
+            const product = productsData[productIndex];
+            console.log("Processing product:", product);
 
-            // Ensure unique slug
+            // Parse fields that should be objects
+            try {
+                product.category = typeof product.category === "string" ? JSON.parse(product.category) : product.category;
+                product.subCategory = typeof product.subCategory === "string" ? JSON.parse(product.subCategory) : product.subCategory;
+                product.specifications = typeof product.specifications === "string" ? JSON.parse(product.specifications) : product.specifications;
+            } catch (e) {
+                console.error("Error parsing product fields:", e);
+                return res.status(400).json({ success: false, message: "Invalid JSON in product fields" });
+            }
+
+            // Convert string values to boolean
+            product.isFeatured = product.isFeatured === "true";
+            product.isTrending = product.isTrending === "true";
+            product.isNewArrival = product.isNewArrival === "true";
+
+            // Assign images to this specific product
+            product.images = filesByProductIndex[productIndex] || [];
+
+            console.log(`Product ${productIndex} has ${product.images.length} images`);
+
+            // Generate unique slug
+            let slug = slugify(product.name, { lower: true, strict: true });
             let existingProduct = await Product.findOne({ slug }, {}, { lean: true }).exec();
             let count = 1;
+
             while (existingProduct) {
                 slug = `${slug}-${count}`;
                 existingProduct = await Product.findOne({ slug }, {}, { lean: true }).exec();
                 count++;
             }
 
-            // Set the folder name as the product slug for S3 uploads
-            req.query.folderName = slug;
-            req.files = product.images
-
-            // Handle image uploads to S3
-            const uploadedFiles = await uploadFilesOnS3(req, res);
-
-            console.log(uploadedFiles, 'uploadedFiles')
-
-
-            // Store uploaded images in the product object
             product.slug = slug;
-            product.images = uploadedFiles;
             product.createdAt = new Date();
             product.updatedAt = new Date();
 
-            // Save the product
+            // Save product to DB
             const newProduct = new Product(product);
             const savedProduct = await newProduct.save();
             savedProducts.push(savedProduct);
@@ -80,7 +154,7 @@ export const addProduct = async (req, res) => {
         res.status(201).json({
             success: true,
             message: "Products created successfully",
-            response: savedProducts, // Return saved products
+            response: savedProducts,
         });
     } catch (error) {
         console.error("Error creating product:", error);

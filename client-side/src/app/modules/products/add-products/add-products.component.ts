@@ -190,14 +190,7 @@
     onFileSelect(event: any, i: number) {
       console.log(event.currentFiles)
       let filesMap = event.currentFiles.map((file: any) => {
-        return {
-          lastModified: file.lastModified,
-          lastModifiedDate: file.lastModifiedDate,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          webkitRelativePath: file.webkitRelativePath
-        };
+        return file
       });
       console.log(filesMap, 'filesMap')
       this.p.at(i).get('images')?.setValue(filesMap);
@@ -228,27 +221,39 @@
         console.error(`${duplicates.length} duplicate product name(s) found: ${duplicates.join(', ')}`);
         return;
       }
-      let products: ProductsDTO[] = [];
-      let formData = new FormData();
-      this.addProductsForm.value.products.forEach((product: any) => {
-        console.log(product, 'product')
-        const data = new ProductsDTO();
-        data.name = product.name;
-        data.description = product.description;
-        data.category = product.category;
-        data.subCategory = product.subCategory;
-        data.price = product.price;
-        data.discount = product.discount;
-        data.stock = product.stock;
-        data.images = product.images;
-        data.specifications = product.specifications;
-        data.isFeatured = product.isFeatured;
-        data.isTrending = product.isTrending;
-        data.isNewArrival = product.isNewArrival;
-        products.push(data);
-      })
-      console.log(products);
-      this.ps.addProducts(products).subscribe({
+      const formData = new FormData();
+      this.addProductsForm.value.products.forEach((product: any, index: number) => {
+        formData.append(`products[${index}][name]`, product.name);
+        formData.append(`products[${index}][description]`, product.description);
+        formData.append(`products[${index}][category]`, JSON.stringify(product.category));
+        formData.append(`products[${index}][subCategory]`, JSON.stringify(product.subCategory));
+        formData.append(`products[${index}][price]`, product.price);
+        formData.append(`products[${index}][discount]`, product.discount);
+        formData.append(`products[${index}][stock]`, product.stock);
+        formData.append(`products[${index}][specifications]`, JSON.stringify(product.specifications));
+        formData.append(`products[${index}][isFeatured]`, product.isFeatured);
+        formData.append(`products[${index}][isTrending]`, product.isTrending);
+        formData.append(`products[${index}][isNewArrival]`, product.isNewArrival);
+
+        // Ensure that images are appended correctly
+        // Append images as File objects instead of JSON
+        if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+          product.images.forEach((file: File, fileIndex: number) => {
+            // Use product index to associate images with specific products
+            formData.append(`images-${index}`, file);
+          });
+        }
+      });
+
+      console.log(formData, 'formData')
+
+      // Log FormData contents
+      // @ts-ignore
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1], 'pair');
+      }
+
+      this.ps.addProducts(formData).subscribe({
         next: (response: any) => {
           console.log(response, 'response');
           if (response.role !== 'notAllowed') {

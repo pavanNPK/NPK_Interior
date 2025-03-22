@@ -11,13 +11,14 @@ import {ADD_PRODUCTS, DOMAIN_URL, GET_ALL_PRODUCTS} from "../constants/API-DTO";
 export class ProductsService {
   constructor(private http: HttpClient) {}
 
+
   getProducts(): Observable<ResponseWithError<ProductsDTO[]>> {
     return this.http.get<ResponseWithError<ProductsDTO[]>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}`)
       .pipe(map(response => response));
   }
 
-  addProducts(product: any): Observable<ResponseWithError<any[]>> {
-    return this.http.post<ResponseWithError<any[]>>(`${DOMAIN_URL}${ADD_PRODUCTS}`, product)
+  addProducts(formData: FormData): Observable<ResponseWithError<any>> {
+    return this.http.post<ResponseWithError<any>>(`${DOMAIN_URL}${ADD_PRODUCTS}`, formData)
       .pipe(map(response => response));
   }
 }

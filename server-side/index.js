@@ -2,6 +2,7 @@
 import path from 'path';                  // For handling file paths
 import { fileURLToPath } from 'url';      // To convert file:// URLs to file paths (needed for ES modules)
 import dotenv from 'dotenv';              // To load environment variables from .env file
+import bodyParser from 'body-parser';    // For parsing request bodies
 
 // Import third-party packages
 import express from 'express';            // Web framework
@@ -46,6 +47,10 @@ app.use(helmet());                           // Secure HTTP headers
 app.use(mongoSanitize());                    // Prevent NoSQL injection
 app.use(xss());                              // Prevent XSS attacks
 app.use(compression());                      // Compress responses
+// ✅ Use bodyParser for parsing JSON requests
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 // Rate limiting (Prevent brute-force attacks)
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes

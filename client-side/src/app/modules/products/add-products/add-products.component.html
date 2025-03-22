@@ -17,7 +17,7 @@
 
   <div class="appLayoutBody">
     <div class="addProducts" *ngIf="loading">
-      <form [formGroup]="addProductsForm" (ngSubmit)="addProducts()">
+      <form [formGroup]="addProductsForm">
         <div formArrayName="products">
           <div *ngFor="let pdt of p.controls; let i = index" [formGroupName]="i" class="card mb-3 border-0 p-4">
             <div class="row">

@@ -17,7 +17,8 @@ const productSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     discount: { type: Number, default: 0 },
     stock: { type: String, required: true },
-    images: [{ key: String, originalName: String,  }],
+    // images: [{ key: String, originalName: String,  }],
+    images: [],
     specifications: {
         material: String,
         dimensions: String, // Example: "200x80x90 cm"
