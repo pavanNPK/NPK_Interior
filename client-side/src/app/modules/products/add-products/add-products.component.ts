@@ -113,10 +113,13 @@
     }
     createProduct(): FormGroup {
       return this.fb.group({
-        name: ['fsdf', [Validators.required, Validators.pattern('^(?:[a-zA-Z]+(?:\\s+[a-zA-Z]+)*)$')]],
-        description: ['sdfnksnf sdfsbfsjdf bskjf sgsdkjg sgj sdgs dgksg', [Validators.required, Validators.minLength(20), Validators.maxLength(150)]],
+        name: ['', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+        description: ['', [Validators.required,
+          Validators.pattern('^[^\\s][a-zA-Z0-9\\s]*$'),
+          Validators.minLength(20),
+          Validators.maxLength(150)]],
         price: ['3434', Validators.required],
-        discount: [40, [Validators.required]],
+        discount: ['0', [Validators.required, Validators.min(0), Validators.max(99)]],
         stock: ['in_stock', [Validators.required]],
         images: [[], [Validators.required]],
         category: this.fb.group({
@@ -128,11 +131,11 @@
           name: ['', Validators.required],
         }),
         specifications: this.fb.group({
-          material: ['nknxdk', [Validators.required, Validators.pattern('^[a-zA-Z]+$')]],
+          material: ['nknxdk', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
           dimensions: ['30*40*50 cm', [Validators.required, this.dimensionFormatValidator()]], // Example: "200x80x90 cm"
           weight: ['40 kg', [Validators.required, this.weightFormatValidator()]], // Example: "40 KG"
-          color: ['fsdk', [Validators.required, Validators.pattern('^[a-zA-Z]+$')]],
-          finish: ['sadf', [Validators.required, Validators.pattern('^[a-zA-Z]+$')]], // Matte, Glossy, etc.
+          color: ['fsdk', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+          finish: ['sadf', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]], // Matte, Glossy, etc.
           warranty: ['6 months', [Validators.required, this.warrantyFormatValidator()]], // Example: "2 Years"
         }),
         additionalDetails: [''],
@@ -164,6 +167,11 @@
         // const pattern = /^(6|1[0-9]|2[0-4])\s(Months?)$/i; // Allows "6 Months", "12 Months", etc.
         return control.value && !pattern.test(control.value) ? { invalidWarrantyFormat: true } : null;
       };
+    }
+    discountChange(event: any, i: number) {
+      if (event.target.value > 99) {
+        this.p.at(i).get('discount')?.setValue(99);
+      }
     }
     backToPrev() {
       this.location.back();

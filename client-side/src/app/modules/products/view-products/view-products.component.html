@@ -29,46 +29,36 @@
     </div>
   </div>
   <div class="appLayoutBody">
-    <div *ngFor="let product of products">
-      <div class="card mb-3 border-0 p-4">
-        <div class="d-flex justify-content-between">
-          <div>
-            <p class="mb-1 fw-semibold">{{product.name}}</p>
-            <p class="m-0 label text-black-50 ms-3">{{product.description}}</p>
-            <div *ngFor="let i of product.images">
-              <img src="{{i.url}}" alt="" class="img-fluid">
-            </div>
-          </div>
-          <div class="d-flex gap-3">
-            <button nbButton size="small" nbTooltip="Edit the product" nbTooltipPlacement="bottom" class="fw-semibold">  <nb-icon icon="edit-outline"></nb-icon></button>
-          </div>
-        </div>
-      </div>
-    </div>
     <div>
-      <p-dataView #dv [value]="products" [paginator]="true" [rows]="10">
-        <ng-template #list let-items>
-          <div class="grid grid-cols-12 gap-4 grid-nogutter">
-            <div class="col-span-12" *ngFor="let item of items; let first = first">
-              {{item.name}}
-              <div
-                class="flex flex-col sm:flex-row sm:items-center p-6 gap-4"
-                [ngClass]="{ 'border-t border-surface-200 dark:border-surface-700': !first }"
-              >
-                <div class="md:w-40 relative">
-                  <img
-                    class="block xl:block mx-auto rounded-border w-full"
-                    ngSrc="{{ item.images[0].url }}"
-                    [alt]="item.name"
-                    fill/>
+      <p-dataView class="bg-transparent mb-2" #dv [value]="products" [paginator]="true" [rows]="10" filterBy="brand"
+                  layout="grid">
+        <ng-template #list let-products pTemplate="gridItem">
+          <div class="row m-0">
+            <nb-card class="col-sm-12 col-md-3 col-lg-3 col-xl-3" *ngFor="let item of products; let first = first">
+              <nb-card-header>
+                <img src="{{item.images[0].url}}" alt="product" class="productImage">
+              </nb-card-header>
+              <nb-card-body>
+                <div class="d-flex align-items-center justify-content-between">
+                  <p class="fw-semibold m-0">{{item.name}}</p>
                 </div>
-              </div>
-            </div>
+                <div class="d-flex align-items-center justify-content-between">
+                  <p class="fw-semibold m-0">Category: {{item.category.name}}</p>
+                  <p class="fw-semibold m-0">Sub Category: {{item.subCategory.name}}</p>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                  <p class="fw-semibold m-0">Price: {{item.price | currency:'INR':'symbol-narrow':'1.0-0'}}</p>
+                  <p class="fw-semibold m-0">Quantity: {{item.quantity}}</p>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                  <p class="fw-semibold m-0">Status: {{item.status ? 'Active' : 'Inactive'}}</p>
+                </div>
+              </nb-card-body>
+            </nb-card>
           </div>
         </ng-template>
       </p-dataView>
-    </div>
-    <div>
+
       <app-no-data *ngIf="!products.length"></app-no-data>
     </div>
   </div>

@@ -54,16 +54,19 @@
                        [ngClass]="{ 'is-invalid': submitted && pdt.get('name')?.errors }" >
                 <div *ngIf="submitted && pdt.get('name')?.errors" class="invalid-feedback">
                   <div *ngIf="pdt.get('name')?.errors?.['required']">Please enter the name.</div>
-                  <div *ngIf="pdt.get('name')?.errors?.['pattern']">Only alphabets are allowed.</div>
+                  <div *ngIf="pdt.get('name')?.errors?.['pattern']">Dont use space before the name.</div>
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
                 <label class="label fw-semibold">Price*</label>
-                <input type="number" nbInput class="form-control"
+                <nb-form-field>
+                  <nb-icon nbSuffix icon="currency-usd-outline" pack="eva"></nb-icon>
+                  <input type="number" nbInput class="form-control"
                        fullWidth formControlName="price" placeholder="Enter product price"
                        [ngClass]="{ 'is-invalid': submitted && pdt.get('price')?.errors }" >
+                </nb-form-field>
                 <div *ngIf="submitted && pdt.get('price')?.errors" class="invalid-feedback">
                   <div *ngIf="pdt.get('price')?.errors?.['required']">Please enter the price.</div>
                 </div>
@@ -73,7 +76,8 @@
                 <nb-form-field>
                   <nb-icon nbSuffix icon="percent-outline" pack="eva"></nb-icon>
                   <input type="number" nbInput class="form-control"
-                       fullWidth formControlName="discount" placeholder="Enter product discount" min="0" max="100"
+                         (keyup)="discountChange($event, i);"
+                       fullWidth formControlName="discount" placeholder="Enter product discount" min="0" max="99"
                        [ngClass]="{ 'is-invalid': submitted && pdt.get('discount')?.errors }" >
                 </nb-form-field>
                 <div *ngIf="submitted && pdt.get('discount')?.errors" class="invalid-feedback">
@@ -129,7 +133,7 @@
                          [ngClass]="{ 'is-invalid': submitted && pdt.get('specifications')?.get('material')?.errors }" >
                   <div *ngIf="submitted && pdt.get('specifications')?.get('material')?.errors" class="invalid-feedback">
                     <div *ngIf="pdt.get('specifications')?.get('material')?.errors?.['required']">Please enter the material.</div>
-                    <div *ngIf="pdt.get('specifications')?.get('material')?.errors?.['pattern']">Only alphabets are allowed.</div>
+                    <div *ngIf="pdt.get('specifications')?.get('material')?.errors?.['pattern']">Dont use space before the name.</div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
@@ -164,7 +168,7 @@
                          [ngClass]="{ 'is-invalid': submitted && pdt.get('specifications')?.get('color')?.errors }" >
                   <div *ngIf="submitted && pdt.get('specifications')?.get('color')?.errors" class="invalid-feedback">
                     <div *ngIf="pdt.get('specifications')?.get('color')?.errors?.['required']">Please enter the color.</div>
-                    <div *ngIf="pdt.get('specifications')?.get('color')?.errors?.['pattern']">Only alphabets are allowed.</div>
+                    <div *ngIf="pdt.get('specifications')?.get('color')?.errors?.['pattern']">Dont use space before the name.</div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
@@ -174,7 +178,7 @@
                          [ngClass]="{ 'is-invalid': submitted && pdt.get('specifications')?.get('finish')?.errors }" >
                   <div *ngIf="submitted && pdt.get('specifications')?.get('finish')?.errors" class="invalid-feedback">
                     <div *ngIf="pdt.get('specifications')?.get('finish')?.errors?.['required']">Please enter the finishing.</div>
-                    <div *ngIf="pdt.get('specifications')?.get('finish')?.errors?.['pattern']">Only alphabets are allowed.</div>
+                    <div *ngIf="pdt.get('specifications')?.get('finish')?.errors?.['pattern']">Dont use space before the name.</div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
@@ -203,6 +207,7 @@
                       <div *ngIf="pdt.get('description')?.errors?.['required']">Please enter the description.</div>
                       <div *ngIf="pdt.get('description')?.errors?.['minlength']">Description must be at least 20 characters.</div>
                       <div *ngIf="pdt.get('description')?.errors?.['maxlength']">Description dont be more than 150 characters.</div>
+                      <div *ngIf="pdt.get('description')?.errors?.['pattern']">Dont use space before the name.</div>
                     </div>
                   </div>
                 </div>
@@ -247,7 +252,7 @@
                 </div>
               </div>
             </div>
-            <div *ngIf="p.controls.length > 1" class="col-1 mt-3">
+            <div *ngIf="p.controls.length > 1" class="col-12 text-center mt-3">
               <button nbButton status="danger" style="padding: 10px !important;"
                       (click)="removeProduct(i)"
                       nbTooltip="Delete the product form {{ i + 1 }}" nbTooltipPlacement="right"

@@ -5,18 +5,10 @@ import {AddProductsComponent} from "./add-products/add-products.component";
 import {EditProductsComponent} from "./edit-products/edit-products.component";
 
 const routes: Routes = [
-  {
-    path: 'view',
-    component: ViewProductsComponent, title: 'NPK | Products'
-  },
-  {
-    path: 'add',
-    component: AddProductsComponent, title: 'NPK | Add Products'
-  },
-  {
-    path: 'edit',
-    component: EditProductsComponent, title: 'NPK | Update Products'
-  }
+  { path: '', redirectTo: 'view', pathMatch: 'full' },
+  { path: 'view',component: ViewProductsComponent, title: 'NPK | Products'},
+  { path: 'add', component: AddProductsComponent, title: 'NPK | Add Products'},
+  { path: 'edit', component: EditProductsComponent, title: 'NPK | Update Products'}
 ];
 
 @NgModule({

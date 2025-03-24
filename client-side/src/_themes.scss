@@ -23,6 +23,9 @@ nb-option:focus.selected {
   background-color: #f7f9fc !important;
   border-color: #e4e9f2 !important;
 }
+.nb-theme-default [nbInput].status-basic.is-invalid {
+  padding-right: 2rem !important;
+}
 .nb-theme-default [nbInput].status-basic:focus {
    background-color: #f7f9fc !important;
    border-color: #e4e9f2 !important;
@@ -80,4 +83,8 @@ p-togglebutton {
       display: none;
     }
   }
+}
+p-dataview .p-dataview-content{
+  background: transparent !important;
+  margin-bottom: 2rem
 }

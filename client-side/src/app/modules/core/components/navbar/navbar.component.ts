@@ -47,8 +47,8 @@ import {UserDTO} from "../../../../models/userDTO";
 export class NavbarComponent implements OnInit {
   items:NbMenuItem[] = [
     {title: 'Dashboard', icon: 'home-outline', link: '/dashboard/view'},
-    {title: 'Categories', icon: 'clipboard-outline', link: '/categories/view'},
-    {title: 'Products', icon: 'layout-outline', link: '/products/view'},
+    {title: 'Categories', icon: 'clipboard-outline', link: '/categories', pathMatch: 'prefix'},
+    {title: 'Products', icon: 'layout-outline', link: '/products', pathMatch: 'prefix'},
     {title: 'Deals', icon: 'gift-outline', link: '/deals/view'},
     {title: 'Upcoming', icon: 'calendar-outline', link: '/upcoming/view'},
     {title: 'Orders', icon: 'car-outline', link: '/orders/view'},

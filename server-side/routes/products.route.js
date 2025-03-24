@@ -42,7 +42,7 @@ const upload = multer({
         if (match) {
             // Store the product index in the file object for later use
             file.productIndex = parseInt(match[1]);
-        }d
+        }
         cb(null, true);
     }
 });
