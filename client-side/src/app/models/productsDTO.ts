@@ -12,6 +12,7 @@ export class ProductsDTO {
   price?: number;
   discount?: number;
   stock?: string;
+  slug?: string;
   images?: ProductImagesDTO[];
   specifications?: {
     material: string;

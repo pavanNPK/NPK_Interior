@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ProductsService} from "../../../services/products.service";
 import {ProductsDTO} from "../../../models/productsDTO";
 import {ResponseWithError} from "../../../models/commonDTO";
-import {CurrencyPipe, NgClass, NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
+import {CurrencyPipe, NgForOf, NgIf} from "@angular/common";
 import {NoDataComponent} from "../../core/components/no-data/no-data.component";
 import {
   NbButtonModule,
@@ -13,7 +13,6 @@ import {
   NbTooltipModule
 } from "@nebular/theme";
 import {RouterLink} from "@angular/router";
-import {NbSharedModule} from "@nebular/theme/components/shared/shared.module";
 import {FormControl, ReactiveFormsModule} from "@angular/forms";
 import {DataViewModule} from "primeng/dataview";
 
@@ -32,8 +31,6 @@ import {DataViewModule} from "primeng/dataview";
     NbInputModule,
     ReactiveFormsModule,
     DataViewModule,
-    NgOptimizedImage,
-    NgClass,
     NbCardModule,
     CurrencyPipe
   ],

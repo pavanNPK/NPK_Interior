@@ -20,6 +20,11 @@
           <nb-icon icon="flip-2-outline"></nb-icon>
         </button>
         <button nbButton size="small"
+                nbTooltip="Import the raw data" nbTooltipPlacement="bottom"
+                class=" rounded-2 fw-semibold">
+          <nb-icon icon="cloud-download-outline"></nb-icon>
+        </button>
+        <button nbButton size="small"
                 [routerLink]="['/products/add']"
                 nbTooltip="By clicking this you can add the products" nbTooltipPlacement="bottom"
                 class=" rounded-2 fw-semibold">
@@ -33,28 +38,179 @@
       <p-dataView class="bg-transparent mb-2" #dv [value]="products" [paginator]="true" [rows]="10" filterBy="brand"
                   layout="grid">
         <ng-template #list let-products pTemplate="gridItem">
-          <div class="row m-0">
-            <nb-card class="col-sm-12 col-md-3 col-lg-3 col-xl-3" *ngFor="let item of products; let first = first">
-              <nb-card-header>
-                <img src="{{item.images[0].url}}" alt="product" class="productImage">
-              </nb-card-header>
-              <nb-card-body>
-                <div class="d-flex align-items-center justify-content-between">
-                  <p class="fw-semibold m-0">{{item.name}}</p>
-                </div>
-                <div class="d-flex align-items-center justify-content-between">
-                  <p class="fw-semibold m-0">Category: {{item.category.name}}</p>
-                  <p class="fw-semibold m-0">Sub Category: {{item.subCategory.name}}</p>
-                </div>
-                <div class="d-flex align-items-center justify-content-between">
-                  <p class="fw-semibold m-0">Price: {{item.price | currency:'INR':'symbol-narrow':'1.0-0'}}</p>
-                  <p class="fw-semibold m-0">Quantity: {{item.quantity}}</p>
-                </div>
-                <div class="d-flex align-items-center justify-content-between">
-                  <p class="fw-semibold m-0">Status: {{item.status ? 'Active' : 'Inactive'}}</p>
-                </div>
-              </nb-card-body>
-            </nb-card>
+          <div class="row">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3" *ngFor="let item of products; let first = first">
+              <nb-card class="productCard">
+                <nb-card-header class="d-flex justify-content-center align-items-center cursor-pointer" [routerLink]="['/products/details']" [queryParams]="{product: item.slug}">
+                  <img src="{{item.images[0].url}}" alt="product" class="productImage">
+                </nb-card-header>
+                <nb-card-body>
+                  <div>
+                    <p class="fw-semibold mb-1 productTitle cursor-pointer" [routerLink]="['/products/details']" [queryParams]="{product: item.slug}">{{item.name}}</p>
+                    <p class="text-black-50 small productSubTitle">{{item.description}}</p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <div>
+                      <nb-icon *ngFor="let item of [].constructor(5); let i = index" icon="star-outline" class="text-warning"></nb-icon>
+                    </div>
+                    <p class="m-0 cursor-pointer">5 Reviews</p>
+                  </div>
+                  <div class="d-flex align-items-end gap-2">
+                    <p class="fw-semibold m-0 mt-2 text-2xl" style="font-family: system-ui,serif !important;">{{item.price - (item.price * (item.discount / 100)) | currency:'INR':'symbol-narrow':'1.0-0'}}</p>
+                    <small style="font-family: system-ui,serif !important;">MRP:
+                      <span class="productMrp"  style="font-family: system-ui,serif !important;">{{item.price | currency:'INR':'symbol-narrow':'1.0-0'}}</span>
+                      <span class="fw-semibold">
+                        ({{item.discount}}%)
+                      </span>
+                    </small>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-10">
+                      <button nbButton size="small"
+                              nbTooltip="By clicking this you can edit the product" nbTooltipPlacement="bottom"
+                              class=" rounded-2 fw-semibold bg-dark text-white w-100">
+                        Add to Cart<nb-icon icon="shopping-cart-outline"></nb-icon>
+                      </button>
+                    </div>
+                    <div class="col-2">
+                      <button nbButton size="small"
+                              nbTooltip="By clicking this you can edit the product" nbTooltipPlacement="bottom"
+                              class=" rounded-2 fw-semibold">
+                        <nb-icon icon="heart-outline"></nb-icon>
+                      </button>
+                    </div>
+                  </div>
+                </nb-card-body>
+                <p class="productStockBanner productStockBannerOOS">Out of Stock</p>
+              </nb-card>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+              <nb-card class="productCard">
+                <nb-card-header class="d-flex justify-content-center align-items-center">
+                  <img src="./assets/core/credentials.png" alt="product" class="productImage cursor-pointer" [routerLink]="['/products/edit']">
+                </nb-card-header>
+                <nb-card-body>
+                  <div>
+                    <p class="fw-semibold mb-1 productTitle">Credentials Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est, sapiente?</p>
+                    <p class="text-black-50 small productSubTitle">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda atque esse facilis fugiat id ipsum, maiores nobis quis tempora voluptatem.</p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <div>
+                      <nb-icon *ngFor="let item of [].constructor(5); let i = index" icon="star-outline" class="text-warning"></nb-icon>
+                    </div>
+                    <p class="m-0 cursor-pointer">5 Reviews</p>
+                  </div>
+                  <div class="d-flex align-items-end gap-2">
+                    <p class="fw-semibold m-0 mt-2 text-2xl" style="font-family: system-ui,serif !important;">{{20 - (20 * (7 / 100)) | currency:'INR':'symbol-narrow':'1.0-0'}}</p>
+                    <small style="font-family: system-ui,serif !important;">MRP:
+                      <span class="productMrp"  style="font-family: system-ui,serif !important;">{{20 | currency:'INR':'symbol-narrow':'1.0-0'}}</span>
+                      <span class="fw-semibold">
+                        ({{7}}%)
+                      </span>
+                    </small>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-10">
+                      <button nbButton size="small"
+                              nbTooltip="By clicking this you can edit the product" nbTooltipPlacement="bottom"
+                              class=" rounded-2 fw-semibold bg-dark text-white w-100">
+                        Notify me<nb-icon icon="bell-outline"></nb-icon>
+                      </button>
+                    </div>
+                    <div class="col-2">
+                      <button nbButton size="small"
+                              nbTooltip="By clicking this you can edit the product" nbTooltipPlacement="bottom"
+                              class=" rounded-2 fw-semibold">
+                        <nb-icon icon="heart-outline"></nb-icon>
+                      </button>
+                    </div>
+                  </div>
+                </nb-card-body>
+                <p class="productStockBanner productStockBannerLS">Low Stock</p>
+              </nb-card>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+              <nb-card>
+                <nb-card-header class="d-flex justify-content-center align-items-center">
+                  <img src="./assets/core/credentials.png" alt="product" class="productImage">
+                </nb-card-header>
+                <nb-card-body>
+                  <div>
+                    <p class="fw-semibold mb-1 productTitle">Credentials Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est, sapiente?</p>
+                    <p class="text-black-50 small productSubTitle">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda atque esse facilis fugiat id ipsum, maiores nobis quis tempora voluptatem.</p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <div>
+                      <nb-icon *ngFor="let item of [].constructor(5); let i = index" icon="star-outline" class="text-warning"></nb-icon>
+                    </div>
+                    <p class="m-0 cursor-pointer">5 Reviews</p>
+                  </div>
+                  <div class="d-flex align-items-end gap-2">
+                    <p class="fw-semibold m-0 mt-2 text-2xl" style="font-family: system-ui,serif !important;">{{20 - (20 * (7 / 100)) | currency:'INR':'symbol-narrow':'1.0-0'}}</p>
+                    <small style="font-family: system-ui,serif !important;">MRP:
+                      <span class="productMrp"  style="font-family: system-ui,serif !important;">{{20 | currency:'INR':'symbol-narrow':'1.0-0'}}</span>
+                      <span class="fw-semibold">
+                        ({{7}}%)
+                      </span>
+                    </small>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-12">
+                      <button nbButton size="small"
+                              nbTooltip="By clicking this you can edit the product" nbTooltipPlacement="bottom"
+                              class=" rounded-2 fw-semibold bg-dark text-white w-100">
+                        View Details<nb-icon icon="eye-outline"></nb-icon>
+                      </button>
+                    </div>
+                  </div>
+                </nb-card-body>
+              </nb-card>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+              <nb-card>
+                <nb-card-header class="d-flex justify-content-center align-items-center">
+                  <img src="./assets/core/credentials.png" alt="product" class="productImage">
+                </nb-card-header>
+                <nb-card-body>
+                  <div>
+                    <p class="fw-semibold mb-1 productTitle">Credentials Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est, sapiente?</p>
+                    <p class="text-black-50 small productSubTitle">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda atque esse facilis fugiat id ipsum, maiores nobis quis tempora voluptatem.</p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <div>
+                      <nb-icon *ngFor="let item of [].constructor(5); let i = index" icon="star-outline" class="text-warning"></nb-icon>
+                    </div>
+                    <p class="m-0 cursor-pointer">5 Reviews</p>
+                  </div>
+                  <div class="d-flex align-items-end gap-2">
+                    <p class="fw-semibold m-0 mt-2 text-2xl" style="font-family: system-ui,serif !important;">{{20 - (20 * (7 / 100)) | currency:'INR':'symbol-narrow':'1.0-0'}}</p>
+                    <small style="font-family: system-ui,serif !important;">MRP:
+                      <span class="productMrp"  style="font-family: system-ui,serif !important;">{{20 | currency:'INR':'symbol-narrow':'1.0-0'}}</span>
+                      <span class="fw-semibold">
+                        ({{7}}%)
+                      </span>
+                    </small>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-10">
+                      <button nbButton size="small"
+                              class=" rounded-2 fw-semibold bg-dark text-white w-100 d-flex align-items-center justify-content-around">
+                        <nb-icon icon="trash-outline"></nb-icon>
+                        3
+                        <nb-icon icon="plus-outline"></nb-icon>
+                      </button>
+                    </div>
+                    <div class="col-2">
+                      <button nbButton size="small"
+                              nbTooltip="By clicking this you can edit the product" nbTooltipPlacement="bottom"
+                              class=" rounded-2 fw-semibold">
+                        <nb-icon icon="heart-outline"></nb-icon>
+                      </button>
+                    </div>
+                  </div>
+                </nb-card-body>
+              </nb-card>
+            </div>
           </div>
         </ng-template>
       </p-dataView>

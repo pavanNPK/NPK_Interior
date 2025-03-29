@@ -37,7 +37,7 @@ button, button:focus{
   border: none !important;
 }
 .cursor-pointer{
-  cursor: pointer;
+  cursor: pointer !important;
 }
 input::-webkit-input-placeholder { /* Edge */
   font-family: 'Poppins', sans-serif !important;

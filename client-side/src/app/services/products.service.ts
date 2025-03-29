@@ -21,4 +21,9 @@ export class ProductsService {
     return this.http.post<ResponseWithError<any>>(`${DOMAIN_URL}${ADD_PRODUCTS}`, formData)
       .pipe(map(response => response));
   }
+
+  getProductById(slug: string): Observable<ResponseWithError<ProductsDTO>> {
+    return this.http.get<ResponseWithError<ProductsDTO>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}/${slug}`)
+      .pipe(map(response => response));
+  }
 }

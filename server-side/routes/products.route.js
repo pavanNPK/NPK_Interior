@@ -50,8 +50,8 @@ const upload = multer({
 // Define routes with any field name that follows the pattern "images-X"
 router.post('/', authenticateToken, authorizeRoles('supervise', 'shopper'), upload.any(), addProduct);
 router.get('/', authenticateToken, authorizeRoles('supervise', 'shopper'), getProducts);
-router.get('/:id', authenticateToken, authorizeRoles('supervise', 'shopper'), getProductById);
-router.put('/:id',  authenticateToken, authorizeRoles('supervise', 'shopper'),updateProduct);
+router.get('/:slug', authenticateToken, authorizeRoles('supervise', 'shopper'), getProductById);
+router.put('/:slug',  authenticateToken, authorizeRoles('supervise', 'shopper'),updateProduct);
 router.delete('/:id',  authenticateToken, authorizeRoles('supervise', 'shopper'),deleteProduct);
 
 // Export the router

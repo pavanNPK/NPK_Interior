@@ -30,9 +30,15 @@ export const getProducts = async (req, res) => {
 
 // Get product by id
 export const getProductById = async (req, res) => {
-    const id = req.params.id;
+    const slug = req.params.slug;
     try {
-        const product = await Product.findById(mongoose.Types.ObjectId(id), {}, { lean: true }).exec();
+        const product = await Product.findOne({slug: slug}, {}, { lean: true }).exec();
+        if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+            for (let j = 0; j < product.images.length; j++) {
+                // get signed url
+                product.images[j].url = await getSignedUrlForS3(product.images[j].key);
+            }
+        }
         res.json({response: product, success: true, message: "Product fetched successfully"});
     } catch (error) {
         console.error('Error fetching product by id:', error);

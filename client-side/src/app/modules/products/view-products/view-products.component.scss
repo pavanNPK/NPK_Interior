@@ -1,5 +1,52 @@
-.productImage{
+.productImage {
   aspect-ratio: 1 / 1;
   width: 100%;
+  max-width: 200px; // Adjust as needed
+  height: auto;
   object-fit: contain;
+}
+
+.productTitle {
+  font-size: 14px; /* Ensure uniform size */
+  font-weight: 600;
+  line-height: 1.2;
+  height: 2.4em; /* Adjust based on font-size and line-height */
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+}
+.productSubTitle {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2em; /* Each line is 1.2 times the font size */
+  height: 3.6em; /* 1.2em * 4 = 4.8em to fit exactly 4 lines */
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limit to 4 lines */
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+}
+.productMrp{
+  text-decoration: line-through;
+}
+.productCard{
+  position: relative;
+  inset: 0;
+  .productStockBanner{
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #ffffff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+  }
+}
+.productStockBannerOOS{
+  background: red;
+}
+.productStockBannerLS{
+  background: gray;
 }
