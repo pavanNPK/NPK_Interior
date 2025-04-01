@@ -1,13 +1,39 @@
-.zoom-container {
-  width: 100%;
-  overflow: hidden;
+.zoom-wrapper {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-.zoom-container img {
-  max-width: 10%;
-  max-height: 10%;
-  object-fit: contain; /* Ensures the image scales proportionally */
+.zoom-container {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  position: relative; /* Added position relative */
+}
+
+/* Override lib-ngx-image-zoom styling */
+lib-ngx-image-zoom {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Target the internal container of ngx-image-zoom */
+::ng-deep .ngxImageZoomContainer {
+  width: 100% !important;
+  height: 100% !important;
+  //display: flex !important;
+  //justify-content: center !important;
+  //align-items: center !important;
+}
+
+/* Target the thumbnail image */
+::ng-deep .ngxImageZoomThumbnail {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
 }

@@ -23,7 +23,6 @@
   import {GetCatAndSubCatDTO, SubCategoriesDTO} from "../../../models/categoriesDTO";
   import {ToggleButtonModule} from "primeng/togglebutton";
   import {FileUploadModule} from "primeng/fileupload";
-  import {ProductsDTO} from "../../../models/productsDTO";
   import {ProductsService} from "../../../services/products.service";
 
   @Component({
@@ -52,13 +51,6 @@
     loading: boolean = false;
     submitted: boolean = false;
     categoriesData: GetCatAndSubCatDTO[] = [];
-    stockOptions = [
-      { label: 'In Stock', value: 'in_stock' },
-      { label: 'Low Stock', value: 'low_stock' },
-      { label: 'Out of Stock', value: 'out_of_stock' },
-      { label: 'Pre-Order', value: 'pre_order' },
-      { label: 'Backorder', value: 'backorder' },
-    ];
     uploadedFiles: any[] = [];
     /**
      * This is a map where the key is the index of the product in the products FormArray,
@@ -118,9 +110,12 @@
           Validators.pattern('^[^\\s][a-zA-Z0-9\\s]*$'),
           Validators.minLength(20),
           Validators.maxLength(150)]],
-        price: ['3434', Validators.required],
-        discount: ['0', [Validators.required, Validators.min(0), Validators.max(99)]],
-        stock: ['in_stock', [Validators.required]],
+        price: ['', Validators.required],
+        discount: ['5', [Validators.required, Validators.min(0), Validators.max(99)]],
+        discountedPrice: [0, [Validators.required]],
+        emiStartsAt: [0, [Validators.required]],
+        anualInterest: [12, [Validators.required, Validators.min(0), Validators.max(16)]],
+        productType: ['', Validators.required],
         images: [[], [Validators.required]],
         category: this.fb.group({
           id: ['', Validators.required],
@@ -131,6 +126,8 @@
           name: ['', Validators.required],
         }),
         specifications: this.fb.group({
+          brand: ['NPK', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+          washingInstructions: ['months', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
           material: ['nknxdk', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
           dimensions: ['30*40*50 cm', [Validators.required, this.dimensionFormatValidator()]], // Example: "200x80x90 cm"
           weight: ['40 kg', [Validators.required, this.weightFormatValidator()]], // Example: "40 KG"
@@ -171,6 +168,11 @@
     discountChange(event: any, i: number) {
       if (event.target.value > 99) {
         this.p.at(i).get('discount')?.setValue(99);
+      }
+    }
+    anualInterestChange(event: any, i: number) {
+      if (event.target.value > 16) {
+        this.p.at(i).get('anualInterest')?.setValue(16);
       }
     }
     backToPrev() {
@@ -230,7 +232,9 @@
         formData.append(`products[${index}][subCategory]`, JSON.stringify(product.subCategory));
         formData.append(`products[${index}][price]`, product.price);
         formData.append(`products[${index}][discount]`, product.discount);
-        formData.append(`products[${index}][stock]`, product.stock);
+        formData.append(`products[${index}][discountedPrice]`, product.discountedPrice);
+        formData.append(`products[${index}][emiStartsAt]`, product.emiStartsAt);
+        formData.append(`products[${index}][anualInterest]`, product.anualInterest);
         formData.append(`products[${index}][specifications]`, JSON.stringify(product.specifications));
         formData.append(`products[${index}][isFeatured]`, product.isFeatured);
         formData.append(`products[${index}][isTrending]`, product.isTrending);

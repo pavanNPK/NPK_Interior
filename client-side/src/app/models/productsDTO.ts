@@ -11,16 +11,21 @@ export class ProductsDTO {
   };
   price?: number;
   discount?: number;
+  discountedPrice?: number;
+  emiStartsAt?: number;
+  anualInterest?: number;
   stock?: string;
   slug?: string;
   images?: ProductImagesDTO[];
   specifications?: {
-    material: string;
-    dimensions: string;
-    weight: string;
-    color: string;
-    finish: string;
-    warranty: string;
+    brand?: string;
+    material?: string;
+    washingInstructions?: string;
+    dimensions?: string;
+    weight?: string;
+    color?: string;
+    finish?: string;
+    warranty?: string;
   };
   additionalDetails?: string;
   isFeatured?: boolean;

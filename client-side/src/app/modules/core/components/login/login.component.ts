@@ -138,7 +138,6 @@ export class LoginComponent implements OnInit{
                     this.submitted = false;
               // Navigate to return url or dashboard
               this.navigateAfterLogin();
-              this.router.navigate(['/categories/view/']);
             } else { // @ts-ignore
               if(response.response === 'notFound'){
                 this.ms.add({severity: 'warn', summary: 'User', detail: response.message});
@@ -161,7 +160,7 @@ export class LoginComponent implements OnInit{
   }
   navigateAfterLogin() {
       // Check if there's a stored redirect URL
-      const redirectUrl = localStorage.getItem('redirectUrl') || '/dashboard';
+      const redirectUrl = localStorage.getItem('redirectUrl') || '/dashboard/view';
       localStorage.removeItem('redirectUrl'); // Clear the stored URL
       this.router.navigateByUrl(redirectUrl);
   }

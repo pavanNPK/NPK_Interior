@@ -4,7 +4,6 @@ import { HomeRoutingModule } from './home-routing.module';
 import {NbDialogModule, NbToastrModule, NbTooltipModule} from "@nebular/theme";
 import {NbEvaIconsModule} from "@nebular/eva-icons";
 
-
 @NgModule({
   declarations: [],
   imports: [

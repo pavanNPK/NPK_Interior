@@ -13,5 +13,5 @@ import {OverlaySpinnerComponent} from "./modules/core/components/overlay-spinner
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'client';
+  title = 'NPK Interior';
 }
