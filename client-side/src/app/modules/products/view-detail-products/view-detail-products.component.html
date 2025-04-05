@@ -49,9 +49,9 @@
               <div>
                 <p class="text-2xl mb-1">
                   <span class="text-danger">{{product?.discount}}%</span>
-                  <span class="productMrp ml-2 fw-semibold" style="font-family: system-ui,serif !important;">{{product?.price | currency:'INR':'symbol-narrow':'1.0-0'}}</span>
+                  <span class="productMrp ml-2 fw-semibold" style="font-family: system-ui,serif !important;">{{product?.discountedPrice | currency:'INR':'symbol-narrow':'1.0-0'}}</span>
                 </p>
-                <p class="fw-semibold m-0 mt-2 text-0xl text-black-50 text-decoration-line-through" style="font-family: system-ui,serif !important;">MRP: {{ product?.price - (product?.price * (product?.discount / 100)) | currency:'INR':'symbol-narrow':'1.0-0' }}</p>
+                <p class="fw-semibold m-0 mt-2 text-0xl text-black-50 text-decoration-line-through" style="font-family: system-ui,serif !important;">MRP: {{ product?.price | currency:'INR':'symbol-narrow':'1.0-0' }}</p>
               </div>
               <p-divider></p-divider>
               <div class="mt-2">
@@ -60,9 +60,9 @@
                 <div>
                   <span class="fw-semibold small">EMI </span>
                   <span>starts at </span>
-                  <span style="font-family: system-ui,serif !important;">{{ product?.price - (product?.price * (75 / 100)) | currency:'INR':'symbol-narrow':'1.0-0' }}. </span>
-                  <span>No Cost EMI Available </span>
-                  <span class="fw-semibold small text-primary cursor-pointer" (click)="viewEMI(productEMIDialog)">View </span>
+                  <span style="font-family: system-ui,serif !important;">{{ product?.emiStartsAt | currency:'INR':'symbol-narrow':'1.0-0' }}. </span>
+                  <span>EMI Options Available </span>
+                  <span class="fw-semibold small text-primary cursor-pointer" (click)="viewEMI(productEMIDialog, product?.emiDetails)">View </span>
                 </div>
                 <div class="mt-3 row">
                   <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-2">
@@ -144,8 +144,28 @@
     </nb-card-header>
     <nb-card-body class="globalDialogBoxCardBody">
       <div class="">
-        <h5 class="m-0 fw-semibold">EMI</h5>
-        <p class="mb-1 fw-semibold">EMI starts at {{ product?.price - (product?.price * (75 / 100)) | currency:'INR':'symbol-narrow':'1.0-0' }}. No Cost EMI Available</p>
+        <table class="table table-bordered table-hover table-responsive">
+          <thead class="">
+            <tr class="">
+              <th>Tenure (Months)</th>
+              <th>EMI (₹/month)</th>
+              <th>Total Payable (₹)</th>
+              <th>Interest</th>
+              <th>Principal</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (emi of emiDetails;track emi.month) {
+              <tr>
+                <td>{{emi.month}}</td>
+                <td>{{emi.monthlyEmi}}</td>
+                <td>{{emi.totalPayable}}</td>
+                <td>{{emi.interestAmount}}</td>
+                <td>{{emi.principal}}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
     </nb-card-body>
   </nb-card>

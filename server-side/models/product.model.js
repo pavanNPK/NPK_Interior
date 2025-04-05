@@ -16,10 +16,23 @@ const productSchema = new mongoose.Schema({
     },
     price: { type: Number, required: true },
     discount: { type: Number, default: 0 },
-    stock: { type: String, required: true },
+    discountedPrice: { type: Number, default: 0 },
+    emiStartsAt: { type: Number, default: 0 },
+    anualInterest: { type: Number, default: 0 },
+    stock: { type: String, required: false },
+    productType: { type: String, required: false },
+    emiDetails: [{
+        month: Number,
+        monthlyEmi: Number,
+        totalPayable: Number,
+        interestAmount: Number,
+        principal: Number
+    }],
     // images: [{ key: String, originalName: String,  }],
     images: [],
     specifications: {
+        brand: String,
+        washingInstructions: String,
         material: String,
         dimensions: String, // Example: "200x80x90 cm"
         weight: String, // Example: "40 KG"

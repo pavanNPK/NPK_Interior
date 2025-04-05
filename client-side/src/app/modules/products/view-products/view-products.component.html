@@ -56,7 +56,7 @@
                     <p class="m-0 cursor-pointer">5 Reviews</p>
                   </div>
                   <div class="d-flex align-items-end gap-2">
-                    <p class="fw-semibold m-0 mt-2 text-2xl" style="font-family: system-ui,serif !important;">{{item.price - (item.price * (item.discount / 100)) | currency:'INR':'symbol-narrow':'1.0-0'}}</p>
+                    <p class="fw-semibold m-0 mt-2 text-2xl" style="font-family: system-ui,serif !important;">{{item.discountedPrice | currency:'INR':'symbol-narrow':'1.0-0'}}</p>
                     <small style="font-family: system-ui,serif !important;">MRP:
                       <span class="productMrp"  style="font-family: system-ui,serif !important;">{{item.price | currency:'INR':'symbol-narrow':'1.0-0'}}</span>
                       <span class="fw-semibold">
@@ -67,6 +67,7 @@
                   <div class="row mt-2">
                     <div class="col-10">
                       <button nbButton size="small"
+                              [routerLink]="['/products/edit']" [queryParams]="{product: item.slug}"
                               nbTooltip="By clicking this you can edit the product" nbTooltipPlacement="bottom"
                               class=" rounded-2 fw-semibold bg-dark text-white w-100">
                         Add to Cart<nb-icon icon="shopping-cart-outline"></nb-icon>

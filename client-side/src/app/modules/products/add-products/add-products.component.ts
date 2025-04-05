@@ -89,8 +89,6 @@
         error: (error) => console.error('Error fetching products', error),
         complete: () => (this.loading = true),
       })
-      this.loadForm();
-      this.loading=true;
     }
     loadForm() {
       this.addProductsForm = this.fb.group({
@@ -115,8 +113,8 @@
         discountedPrice: [0, [Validators.required]],
         emiStartsAt: [0, [Validators.required]],
         anualInterest: [12, [Validators.required, Validators.min(0), Validators.max(16)]],
-        productType: ['', Validators.required],
         images: [[], [Validators.required]],
+        emiDetails: [[], [Validators.required]],
         category: this.fb.group({
           id: ['', Validators.required],
           name: ['', Validators.required],
@@ -127,7 +125,7 @@
         }),
         specifications: this.fb.group({
           brand: ['NPK', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
-          washingInstructions: ['months', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+          washingInstructions: [''],
           material: ['nknxdk', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
           dimensions: ['30*40*50 cm', [Validators.required, this.dimensionFormatValidator()]], // Example: "200x80x90 cm"
           weight: ['40 kg', [Validators.required, this.weightFormatValidator()]], // Example: "40 KG"
@@ -169,11 +167,64 @@
       if (event.target.value > 99) {
         this.p.at(i).get('discount')?.setValue(99);
       }
+      this.discountedPriceChange(this.p.at(i).get('price')?.value, this.p.at(i).get('discount')?.value, i);
     }
+    priceChange(event: any, i: number) {
+      this.discountedPriceChange(event.target.value, this.p.at(i).get('discount')?.value, i);
+    }
+    discountedPriceChange(price: number, discount: number, i: any) {
+      // Step 1: Calculate Discounted Price
+      const discountedPrice = price - (price * discount / 100);
+      this.p.at(i).get('discountedPrice')?.setValue(discountedPrice);
+
+      // Step 2: Get Annual Interest (from form)
+      const annualInterest = this.p.at(i).get('anualInterest')?.value || 12;
+      const monthlyRate = annualInterest / 12 / 100;
+
+      // Step 3: EMI Formula Function
+      const calculateEMI = (P: number, R: number, N: number): number => {
+        const numerator = P * R * Math.pow(1 + R, N);
+        const denominator = Math.pow(1 + R, N) - 1;
+        return Math.round(numerator / denominator);
+      };
+
+      // Step 4: Calculate EMI for 3 months (default)
+      const emi3 = calculateEMI(discountedPrice, monthlyRate, 3);
+      this.p.at(i).get('emiStartsAt')?.setValue(emi3);
+
+      // Optional: calculate and store all EMI values if needed
+      const emiDetails: {
+        month: number;
+        monthlyEmi: number;
+        totalPayable: number;
+        interestAmount: number;
+        principal: number;
+      }[] = [];
+
+      [3, 6, 9, 12].forEach(month => {
+        const monthlyEmi = calculateEMI(discountedPrice, monthlyRate, month);
+        const totalPayable = monthlyEmi * month;
+        const interestAmount = totalPayable - discountedPrice;
+
+        emiDetails.push({
+          month,
+          monthlyEmi,
+          totalPayable,
+          interestAmount: Math.round(interestAmount),
+          principal: discountedPrice
+        });
+      });
+      console.log('EMI Options:', emiDetails); // or use them in a UI popup
+      this.p.at(i).get('emiDetails')?.setValue(emiDetails);
+    }
+
     anualInterestChange(event: any, i: number) {
       if (event.target.value > 16) {
         this.p.at(i).get('anualInterest')?.setValue(16);
+      } else if (event.target.value < 0 || event.target.value === '') {
+        this.p.at(i).get('anualInterest')?.setValue(0);
       }
+      this.discountedPriceChange(this.p.at(i).get('price')?.value, this.p.at(i).get('discount')?.value, i);
     }
     backToPrev() {
       this.location.back();
@@ -239,6 +290,7 @@
         formData.append(`products[${index}][isFeatured]`, product.isFeatured);
         formData.append(`products[${index}][isTrending]`, product.isTrending);
         formData.append(`products[${index}][isNewArrival]`, product.isNewArrival);
+        formData.append(`products[${index}][emiDetails]`, JSON.stringify(product.emiDetails));
 
         // Ensure that images are appended correctly
         // Append images as File objects instead of JSON

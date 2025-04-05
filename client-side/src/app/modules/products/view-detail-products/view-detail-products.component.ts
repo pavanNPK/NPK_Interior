@@ -10,7 +10,7 @@ import {
   NbTooltipModule
 } from "@nebular/theme";
 import {NgxImageZoomModule} from "ngx-image-zoom";
-import {ProductsDTO} from "../../../models/productsDTO";
+import {EMIDetailsDTO, ProductsDTO} from "../../../models/productsDTO";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ProductsService} from "../../../services/products.service";
 import {ResponseWithError} from "../../../models/commonDTO";
@@ -39,6 +39,7 @@ export class ViewDetailProductsComponent implements OnInit{
   product?: ProductsDTO | any = {};
   loading: boolean = false;
   previewImage: string = '';
+  emiDetails: EMIDetailsDTO[] = [];
 
   constructor(private location: Location, private router: Router, private route: ActivatedRoute, private ps: ProductsService, private toastService: NbToastrService, private dialogService: NbDialogService) {
   }
@@ -79,7 +80,8 @@ export class ViewDetailProductsComponent implements OnInit{
   previewImgUrl(url: string){
     this.previewImage = url;
   }
-  viewEMI(productEMIDialog: any){
+  viewEMI(productEMIDialog: any, emiDetails: any) {
+    this.emiDetails = emiDetails;
     this.dialogService.open(productEMIDialog, {closeOnBackdropClick: false});
   }
 }

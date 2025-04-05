@@ -61,7 +61,8 @@
                 <label class="label fw-semibold">Price*</label>
                 <nb-form-field>
                   <nb-icon nbSuffix icon="currency-usd-outline" pack="eva"></nb-icon>
-                  <input type="number" nbInput class="form-control"
+                  <input type="number" nbInput class="form-control" min="0"
+                         (keyup)="priceChange($event, i);"
                          fullWidth formControlName="price" placeholder="Enter product price"
                          [ngClass]="{ 'is-invalid': submitted && pdt.get('price')?.errors }" >
                 </nb-form-field>
@@ -88,7 +89,7 @@
                 <label class="label fw-semibold">Discounted Price*</label>
                 <nb-form-field>
                   <nb-icon nbSuffix icon="currency-usd-outline" pack="eva"></nb-icon>
-                  <input type="number" nbInput class="form-control"
+                  <input type="number" nbInput class="form-control" [readOnly]="true"
                          fullWidth formControlName="discountedPrice" placeholder="Enter product price"
                          [ngClass]="{ 'is-invalid': submitted && pdt.get('discountedPrice')?.errors }" >
                 </nb-form-field>
@@ -96,16 +97,16 @@
                   <div *ngIf="pdt.get('discountedPrice')?.errors?.['required']">Please enter the price.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-2 col-lg-2 col-xl-1 mb-3">
-                <label class="label fw-semibold">EMI Starts*</label>
-                  <input type="number" nbInput class="form-control"
+              <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
+                <label class="label fw-semibold">EMI Starts (Min 3 Months)*</label>
+                  <input type="number" nbInput class="form-control" [readonly]="true"
                          fullWidth formControlName="emiStartsAt" placeholder="Enter product price"
                          [ngClass]="{ 'is-invalid': submitted && pdt.get('emiStartsAt')?.errors }" >
                 <div *ngIf="submitted && pdt.get('emiStartsAt')?.errors" class="invalid-feedback">
                   <div *ngIf="pdt.get('emiStartsAt')?.errors?.['required']">Please enter the price.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-1 col-lg-1 col-xl-1 mb-3">
+              <div class="col-sm-6 col-md-2 col-lg-2 col-xl-2 mb-3">
                 <label class="label fw-semibold">Interest*</label>
                 <nb-form-field>
                   <nb-icon nbSuffix icon="percent-outline" pack="eva"></nb-icon>
@@ -116,15 +117,6 @@
                 </nb-form-field>
                 <div *ngIf="submitted && pdt.get('anualInterest')?.errors" class="invalid-feedback">
                   <div *ngIf="pdt.get('anualInterest')?.errors?.['required']">Please enter the discount.</div>
-                </div>
-              </div>
-              <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
-                <label class="label fw-semibold">Product Type*</label>
-                <input type="text" nbInput class="form-control"
-                       fullWidth formControlName="productType" placeholder="Enter product type"
-                       [ngClass]="{ 'is-invalid': submitted && pdt.get('productType')?.errors }" >
-                <div *ngIf="submitted && pdt.get('productType')?.errors" class="invalid-feedback">
-                  <div *ngIf="pdt.get('productType')?.errors?.['required']">Please enter the product type.</div>
                 </div>
               </div>
 

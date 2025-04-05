@@ -182,6 +182,42 @@ input:-webkit-autofill:active {
   transition: background-color 5000s ease-in-out 0s !important;
 }
 
+.dataTableCss {
+  thead {
+    tr {
+      background: #2E3C6F !important;
+      border-radius: 5px !important;
+      margin: 8px 0;
+      color: white;
+    }
+    th {
+      border: none !important;
+    }
+  }
+
+  tbody {
+    tr {
+      background: #ffffff !important;
+      border-radius: 5px !important;
+      margin-bottom: 8px;
+      align-items: center;
+      td {
+        word-break: break-word;
+        nb-icon {
+          font-size: 1.4rem;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  td,
+  th {
+    border: none !important;
+  }
+}
+
+
 //-----------------------------------------------------------------------------------------------------------
 // for guide text for privacy policy, terms and conditions and return policy
 

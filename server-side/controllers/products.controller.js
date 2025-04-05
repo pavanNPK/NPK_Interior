@@ -127,7 +127,8 @@ export const addProduct = async (req, res) => {
             try {
                 product.category = JSON.parse(product.category || "{}");
                 product.subCategory = JSON.parse(product.subCategory || "{}");
-                product.specifications = JSON.parse(product.specifications || "[]");
+                product.specifications = JSON.parse(product.specifications || "{}");
+                product.emiDetails = JSON.parse(product.emiDetails || "[]");
             } catch (e) {
                 console.error("Error parsing product fields:", e);
                 return res.status(400).json({ success: false, message: "Invalid JSON in product fields" });

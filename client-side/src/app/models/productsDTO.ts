@@ -17,6 +17,7 @@ export class ProductsDTO {
   stock?: string;
   slug?: string;
   images?: ProductImagesDTO[];
+  emiDetails?: EMIDetailsDTO[];
   specifications?: {
     brand?: string;
     material?: string;
@@ -40,4 +41,11 @@ export class ProductImagesDTO {
   name?: string;
   url?: string;
   file?: File;
+}
+export class EMIDetailsDTO{
+  month?: number;
+  monthlyEmi?: number;
+  totalPayable?: number;
+  interestAmount?: number;
+  principal?: number;
 }
