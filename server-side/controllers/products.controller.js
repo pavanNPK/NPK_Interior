@@ -205,15 +205,26 @@ export const addProduct = async (req, res) => {
 
 // Update a product
 export const updateProduct = async (req, res) => {
-    const id = req.params.id;
+    const slug = req.params.slug;
     try {
-        // findByIdAndUpdate returns the updated document by default,
-        // but if { new: true } is specified, it returns the updated document
-        // with the new data instead of the old data.
-        // We use mongoose.Types.ObjectId(id) to convert the id to an ObjectId
-        // because req.params.id is a string
-        const updatedProduct = await Product.findByIdAndUpdate(mongoose.Types.ObjectId(id), req.body, { new: true, upsert: true }).exec();
-        res.json({response: updatedProduct, success: true, message: "Product updated successfully"});
+        let productDetails = req.body;
+        let productFiles = req.files;
+        console.log(productFiles);
+        // Parse JSON fields
+        try {
+            productDetails.category = JSON.parse(productDetails.category || "{}");
+            productDetails.subCategory = JSON.parse(productDetails.subCategory || "{}");
+            productDetails.specifications = JSON.parse(productDetails.specifications || "{}");
+            productDetails.emiDetails = JSON.parse(productDetails.emiDetails || "[]");
+
+
+            console.log(productDetails)
+        } catch (e) {
+            console.error("Error parsing product fields:", e);
+            return res.status(400).json({ success: false, message: "Invalid JSON in product fields" });
+        }
+        // const updatedProduct = await Product.findOneAndUpdate({slug: slug}, productDetails, { new: true, upsert: true }).exec();
+        // res.json({response: updatedProduct, success: true, message: "Product updated successfully"});
     } catch (error) {
         console.error('Error updating product:', error);
         res.status(500).json({response: null, success: false, message: 'Error updating product' });

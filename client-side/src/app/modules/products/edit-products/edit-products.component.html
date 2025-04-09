@@ -20,95 +20,98 @@
           <div formGroupName="category" class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-3">
             <label class="label fw-semibold">Categories*</label>
             <nb-select fullWidth formControlName="id" placeholder="Select Category"
-                       [ngClass]="{ 'is-invalid': submitted &&  p.category.id?.errors }">
+                       [status]="submitted && p.category.id?.errors ? 'danger' : 'basic'">
               <nb-option *ngFor="let category of categoriesData" [value]="category._id" (click)="selectCategory(category, 'form');">
                 {{ category.name }}
               </nb-option>
             </nb-select>
-            <div *ngIf="submitted && p.category.id?.errors" class="invalid-feedback">
-              <div *ngIf="p.category.id?.errors?.['required']">Please select the category.</div>
-            </div>
+            <p class="caption status-danger" *ngIf="submitted && p.category.id?.errors?.['required']">
+              Please select the category.
+            </p>
           </div>
           <div formGroupName="subCategory" class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-3" >
             <label class="label fw-semibold">Sub Categories*</label>
             <nb-select fullWidth formControlName="id" placeholder="Select Sub Category"
-                       [ngClass]="{ 'is-invalid': submitted && p.subCategory.id?.errors?.errors }">
+                       [status]="submitted && p.subCategory.id?.errors ? 'danger' : 'basic'">
               <nb-option *ngFor="let subCategory of selectedSubCategories" [value]="subCategory._id" (click)="p.subCategory.name?.setValue(subCategory.name)">
                 {{ subCategory.name }}
               </nb-option>
             </nb-select>
-            <div *ngIf="submitted && p.subCategory.id?.errors" class="invalid-feedback">
-              <div *ngIf="p.subCategory.id?.errors?.['required']">Please select the sub category.</div>
-            </div>
+            <p class="caption status-danger" *ngIf="submitted && p.subCategory.id?.errors?.['required']">
+              Please select the sub category.
+            </p>
           </div>
           <div class="col-sm-6 col-md-3 col-lg-3 col-xl-3 mb-3">
             <label class="label fw-semibold">Product Name*</label>
             <nb-form-field>
               <input nbInput fullWidth formControlName="name" placeholder="Enter product name"
-                     [ngClass]="{ 'is-invalid': submitted && p.name?.errors }" >
+                     [status]="submitted && p.name?.errors ? 'danger' : 'basic'">
             </nb-form-field>
-            <div *ngIf="submitted && p.name?.errors" class="invalid-feedback">
-              <div *ngIf="p.name?.errors?.['required']">Please enter the name.</div>
-            </div>
+            <p class="caption status-danger" *ngIf="submitted && p.name?.errors?.['required']">
+              Please enter the name.
+            </p>
           </div>
           <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
             <label class="label fw-semibold">Price*</label>
             <nb-form-field>
+              <nb-icon nbSuffix icon="currency-usd-outline" pack="eva"></nb-icon>
               <input type="number" nbInput fullWidth formControlName="price"
-                     (keyup)="priceChange($event);" min="0"
-                     placeholder="Enter product price"
-                     [ngClass]="{ 'is-invalid': submitted && p.price?.errors }" >
+                     placeholder="Enter product price" min="0"
+                     (keyup)="priceChange($event);"
+                     [status]="submitted && p['price']?.errors ? 'danger' : 'basic'">
             </nb-form-field>
-            <div *ngIf="submitted && p.price?.errors" class="invalid-feedback">
-              <div *ngIf="p.price?.errors?.['required']">Please enter the price.</div>
-            </div>
+            <p class="caption status-danger" *ngIf="submitted && p['price']?.errors?.['required']">
+              Please enter the price.
+            </p>
           </div>
           <div class="col-sm-6 col-md-1 col-lg-1 col-xl-1 mb-3">
             <label class="label fw-semibold">Discount*</label>
             <nb-form-field>
               <nb-icon nbSuffix icon="percent-outline" pack="eva"></nb-icon>
-              <input type="number" nbInput class="form-control"
+              <input type="number" nbInput fullWidth formControlName="discount"
+                     placeholder="Enter product discount" min="0" max="99"
                      (keyup)="discountChange($event);"
-                     fullWidth formControlName="discount" placeholder="Enter product discount" min="0" max="99"
-                     [ngClass]="{ 'is-invalid': submitted && p.discount?.errors }" >
+                     [status]="submitted && p.discount?.errors ? 'danger' : 'basic'">
             </nb-form-field>
-            <div *ngIf="submitted && p.discount?.errors" class="invalid-feedback">
-              <div *ngIf="p.discount?.errors?.['required']">Please enter the discount.</div>
-            </div>
+            <p class="caption status-danger" *ngIf="submitted && p.discount?.errors?.['required']">
+              Please enter the discount.
+            </p>
           </div>
           <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
             <label class="label fw-semibold">Discounted Price*</label>
             <nb-form-field>
               <nb-icon nbSuffix icon="currency-usd-outline" pack="eva"></nb-icon>
-              <input type="number" nbInput class="form-control" [readOnly]="true"
-                     fullWidth formControlName="discountedPrice" placeholder="Enter product price"
-                     [ngClass]="{ 'is-invalid': submitted && p.discountedPrice?.errors }" >
+              <input type="number" nbInput fullWidth formControlName="discountedPrice"
+                     placeholder="Enter product price" [readOnly]="true"
+                     [status]="submitted && p.discountedPrice?.errors ? 'danger' : 'basic'">
             </nb-form-field>
-            <div *ngIf="submitted && p.discountedPrice?.errors" class="invalid-feedback">
-              <div *ngIf="p.discountedPrice?.errors?.['required']">Please enter the price.</div>
-            </div>
+            <p class="caption status-danger" *ngIf="submitted && p.discountedPrice?.errors?.['required']">
+              Please enter the price.
+            </p>
           </div>
           <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
             <label class="label fw-semibold">EMI Starts (Min 3 Months)*</label>
-            <input type="number" nbInput class="form-control" [readonly]="true"
-                   fullWidth formControlName="emiStartsAt" placeholder="Enter product price"
-                   [ngClass]="{ 'is-invalid': submitted && p.emiStartsAt?.errors }" >
-            <div *ngIf="submitted && p.emiStartsAt?.errors" class="invalid-feedback">
-              <div *ngIf="p.emiStartsAt?.errors?.['required']">Please enter the price.</div>
-            </div>
+            <nb-form-field>
+              <input type="number" nbInput fullWidth formControlName="emiStartsAt"
+                     placeholder="Enter product price" [readonly]="true"
+                     [status]="submitted && p.emiStartsAt?.errors ? 'danger' : 'basic'">
+            </nb-form-field>
+            <p class="caption status-danger" *ngIf="submitted && p.emiStartsAt?.errors?.['required']">
+              Please enter the price.
+            </p>
           </div>
           <div class="col-sm-6 col-md-2 col-lg-2 col-xl-2 mb-3">
             <label class="label fw-semibold">Interest*</label>
             <nb-form-field>
               <nb-icon nbSuffix icon="percent-outline" pack="eva"></nb-icon>
-              <input type="number" nbInput class="form-control"
+              <input type="number" nbInput fullWidth formControlName="anualInterest"
+                     placeholder="Enter product discount" min="0" max="16"
                      (keyup)="anualInterestChange($event);"
-                     fullWidth formControlName="anualInterest" placeholder="Enter product discount" min="0" max="16"
-                     [ngClass]="{ 'is-invalid': submitted && p.anualInterest?.errors }" >
+                     [status]="submitted && p.anualInterest?.errors ? 'danger' : 'basic'">
             </nb-form-field>
-            <div *ngIf="submitted && p.anualInterest?.errors" class="invalid-feedback">
-              <div *ngIf="p.anualInterest?.errors?.['required']">Please enter the discount.</div>
-            </div>
+            <p class="caption status-danger" *ngIf="submitted && p.anualInterest?.errors?.['required']">
+              Please enter the discount.
+            </p>
           </div>
           <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3 mb-3">
             <label class="label fw-semibold">Is-Featured*</label>
@@ -141,80 +144,102 @@
             <div class="row">
               <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
                 <label class="label fw-semibold">Brand*</label>
-                <input type="text" nbInput class="form-control"
-                       fullWidth formControlName="brand" placeholder="Enter brand nam"
-                       [ngClass]="{ 'is-invalid': submitted && p.specifications.brand?.errors }" >
-                <div *ngIf="submitted && p.specifications.brand?.errors" class="invalid-feedback">
-                  <div *ngIf="p.specifications.brand?.errors?.['required']">Please enter the brand.</div>
-                  <div *ngIf="p.specifications.brand?.errors?.['pattern']">Dont use space before the name.</div>
-                </div>
+                <nb-form-field>
+                  <input type="text" nbInput fullWidth formControlName="brand"
+                         placeholder="Enter brand name"
+                         [status]="submitted && specificationControls['brand']?.errors ? 'danger' : 'basic'">
+                </nb-form-field>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['brand']?.errors?.['required']">
+                  Please enter the brand.
+                </p>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['brand']?.errors?.['pattern']">
+                  Don't use space before the name.
+                </p>
               </div>
               <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
                 <label class="label fw-semibold">Material*</label>
-                <input type="text" nbInput class="form-control"
-                       fullWidth formControlName="material" placeholder="Enter material details"
-                       [ngClass]="{ 'is-invalid': submitted && p.specifications.material?.errors }" >
-                <div *ngIf="submitted && p.specifications.material?.errors" class="invalid-feedback">
-                  <div *ngIf="p.specifications.material?.errors?.['required']">Please enter the material.</div>
-                  <div *ngIf="p.specifications.material?.errors?.['pattern']">Dont use space before the name.</div>
-                </div>
+                <nb-form-field>
+                  <input type="text" nbInput fullWidth formControlName="material"
+                         placeholder="Enter material details"
+                         [status]="submitted && specificationControls['material']?.errors ? 'danger' : 'basic'">
+                </nb-form-field>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['material']?.errors?.['required']">
+                  Please enter the material.
+                </p>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['material']?.errors?.['pattern']">
+                  Don't use space before the name.
+                </p>
               </div>
               <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
                 <label class="label fw-semibold">Dimensions*</label>
-                <input type="text" nbInput class="form-control"
-                       (input)="onDimensionInput($event)"
-                       fullWidth formControlName="dimensions" placeholder="Enter dimensions details"
-                       [ngClass]="{ 'is-invalid': submitted && p.specifications.dimensions?.errors }" >
-                <div *ngIf="submitted && p.specifications.dimensions?.errors" class="invalid-feedback">
-                  <div *ngIf="p.specifications.dimensions?.errors?.['required']">Please enter the dimensions.</div>
-                  <div *ngIf="p.specifications.dimensions?.errors?.['invalidFormat']">
-                    format "LxWxH cm|mm|in".
-                  </div>
-                </div>
+                <nb-form-field>
+                  <input type="text" nbInput fullWidth formControlName="dimensions"
+                         placeholder="Enter dimensions details"
+                         (input)="onDimensionInput($event)"
+                         [status]="submitted && specificationControls['dimensions']?.errors ? 'danger' : 'basic'">
+                </nb-form-field>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['dimensions']?.errors?.['required']">
+                  Please enter the dimensions.
+                </p>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['dimensions']?.errors?.['invalidFormat']">
+                  Format "LxWxH cm|mm|in".
+                </p>
               </div>
               <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
                 <label class="label fw-semibold">Weight*</label>
-                <input type="text" nbInput class="form-control"
-                       fullWidth formControlName="weight" placeholder="Enter weight details"
-                       [ngClass]="{ 'is-invalid': submitted && p.specifications.weight?.errors }" >
-                <div *ngIf="submitted && p.specifications.weight?.errors" class="invalid-feedback">
-                  <div *ngIf="p.specifications.weight?.errors?.['required']">Please enter the weight.</div>
-                  <div *ngIf="p.specifications.weight?.errors?.['invalidWeightFormat']">
-                    format "weight lb|kg|g|oz".
-                  </div>
-                </div>
+                <nb-form-field>
+                  <input type="text" nbInput fullWidth formControlName="weight"
+                         placeholder="Enter weight details"
+                         [status]="submitted && specificationControls['weight']?.errors ? 'danger' : 'basic'">
+                </nb-form-field>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['weight']?.errors?.['required']">
+                  Please enter the weight.
+                </p>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['weight']?.errors?.['invalidWeightFormat']">
+                  Format "weight lb|kg|g|oz".
+                </p>
               </div>
               <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
                 <label class="label fw-semibold">Color*</label>
-                <input type="text" nbInput class="form-control"
-                       fullWidth formControlName="color" placeholder="Enter color details"
-                       [ngClass]="{ 'is-invalid': submitted && p.specifications.color?.errors }" >
-                <div *ngIf="submitted && p.specifications.color?.errors" class="invalid-feedback">
-                  <div *ngIf="p.specifications.color?.errors?.['required']">Please enter the color.</div>
-                  <div *ngIf="p.specifications.color?.errors?.['pattern']">Dont use space before the name.</div>
-                </div>
+                <nb-form-field>
+                  <input type="text" nbInput fullWidth formControlName="color"
+                         placeholder="Enter color details"
+                         [status]="submitted && specificationControls['color']?.errors ? 'danger' : 'basic'">
+                </nb-form-field>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['color']?.errors?.['required']">
+                  Please enter the color.
+                </p>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['color']?.errors?.['pattern']">
+                  Don't use space before the name.
+                </p>
               </div>
               <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
                 <label class="label fw-semibold">Finishing*</label>
-                <input type="text" nbInput class="form-control"
-                       fullWidth formControlName="finish" placeholder="Enter finishing details"
-                       [ngClass]="{ 'is-invalid': submitted && p.specifications.finish?.errors }" >
-                <div *ngIf="submitted && p.specifications.finish?.errors" class="invalid-feedback">
-                  <div *ngIf="p.specifications.finish?.errors?.['required']">Please enter the finishing.</div>
-                  <div *ngIf="p.specifications.finish?.errors?.['pattern']">Dont use space before the name.</div>
-                </div>
+                <nb-form-field>
+                  <input type="text" nbInput fullWidth formControlName="finish"
+                         placeholder="Enter finishing details"
+                         [status]="submitted && specificationControls['finish']?.errors ? 'danger' : 'basic'">
+                </nb-form-field>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['finish']?.errors?.['required']">
+                  Please enter the finishing.
+                </p>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['finish']?.errors?.['pattern']">
+                  Don't use space before the name.
+                </p>
               </div>
               <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
                 <label class="label fw-semibold">Warranty*</label>
-                <input type="text" nbInput class="form-control"
-                       fullWidth formControlName="warranty" placeholder="Enter weight details"
-                       [ngClass]="{ 'is-invalid': submitted && p.specifications.warranty?.errors }" >
-                <div *ngIf="submitted && p.specifications.warranty?.errors" class="invalid-feedback">
-                  <div *ngIf="p.specifications.warranty?.errors?.['required']">Please enter the warranty.</div>
-                  <div *ngIf="p.specifications.warranty?.errors?.['invalidWarrantyFormat']">
-                    format "6|12|18|24|30|36 months".
-                  </div>
-                </div>
+                <nb-form-field>
+                  <input type="text" nbInput fullWidth formControlName="warranty"
+                         placeholder="Enter warranty details"
+                         [status]="submitted && specificationControls['warranty']?.errors ? 'danger' : 'basic'">
+                </nb-form-field>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['warranty']?.errors?.['required']">
+                  Please enter the warranty.
+                </p>
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['warranty']?.errors?.['invalidWarrantyFormat']">
+                  Format "6|12|18|24|30|36 months".
+                </p>
               </div>
             </div>
           </div>
@@ -224,19 +249,46 @@
             <div class="d-flex align-items-center gap-3">
               <div class="w-100">
                 <label class="label fw-semibold">Product Description*</label>
-                <textarea type="text" nbInput class="form-control" [minlength]="20" [maxlength]="150"
-                          fullWidth formControlName="description" placeholder="Enter product description"
-                          [ngClass]="{ 'is-invalid': submitted && p.description?.errors }" ></textarea>
-                <div *ngIf="submitted && p.description?.errors" class="invalid-feedback">
-                  <div *ngIf="p.description?.errors?.['required']">Please enter the description.</div>
-                  <div *ngIf="p.description?.errors?.['minlength']">Description must be at least 20 characters.</div>
-                  <div *ngIf="p.description?.errors?.['maxlength']">Description dont be more than 150 characters.</div>
-                  <div *ngIf="p.description?.errors?.['pattern']">Dont use space before the name.</div>
-                </div>
+                <nb-form-field>
+                  <textarea nbInput fullWidth formControlName="description"
+                            placeholder="Enter product description"
+                            [minlength]="20" [maxlength]="150"
+                            [status]="submitted && p.description?.errors ? 'danger' : 'basic'"></textarea>
+                </nb-form-field>
+                <p class="caption status-danger" *ngIf="submitted && p.description?.errors?.['required']">
+                  Please enter the description.
+                </p>
+                <p class="caption status-danger" *ngIf="submitted && p.description?.errors?.['minlength']">
+                  Description must be at least 20 characters.
+                </p>
+                <p class="caption status-danger" *ngIf="submitted && p.description?.errors?.['maxlength']">
+                  Description cannot be more than 150 characters.
+                </p>
+                <p class="caption status-danger" *ngIf="submitted && p.description?.errors?.['pattern']">
+                  Don't use space before the name.
+                </p>
               </div>
             </div>
           </div>
         </div>
+        @if (loadedFiles.length){
+          <div class="row">
+            <label class="label fw-semibold">Product Images*</label>
+            @for (image of loadedFiles; track image.name; let i = $index){
+              <div class="col-sm-12 col-md-2 col-lg-2 col-xl-2">
+                <div class="card">
+                  <div class="card-header d-flex justify-content-between">
+                    <span class="text-truncate">{{image.name}}</span>
+                    <button type="button" [nbTooltip]="'Remove ' + image.name" class="btn-close" aria-label="Close" (click)="removeLoadedFile(image, i)"></button>
+                  </div>
+                  <div class="card-body loadedImagesCardBody">
+                    <img ngSrc="{{image.url}}" alt="preview" class="card-img figure-img loadedImagesCard" width="300" height="100">
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
         <div class="row">
           <div class="col-12 mb-3">
             <div class="card flex justify-content-center border-0">
@@ -252,7 +304,7 @@
                 (onSelect)="onFileSelect($event)"
                 (onRemove)="removeFile($event)"
                 accept="image/*"
-                fileLimit="5"
+                [fileLimit]="5 - loadedFiles.length"
                 invalidFileLimitMessageDetail="You can only upload up to 5 files."
                 maxFileSize="1000000">
                 <ng-template pTemplate="content">
@@ -261,22 +313,34 @@
                       {{ file.name }} - {{ file.size }} bytes
                     </li>
                   </ul>
-                  <div class=" text-center" *ngIf="getImageCount() < 1">
+                  <div class="text-center" *ngIf="getImageCount() < 1">
                     <p class="mb-1 fw-semibold">Drag and drop files here to upload. Or click to choose files</p>
-                    <small class="">Duplicate files are not allowed & max file size is 1MB. Also, you can upload only 5 files.</small>
+                    <small>Duplicate files are not allowed & max file size is 1MB. Also, you can upload only {{5 - loadedFiles.length}} files.</small>
                   </div>
                 </ng-template>
               </p-fileUpload>
             </div>
-            <div *ngIf="submitted && getImageCount() < 1">
-              <div class="text-danger small mt-1">Please upload the files.</div>
-            </div>
-            <div *ngIf="submitted && getImageCount() > 5">
-              <div class="text-danger small mt-1">File limit exceeded.</div>
-            </div>
+            <p class="caption status-danger" *ngIf="submitted && loadedFiles.length < 1 && getImageCount() < 1">
+              Please upload the files.
+            </p>
+            <p class="caption status-danger" *ngIf="submitted && getImageCount() > 5">
+              File limit exceeded.
+            </p>
+            <p class="caption status-danger" *ngIf="submitted && commonFiles.length">
+              Duplicate files are not allowed.
+            </p>
           </div>
         </div>
       </form>
+      <div class="mt-3 d-flex justify-content-end">
+        <div class="d-flex gap-3">
+          <button nbButton class="bg-transparent"
+                  (click)="backToPrev()"
+                  [nbTooltip]="'Cancel and go back to previous page. If you cancel, you will lost the data.'" type="button" style="border: 1px solid black !important;">Cancel</button>
+          <button nbButton class="bg-black text-white"
+                  type="button" (click)="editProduct()">Save</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

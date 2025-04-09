@@ -47,11 +47,22 @@ const upload = multer({
     }
 });
 
+const uploadUpdate = multer({
+    storage,
+    fileFilter: (req, file, cb) => {
+        if (file.fieldname === 'images') {
+            cb(null, true);
+        } else {
+            cb(null, false); // or true if you allow other files
+        }
+    }
+})
+
 // Define routes with any field name that follows the pattern "images-X"
 router.post('/', authenticateToken, authorizeRoles('supervise', 'shopper'), upload.any(), addProduct);
 router.get('/', authenticateToken, authorizeRoles('supervise', 'shopper'), getProducts);
 router.get('/:slug', authenticateToken, authorizeRoles('supervise', 'shopper'), getProductById);
-router.put('/:slug',  authenticateToken, authorizeRoles('supervise', 'shopper'),updateProduct);
+router.put('/:slug',  authenticateToken, authorizeRoles('supervise', 'shopper'), uploadUpdate.any(), updateProduct);
 router.delete('/:id',  authenticateToken, authorizeRoles('supervise', 'shopper'),deleteProduct);
 
 // Export the router

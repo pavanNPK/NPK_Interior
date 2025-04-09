@@ -2,14 +2,13 @@ import {Component, OnInit} from '@angular/core';
 import {GetCatAndSubCatDTO, SubCategoriesDTO} from "../../../models/categoriesDTO";
 import {
   AbstractControl,
-  FormArray,
   FormBuilder,
   FormGroup, ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
   Validators
 } from "@angular/forms";
-import {Location, NgClass, NgForOf, NgIf} from "@angular/common";
+import {Location, NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
 import {CategoriesService} from "../../../services/categories.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ProductsService} from "../../../services/products.service";
@@ -40,12 +39,12 @@ import {FileUploadModule} from "primeng/fileupload";
     ReactiveFormsModule,
     NbFormFieldModule,
     NbInputModule,
-    NgClass,
     NbOptionModule,
     NbSelectModule,
     NgForOf,
     ToggleButtonModule,
-    FileUploadModule
+    FileUploadModule,
+    NgOptimizedImage
   ],
   templateUrl: './edit-products.component.html',
   styleUrl: './edit-products.component.scss'
@@ -56,6 +55,9 @@ export class EditProductsComponent implements OnInit{
   submitted: boolean = false;
   categoriesData: GetCatAndSubCatDTO[] = [];
   uploadedFiles: any[] = [];
+  loadedFiles: any[] = [];
+  removedFiles: any[] = [];
+  commonFiles: any[] = [];
   selectedSubCategories: SubCategoriesDTO[] = [];
   product?: ProductsDTO | any = {};
   slug: string = '';
@@ -68,6 +70,10 @@ export class EditProductsComponent implements OnInit{
               private toastService: NbToastrService,) {}
   get p(){
     return this.editProductsForm?.controls;
+  }
+  // Add this to your component class
+  get specificationControls() {
+    return (this.editProductsForm.get('specifications') as FormGroup).controls;
   }
   ngOnInit() {
     this.route.queryParams.subscribe(x => {
@@ -95,6 +101,7 @@ export class EditProductsComponent implements OnInit{
         this.loadForm();
         let categoryData = this.categoriesData.find(x =>  x._id === this.product.category.id);
         this.selectCategory(categoryData, 'load');
+        this.loadedFiles = this.product.images;
         this.loading = true;
       },
     })
@@ -106,7 +113,7 @@ export class EditProductsComponent implements OnInit{
     this.editProductsForm = this.fb.group({
       name: [this.product.name || '', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
       description: [this.product.description || '', [Validators.required,
-        Validators.pattern('^[^\\s][a-zA-Z0-9\\s]*$'),
+        Validators.pattern('^(?<!\\s)\\S(.*\\S)?$'),
         Validators.minLength(20),
         Validators.maxLength(150)]],
       price: [this.product.price || '', Validators.required],
@@ -114,7 +121,7 @@ export class EditProductsComponent implements OnInit{
       discountedPrice: [this.product.discountedPrice || 0, [Validators.required]],
       emiStartsAt: [this.product.emiStartsAt || 0, [Validators.required]],
       anualInterest: [this.product.anualInterest || 12, [Validators.required, Validators.min(0), Validators.max(16)]],
-      images: [[this.product.images || []], [Validators.required]],
+      images: [[]],
       emiDetails: [this.product.emiDetails || [], [Validators.required]],
       category: this.fb.group({
         id: [this.product.category?.id || '', Validators.required],
@@ -233,15 +240,16 @@ export class EditProductsComponent implements OnInit{
     this.discountedPriceChange(this.editProductsForm.get('price')?.value, this.editProductsForm.get('discount')?.value);
   }
   onFileSelect(event: any) {
-    let filesMap = event.currentFiles.map((file: any) => {
+    let filesMap = event.currentFiles.filter((file: any) => {
       return file
     });
+    console.log(filesMap);
     this.editProductsForm.get('images')?.setValue(filesMap);
     this.getImageCount()
   }
   getImageCount(): number {
     const images = this.editProductsForm.get('images')?.value;
-    console.log(images);
+    this.commonFiles = images.filter((x: { name: any; }) => this.loadedFiles.some(y => x.name === y.name)).map((x: { name: any; }) => x.name);
     return Array.isArray(images) ? images.length : 0;
   }
   removeFile(event: any) {
@@ -249,5 +257,72 @@ export class EditProductsComponent implements OnInit{
     const currentImages = this.editProductsForm.get('images')?.value || [];
     const updatedImages = currentImages.filter((file: any) => file.name !== fileToRemove.name);
     this.editProductsForm.get('images')?.setValue(updatedImages);
+  }
+  removeLoadedFile(image: any, i: number) {
+    this.removedFiles.push(image);
+    this.loadedFiles.splice(i, 1);
+    if (!this.loadedFiles.length){
+      this.editProductsForm.get('images')?.setValidators([Validators.required]);
+      this.editProductsForm.get('images')?.updateValueAndValidity();
+    }
+  }
+  editProduct(){
+    this.submitted = true;
+    if (this.editProductsForm.invalid || this.commonFiles.length) {
+      return;
+    }
+    const formData = new FormData();
+    formData.append('name', this.editProductsForm.get('name')?.value);
+    formData.append('description', this.editProductsForm.get('description')?.value);
+    formData.append('category', JSON.stringify(this.editProductsForm.get('category')?.value));
+    formData.append('subCategory', JSON.stringify(this.editProductsForm.get('subCategory')?.value));
+    formData.append('price', this.editProductsForm.get('price')?.value);
+    formData.append('discount', this.editProductsForm.get('discount')?.value);
+    formData.append('discountedPrice', this.editProductsForm.get('discountedPrice')?.value);
+    formData.append('emiStartsAt', this.editProductsForm.get('emiStartsAt')?.value);
+    formData.append('anualInterest', this.editProductsForm.get('anualInterest')?.value);
+    formData.append('specifications', JSON.stringify(this.editProductsForm.get('specifications')?.value));
+    formData.append('isFeatured', this.editProductsForm.get('isFeatured')?.value);
+    formData.append('isTrending', this.editProductsForm.get('isTrending')?.value);
+    formData.append('isNewArrival', this.editProductsForm.get('isNewArrival')?.value);
+    let imageFiles = this.editProductsForm.get('images')?.value;
+    // Append image files
+    for (let i = 0; i < imageFiles.length; i++) {
+      formData.append('images', imageFiles[i]); // Don't stringify, send it as a File object
+    }
+    formData.append(`emiDetails`, JSON.stringify(this.editProductsForm.get('emiDetails')?.value));
+    if (this.loadedFiles.length){
+      formData.append('loadedImages', JSON.stringify(this.loadedFiles));
+    }
+    if (this.removedFiles.length){
+      formData.append('removedImages', JSON.stringify(this.removedFiles));
+    }
+    // @ts-ignore
+    for (const value of formData.values()) {
+      console.log(value);
+    }
+
+    this.ps.updateProduct(this.slug, formData).subscribe({
+      next: (response) => {
+        if (response.role !== 'notAllowed') {
+          if (response.success) {
+            this.submitted = false;
+            this.editProductsForm.reset();
+            this.p.reset();
+            this.removedFiles = this.loadedFiles = this.uploadedFiles = [];
+            this.router.navigate(['/products/view']);
+            this.toastService.success('Successfully updated the product', this.product.name, {duration: 2000});
+          } else {
+            this.toastService.danger('Failed to update the product', this.product.name, {duration: 2000});
+          }
+          this.loading = false;
+        } else {
+          this.toastService.danger(`You don't have permission to update.`,  this.product.name, {duration: 2000});
+        }
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    })
   }
 }
