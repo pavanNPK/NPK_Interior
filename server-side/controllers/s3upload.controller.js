@@ -1,6 +1,6 @@
 import multer from 'multer';
 import path from 'path';
-import {GetObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
+import {GetObjectCommand, PutObjectCommand, DeleteObjectsCommand, S3Client} from "@aws-sdk/client-s3";
 import multerS3 from 'multer-s3';
 import dotenv from 'dotenv';
 import {fileURLToPath} from 'url';
@@ -111,5 +111,20 @@ const uploadWithPutObject = async (buffer, path, type, folderName, fileName, ful
     }
 };
 
+const deleteFileFromS3 = async (keys) => {
+    try {
+        // Format keys into the required structure for DeleteObjectsCommand
+        const objects = keys.map(key => ({ Key: key }));
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Delete: { Objects: objects }
+        };
+        await s3Client.send(new DeleteObjectsCommand(params));
+    } catch (error) {
+        console.error('Error deleting file:', error);
+        throw error; // Throw error so the calling function can handle it properly
+    }
+};
+
 // Export the configured multer instance and the upload controller function
-export { uploadS3, uploadFilesOnS3, getSignedUrlForS3, uploadWithPutObject };
+export { uploadS3, uploadFilesOnS3, getSignedUrlForS3, uploadWithPutObject, deleteFileFromS3 };

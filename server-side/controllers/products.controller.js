@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Product from '../models/product.model.js';
 import slugify from 'slugify';
 import fs from 'fs';
-import {getSignedUrlForS3, uploadWithPutObject} from "./s3upload.controller.js";
+import {deleteFileFromS3, getSignedUrlForS3, uploadWithPutObject} from "./s3upload.controller.js";
 
 
 // Get all products
@@ -209,22 +209,85 @@ export const updateProduct = async (req, res) => {
     try {
         let productDetails = req.body;
         let productFiles = req.files;
-        console.log(productFiles);
         // Parse JSON fields
         try {
             productDetails.category = JSON.parse(productDetails.category || "{}");
             productDetails.subCategory = JSON.parse(productDetails.subCategory || "{}");
             productDetails.specifications = JSON.parse(productDetails.specifications || "{}");
             productDetails.emiDetails = JSON.parse(productDetails.emiDetails || "[]");
+            productDetails.loadedImages = JSON.parse(productDetails.loadedImages || "[]");
+            productDetails.removedImages = JSON.parse(productDetails.removedImages || "[]");
 
+            if (productDetails.removedImages.length){
+                const keys = productDetails.removedImages.map(image => image.key);
+                await deleteFileFromS3(keys);
+            }
+            let s3UploadedImages = [];
+            let filesByProduct = [];
 
-            console.log(productDetails)
+            if (productFiles.length){
+                productFiles.forEach(file => {
+                    const match = file.fieldname === "images";
+                    console.log(match, 'NPK pf match 232....');
+                    if (match) {
+                        console.log(match, 'NPK matched ')
+                        if (!filesByProduct) {
+                            filesByProduct = [];
+                        }
+
+                        // Convert image to Base64
+                        const imagePath = file.path;
+                        const imageBuffer = fs.readFileSync(imagePath);
+                        const base64Image = `data:${file.mimetype};base64,${imageBuffer.toString("base64")}`;
+
+                        filesByProduct.push({
+                            name: file.originalname,
+                            type: file.mimetype,
+                            size: file.size,
+                            path: file.path,
+                            base64: base64Image
+                        });
+                    }
+                });
+            }
+
+            if (filesByProduct.length) {
+                for (const image of filesByProduct) {
+                    try {
+                        const folderName = productDetails.slug || 'npk-interior-default';
+                        const fileName = `${image.name.replace(/\s/g, '-')}`;
+                        const fullPath = `uploads/${folderName}/${fileName}`;
+
+                        // Upload image to S3
+                        const s3Response = await uploadWithPutObject(image.base64, image.path, image.type, folderName, fileName, fullPath);
+                        s3UploadedImages.push(s3Response);
+
+                        // Delete a local file after uploading
+                        fs.unlinkSync(image.path);
+                    } catch (error) {
+                        console.error("Error uploading image to S3:", error);
+                        return res.status(500).json({ success: false, message: "Error uploading image" });
+                    }
+                }
+            }
+
+            productDetails.images = s3UploadedImages;
+
+            if (productDetails.loadedImages.length){
+                productDetails.loadedImages.forEach(x => {
+                    delete x.url
+                })
+                productDetails.images = [...productDetails.images, ...productDetails.loadedImages];
+            }
+            delete productDetails.removedImages;
+            delete productDetails.loadedImages;
+
         } catch (e) {
             console.error("Error parsing product fields:", e);
             return res.status(400).json({ success: false, message: "Invalid JSON in product fields" });
         }
-        // const updatedProduct = await Product.findOneAndUpdate({slug: slug}, productDetails, { new: true, upsert: true }).exec();
-        // res.json({response: updatedProduct, success: true, message: "Product updated successfully"});
+        const updatedProduct = await Product.findOneAndUpdate({slug: slug}, productDetails, { new: true, upsert: true }).exec();
+        res.json({response: updatedProduct, success: true, message: "Product updated successfully"});
     } catch (error) {
         console.error('Error updating product:', error);
         res.status(500).json({response: null, success: false, message: 'Error updating product' });

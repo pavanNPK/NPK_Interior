@@ -249,7 +249,7 @@ export class EditProductsComponent implements OnInit{
   }
   getImageCount(): number {
     const images = this.editProductsForm.get('images')?.value;
-    this.commonFiles = images.filter((x: { name: any; }) => this.loadedFiles.some(y => x.name === y.name)).map((x: { name: any; }) => x.name);
+    this.commonFiles = images?.filter((x: { name: any; }) => this.loadedFiles.some(y => x.name === y.name)).map((x: { name: any; }) => x.name);
     return Array.isArray(images) ? images.length : 0;
   }
   removeFile(event: any) {
@@ -285,6 +285,8 @@ export class EditProductsComponent implements OnInit{
     formData.append('isFeatured', this.editProductsForm.get('isFeatured')?.value);
     formData.append('isTrending', this.editProductsForm.get('isTrending')?.value);
     formData.append('isNewArrival', this.editProductsForm.get('isNewArrival')?.value);
+    formData.append('slug', this.product.slug);
+    formData.append('_id', this.product._id);
     let imageFiles = this.editProductsForm.get('images')?.value;
     // Append image files
     for (let i = 0; i < imageFiles.length; i++) {
@@ -308,8 +310,7 @@ export class EditProductsComponent implements OnInit{
           if (response.success) {
             this.submitted = false;
             this.editProductsForm.reset();
-            this.p.reset();
-            this.removedFiles = this.loadedFiles = this.uploadedFiles = [];
+            this.commonFiles =this.removedFiles = this.loadedFiles = this.uploadedFiles = [];
             this.router.navigate(['/products/view']);
             this.toastService.success('Successfully updated the product', this.product.name, {duration: 2000});
           } else {

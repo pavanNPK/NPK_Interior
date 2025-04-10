@@ -58,9 +58,9 @@
               <input type="number" nbInput fullWidth formControlName="price"
                      placeholder="Enter product price" min="0"
                      (keyup)="priceChange($event);"
-                     [status]="submitted && p['price']?.errors ? 'danger' : 'basic'">
+                     [status]="submitted && p['price'].errors ? 'danger' : 'basic'">
             </nb-form-field>
-            <p class="caption status-danger" *ngIf="submitted && p['price']?.errors?.['required']">
+            <p class="caption status-danger" *ngIf="submitted && p['price'].errors?.['required']">
               Please enter the price.
             </p>
           </div>
@@ -147,12 +147,12 @@
                 <nb-form-field>
                   <input type="text" nbInput fullWidth formControlName="brand"
                          placeholder="Enter brand name"
-                         [status]="submitted && specificationControls['brand']?.errors ? 'danger' : 'basic'">
+                         [status]="submitted && specificationControls['brand'].errors ? 'danger' : 'basic'">
                 </nb-form-field>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['brand']?.errors?.['required']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['brand'].errors?.['required']">
                   Please enter the brand.
                 </p>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['brand']?.errors?.['pattern']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['brand'].errors?.['pattern']">
                   Don't use space before the name.
                 </p>
               </div>
@@ -161,12 +161,12 @@
                 <nb-form-field>
                   <input type="text" nbInput fullWidth formControlName="material"
                          placeholder="Enter material details"
-                         [status]="submitted && specificationControls['material']?.errors ? 'danger' : 'basic'">
+                         [status]="submitted && specificationControls['material'].errors ? 'danger' : 'basic'">
                 </nb-form-field>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['material']?.errors?.['required']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['material'].errors?.['required']">
                   Please enter the material.
                 </p>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['material']?.errors?.['pattern']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['material'].errors?.['pattern']">
                   Don't use space before the name.
                 </p>
               </div>
@@ -176,12 +176,12 @@
                   <input type="text" nbInput fullWidth formControlName="dimensions"
                          placeholder="Enter dimensions details"
                          (input)="onDimensionInput($event)"
-                         [status]="submitted && specificationControls['dimensions']?.errors ? 'danger' : 'basic'">
+                         [status]="submitted && specificationControls['dimensions'].errors ? 'danger' : 'basic'">
                 </nb-form-field>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['dimensions']?.errors?.['required']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['dimensions'].errors?.['required']">
                   Please enter the dimensions.
                 </p>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['dimensions']?.errors?.['invalidFormat']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['dimensions'].errors?.['invalidFormat']">
                   Format "LxWxH cm|mm|in".
                 </p>
               </div>
@@ -190,12 +190,12 @@
                 <nb-form-field>
                   <input type="text" nbInput fullWidth formControlName="weight"
                          placeholder="Enter weight details"
-                         [status]="submitted && specificationControls['weight']?.errors ? 'danger' : 'basic'">
+                         [status]="submitted && specificationControls['weight'].errors ? 'danger' : 'basic'">
                 </nb-form-field>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['weight']?.errors?.['required']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['weight'].errors?.['required']">
                   Please enter the weight.
                 </p>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['weight']?.errors?.['invalidWeightFormat']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['weight'].errors?.['invalidWeightFormat']">
                   Format "weight lb|kg|g|oz".
                 </p>
               </div>
@@ -204,12 +204,12 @@
                 <nb-form-field>
                   <input type="text" nbInput fullWidth formControlName="color"
                          placeholder="Enter color details"
-                         [status]="submitted && specificationControls['color']?.errors ? 'danger' : 'basic'">
+                         [status]="submitted && specificationControls['color'].errors ? 'danger' : 'basic'">
                 </nb-form-field>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['color']?.errors?.['required']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['color'].errors?.['required']">
                   Please enter the color.
                 </p>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['color']?.errors?.['pattern']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['color'].errors?.['pattern']">
                   Don't use space before the name.
                 </p>
               </div>
@@ -218,12 +218,12 @@
                 <nb-form-field>
                   <input type="text" nbInput fullWidth formControlName="finish"
                          placeholder="Enter finishing details"
-                         [status]="submitted && specificationControls['finish']?.errors ? 'danger' : 'basic'">
+                         [status]="submitted && specificationControls['finish'].errors ? 'danger' : 'basic'">
                 </nb-form-field>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['finish']?.errors?.['required']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['finish'].errors?.['required']">
                   Please enter the finishing.
                 </p>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['finish']?.errors?.['pattern']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['finish'].errors?.['pattern']">
                   Don't use space before the name.
                 </p>
               </div>
@@ -232,12 +232,12 @@
                 <nb-form-field>
                   <input type="text" nbInput fullWidth formControlName="warranty"
                          placeholder="Enter warranty details"
-                         [status]="submitted && specificationControls['warranty']?.errors ? 'danger' : 'basic'">
+                         [status]="submitted && specificationControls['warranty'].errors ? 'danger' : 'basic'">
                 </nb-form-field>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['warranty']?.errors?.['required']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['warranty'].errors?.['required']">
                   Please enter the warranty.
                 </p>
-                <p class="caption status-danger" *ngIf="submitted && specificationControls['warranty']?.errors?.['invalidWarrantyFormat']">
+                <p class="caption status-danger" *ngIf="submitted && specificationControls['warranty'].errors?.['invalidWarrantyFormat']">
                   Format "6|12|18|24|30|36 months".
                 </p>
               </div>
