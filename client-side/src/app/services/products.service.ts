@@ -31,4 +31,9 @@ export class ProductsService {
     return this.http.put<ResponseWithError<any>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}/${slug}`, formData)
       .pipe(map(response => response));
   }
+
+  deleteProduct(id: string): Observable<ResponseWithError<any>> {
+    return this.http.delete<ResponseWithError<any>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}/${id}`)
+      .pipe(map(response => response));
+  }
 }

@@ -103,9 +103,9 @@
     }
     createProduct(): FormGroup {
       return this.fb.group({
-        name: ['', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+        name: ['', [Validators.required, this.productNameValidation()]],
         description: ['', [Validators.required,
-          Validators.pattern('^[^\\s][a-zA-Z0-9\\s]*$'),
+          Validators.pattern('^(?<!\\s)\\S(.*\\S)?$'),
           Validators.minLength(20),
           Validators.maxLength(150)]],
         price: ['', Validators.required],
@@ -143,6 +143,12 @@
       let value = event.target.value;
       value = value.replace(/\*/g, 'x'); // Replace * with x
       this.p.at(i).get('specifications.dimensions')?.setValue(value, { emitEvent: false });
+    }
+    productNameValidation():  ValidatorFn {
+      return (control: AbstractControl): ValidationErrors | null => {
+        const pattern = /^[^\s]([^\s]|(\s[^\s]))*$/; // Allow only alphanumeric characters and spaces
+        return control.value && !pattern.test(control.value) ? { invalidName: true } : null;
+      };
     }
     dimensionFormatValidator(): ValidatorFn {
       return (control: AbstractControl): ValidationErrors | null => {

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Product from '../models/product.model.js';
 import slugify from 'slugify';
 import fs from 'fs';
-import {deleteFileFromS3, getSignedUrlForS3, uploadWithPutObject} from "./s3upload.controller.js";
+import {deleteFileFromS3, getSignedUrlForS3, migrateS3Folder, uploadWithPutObject} from "./s3upload.controller.js";
 
 
 // Get all products
@@ -209,6 +209,8 @@ export const updateProduct = async (req, res) => {
     try {
         let productDetails = req.body;
         let productFiles = req.files;
+        let oldSlug = slug; // Store the original slug for folder renaming
+        let newSlug = null;
         // Parse JSON fields
         try {
             productDetails.category = JSON.parse(productDetails.category || "{}");
@@ -217,6 +219,32 @@ export const updateProduct = async (req, res) => {
             productDetails.emiDetails = JSON.parse(productDetails.emiDetails || "[]");
             productDetails.loadedImages = JSON.parse(productDetails.loadedImages || "[]");
             productDetails.removedImages = JSON.parse(productDetails.removedImages || "[]");
+
+            // Check if name has changed and generate new slug
+            if (productDetails.oldName !== productDetails.name) {
+                newSlug = slugify(productDetails.name, { lower: true, strict: true });
+                let existingProduct = await Product.findOne({ slug: newSlug }, {}, { lean: true }).exec();
+                let count = 1;
+
+                while (existingProduct) {
+                    newSlug = `${newSlug}-${count}`;
+                    existingProduct = await Product.findOne({ slug: newSlug }, {}, { lean: true }).exec();
+                    count++;
+                }
+
+                productDetails.slug = newSlug;
+
+                // Update folder path for existing images
+                if (productDetails.loadedImages.length) {
+                    // Update the key paths for loaded images
+                    productDetails.loadedImages = await migrateS3Folder(
+                        productDetails.loadedImages,
+                        oldSlug,
+                        newSlug
+                    );
+                }
+
+            }
 
             if (productDetails.removedImages.length){
                 const keys = productDetails.removedImages.map(image => image.key);
@@ -228,9 +256,7 @@ export const updateProduct = async (req, res) => {
             if (productFiles.length){
                 productFiles.forEach(file => {
                     const match = file.fieldname === "images";
-                    console.log(match, 'NPK pf match 232....');
                     if (match) {
-                        console.log(match, 'NPK matched ')
                         if (!filesByProduct) {
                             filesByProduct = [];
                         }
@@ -281,6 +307,7 @@ export const updateProduct = async (req, res) => {
             }
             delete productDetails.removedImages;
             delete productDetails.loadedImages;
+            delete productDetails.oldName;
 
         } catch (e) {
             console.error("Error parsing product fields:", e);
@@ -299,7 +326,12 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     const id = req.params.id;
     try {
-        await Product.findByIdAndDelete(mongoose.Types.ObjectId(id)).exec();
+        let product = await Product.findById(id, {}, { lean: true }).exec();
+        if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+            const keys = product.images.map(image => image.key);
+            await deleteFileFromS3(keys);
+        }
+        await Product.findByIdAndDelete(id, {lean: true}).exec();
         res.json({response: null, success: true, message: 'Product deleted successfully' });
     } catch (error) {
         console.error('Error deleting product:', error);

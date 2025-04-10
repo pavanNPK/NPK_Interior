@@ -50,6 +50,9 @@
             <p class="caption status-danger" *ngIf="submitted && p.name?.errors?.['required']">
               Please enter the name.
             </p>
+            <p class="caption status-danger" *ngIf="submitted &&  p.name?.errors?.['invalidName']">
+              Name cannot start or end with spaces or more spaces.
+            </p>
           </div>
           <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">
             <label class="label fw-semibold">Price*</label>
@@ -304,7 +307,7 @@
                 (onSelect)="onFileSelect($event)"
                 (onRemove)="removeFile($event)"
                 accept="image/*"
-                [fileLimit]="5 - loadedFiles.length"
+                [fileLimit]="(5 - loadedFiles.length) > 0 ? (5 - loadedFiles.length) : -1"
                 invalidFileLimitMessageDetail="You can only upload up to 5 files."
                 maxFileSize="1000000">
                 <ng-template pTemplate="content">
@@ -314,8 +317,12 @@
                     </li>
                   </ul>
                   <div class="text-center" *ngIf="getImageCount() < 1">
-                    <p class="mb-1 fw-semibold">Drag and drop files here to upload. Or click to choose files</p>
-                    <small>Duplicate files are not allowed & max file size is 1MB. Also, you can upload only {{5 - loadedFiles.length}} files.</small>
+                    <p class="mb-1 fw-semibold">{{ 5 - loadedFiles.length > 0  ? 'Drag and drop files here to upload. Or click to choose files' : 'Limit exceeded'}}</p>
+                    @if (5 - loadedFiles.length > 0) {
+                      <small>Duplicate files are not allowed & max file size is 1MB. Also, you can upload only {{5 - loadedFiles.length}} files.</small>
+                    } @else {
+                      <small>You can't upload more than {{loadedFiles.length}} files. If you want tou can replace the file. By removing the file.</small>
+                    }
                   </div>
                 </ng-template>
               </p-fileUpload>

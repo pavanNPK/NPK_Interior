@@ -296,7 +296,7 @@ const createProduct = async (req, res) => {
 
 -----------------------------------------------------------------------------------
 
-`GET /products` - Fetches all products from the database.
+`GET /products` - Fetches all products from the database and generates signed URLs for the images.
 
 ```
 db.products.find({}, {}).sort({ name: 1 })
@@ -315,4 +315,108 @@ if (products.length){
     }
   }
 }
+```
+-----------------------------------------------------------------------------------
+
+`GET /product/:slug` - Fetches the product from the database base on slug and generates signed URLs for the images.
+
+```angular2html
+const product = await Product.findOne({slug: slug}, {}, { lean: true }).exec();
+if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+  for (let j = 0; j < product.images.length; j++) {
+      // get signed url
+      product.images[j].url = await getSignedUrlForS3(product.images[j].key);
+  }
+}
+```                                                                                                       
+
+-----------------------------------------------------------------------------------
+
+`Presigned URL For AWS S3` - For get all products and by single product we are using this.
+
+```angular2html
+const getSignedUrlForS3 = async ( key) => {
+    try {
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: key
+        };
+        const command = new GetObjectCommand(params);
+        // Link valid for 1 hour
+        return await getSignedUrl(s3Client, command, {expiresIn: 3600});
+    } catch (error) {
+        console.error("Error generating signed URL:", error);
+        throw error;
+    }
+};
+```
+-----------------------------------------------------------------------------------
+
+`PUT /product/:slug` - Update the product to the database base on slug.
+* Before updating check the product name is changed or not. If it is changed, we need to update the slug as well.
+* If the slug is changed, we need to update the `S3` folder name as well.
+* For that first we need to copy of `folder` and remove the files from the old folder name and add the files to `new folder` name.
+* Then we need to delete the old folder name from `S3` bucket.
+* We are getting the data from client side as `FORMDATA` as object but for `Add Product` we are getting the data as `ARRAY FORMDATA` format. So, we need to use it as `JSON.Stringify` format.
+
+
+```angular2html
+// Update folder path for existing images
+if (productDetails.loadedImages.length) {
+// Update the key paths for loaded images
+productDetails.loadedImages = await migrateS3Folder(
+    productDetails.loadedImages,
+    oldSlug,
+    newSlug
+    );
+}
+```
+
+```angular2html
+const migrateS3Folder = async (images, oldSlug, newSlug) => {
+const updatedImages = [];
+
+  for (const image of images) {
+    try {
+      const oldKey = image.key;
+      // Create a new key by replacing the old slug with the new one
+      const newKey = oldKey.replace(`uploads/${oldSlug}/`, `uploads/${newSlug}/`);
+      // Copy the object to the new location
+      await copyS3Object(oldKey, newKey);
+      
+      // Delete the original object
+      await deleteFileFromS3([oldKey]);
+      
+      // Update the image data with the new key
+      const updatedImage = {
+        ...image,
+        key: newKey
+      };
+      updatedImages.push(updatedImage);
+    } catch (error) {
+      console.error('Error migrating folder:', error);
+      // Keep the original image data if migration fails
+      updatedImages.push(image);
+    }
+  }
+  
+  return updatedImages;
+};
+
+const copyS3Object = async (sourceKey, destinationKey) => {
+  try {
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      CopySource: `${process.env.AWS_BUCKET_NAME}/${sourceKey}`,
+      Key: destinationKey
+    };
+    await s3Client.send(new CopyObjectCommand(params));
+    console.log(`Successfully copied ${sourceKey} to ${destinationKey}`);
+    return true;
+  } catch (error) {
+    console.error('Error copying object:', error);
+    throw error; // Throw error so the calling function can handle it properly
+  }
+};
+
 ```

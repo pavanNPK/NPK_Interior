@@ -1,6 +1,6 @@
 import multer from 'multer';
 import path from 'path';
-import {GetObjectCommand, PutObjectCommand, DeleteObjectsCommand, S3Client} from "@aws-sdk/client-s3";
+import {GetObjectCommand, PutObjectCommand, DeleteObjectsCommand, S3Client, CopyObjectCommand} from "@aws-sdk/client-s3";
 import multerS3 from 'multer-s3';
 import dotenv from 'dotenv';
 import {fileURLToPath} from 'url';
@@ -126,5 +126,51 @@ const deleteFileFromS3 = async (keys) => {
     }
 };
 
+const migrateS3Folder = async (images, oldSlug, newSlug) => {
+    const updatedImages = [];
+
+    for (const image of images) {
+        try {
+            const oldKey = image.key;
+            // Create a new key by replacing the old slug with the new one
+            const newKey = oldKey.replace(`uploads/${oldSlug}/`, `uploads/${newSlug}/`);
+            // Copy the object to the new location
+            await copyS3Object(oldKey, newKey);
+
+            // Delete the original object
+            await deleteFileFromS3([oldKey]);
+
+            // Update the image data with the new key
+            const updatedImage = {
+                ...image,
+                key: newKey
+            };
+            updatedImages.push(updatedImage);
+        } catch (error) {
+            console.error('Error migrating folder:', error);
+            // Keep the original image data if migration fails
+            updatedImages.push(image);
+        }
+    }
+
+    return updatedImages;
+};
+
+const copyS3Object = async (sourceKey, destinationKey) => {
+    try {
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            CopySource: `${process.env.AWS_BUCKET_NAME}/${sourceKey}`,
+            Key: destinationKey
+        };
+        await s3Client.send(new CopyObjectCommand(params));
+        console.log(`Successfully copied ${sourceKey} to ${destinationKey}`);
+        return true;
+    } catch (error) {
+        console.error('Error copying object:', error);
+        throw error; // Throw error so the calling function can handle it properly
+    }
+};
+
 // Export the configured multer instance and the upload controller function
-export { uploadS3, uploadFilesOnS3, getSignedUrlForS3, uploadWithPutObject, deleteFileFromS3 };
+export { uploadS3, uploadFilesOnS3, getSignedUrlForS3, uploadWithPutObject, deleteFileFromS3, migrateS3Folder };

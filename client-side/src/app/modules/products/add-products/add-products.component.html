@@ -54,7 +54,7 @@
                        [ngClass]="{ 'is-invalid': submitted && pdt.get('name')?.errors }" >
                 <div *ngIf="submitted && pdt.get('name')?.errors" class="invalid-feedback">
                   <div *ngIf="pdt.get('name')?.errors?.['required']">Please enter the name.</div>
-                  <div *ngIf="pdt.get('name')?.errors?.['pattern']">Dont use space before the name.</div>
+                  <div *ngIf="pdt.get('name')?.errors?.['invalidName']">Name cannot start or end with spaces or more spaces.</div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 mb-3">

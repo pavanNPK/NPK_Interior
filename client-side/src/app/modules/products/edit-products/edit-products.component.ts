@@ -111,7 +111,7 @@ export class EditProductsComponent implements OnInit{
   }
   loadForm() {
     this.editProductsForm = this.fb.group({
-      name: [this.product.name || '', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+      name: [this.product.name || '', [Validators.required, this.productNameValidation()]],
       description: [this.product.description || '', [Validators.required,
         Validators.pattern('^(?<!\\s)\\S(.*\\S)?$'),
         Validators.minLength(20),
@@ -147,11 +147,16 @@ export class EditProductsComponent implements OnInit{
       isNewArrival: [this.product.isNewArrival || false],
     });
   }
-
   onDimensionInput(event: any) {
     let value = event.target.value;
     value = value.replace(/\*/g, 'x'); // Replace * with x
     this.editProductsForm.get('specifications.dimensions')?.setValue(value, { emitEvent: false });
+  }
+  productNameValidation():  ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const pattern = /^[^\s]([^\s]|(\s[^\s]))*$/; // Allow only alphanumeric characters and spaces
+      return control.value && !pattern.test(control.value) ? { invalidName: true } : null;
+    };
   }
   dimensionFormatValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
@@ -273,6 +278,7 @@ export class EditProductsComponent implements OnInit{
     }
     const formData = new FormData();
     formData.append('name', this.editProductsForm.get('name')?.value);
+    formData.append('oldName', this.product.name);
     formData.append('description', this.editProductsForm.get('description')?.value);
     formData.append('category', JSON.stringify(this.editProductsForm.get('category')?.value));
     formData.append('subCategory', JSON.stringify(this.editProductsForm.get('subCategory')?.value));
