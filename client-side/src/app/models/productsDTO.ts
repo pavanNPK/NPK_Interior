@@ -1,4 +1,5 @@
 export class ProductsDTO {
+  _id?: string;
   name?: string;
   description?: string;
   category?: {

@@ -15,6 +15,8 @@ import {
 import {RouterLink} from "@angular/router";
 import {FormControl, ReactiveFormsModule} from "@angular/forms";
 import {DataViewModule} from "primeng/dataview";
+import {UserDTO} from "../../../models/userDTO";
+import {CookieService} from "ngx-cookie-service";
 
 @Component({
   selector: 'app-view-products',
@@ -38,35 +40,83 @@ import {DataViewModule} from "primeng/dataview";
   styleUrl: './view-products.component.scss'
 })
 export class ViewProductsComponent implements OnInit {
-  loading: boolean = false;
-  whenSearch: boolean = false;
+  loading: boolean = true;
+  whenSearch: boolean | undefined = false;
   products: ProductsDTO[] = [];
   productName: string = '';
   productId: string = '';
+  userData?: UserDTO | any;
   productSearch = new FormControl('');
-  constructor(private productsService: ProductsService, private toastService: NbToastrService, private dialogService: NbDialogService) { }
+  productData: any = {};
+  constructor(private productsService: ProductsService,
+              private toastService: NbToastrService,
+              private cookieService: CookieService,
+              private dialogService: NbDialogService)
+  {
+    const storedUser = localStorage.getItem('user');
+    this.userData = storedUser ? JSON.parse(storedUser) : null;
+  }
 
   ngOnInit(): void {
-    this.loadProducts();
+    // Initialize with default values
+    this.productData = {
+      userId : this.userData._id,
+      cart: [],
+      wishlist: []
+    }
+    try {
+      const cookieData = this.cookieService.get('productData');
+      if (cookieData && cookieData.trim() !== '') {
+        this.productData = JSON.parse(cookieData);
+        console.log('Loaded initial product data from cookies:', this.productData);
+      } else {
+        console.log('No cookie data found on init, using default productData');
+      }
+    } catch (error) {
+      console.error('Error parsing cookie data on init', error);
+    }
+    this.loadProducts(this.productSearch.value ? this.productSearch.value : '', false);
   }
-  loadProducts(){
+  loadProducts(search: string, icon: boolean) {
+    // Set loading to true at the start
     this.loading = true;
-    this.productsService.getProducts().subscribe({
+
+    this.productsService.getProducts(search).subscribe({
       next: (response: ResponseWithError<ProductsDTO[]>) => {
-        if (response.success)
+        if (response.success) {
           this.products = response.response || [];
-        else
+
+          // Only update from cookies if we haven't already loaded data
+          if (!this.productData || (!this.productData.cart?.length && !this.productData.wishlist?.length)) {
+            try {
+              const cookieData = this.cookieService.get('productData');
+              if (cookieData && cookieData.trim() !== '') {
+                this.productData = JSON.parse(cookieData);
+                console.log('Updated product data from cookies:', this.productData);
+              }
+            } catch (error) {
+              console.error('Error parsing cookie data', error);
+            }
+          }
+        } else {
           this.products = [];
-        this.loading = false;
+        }
         console.log(this.products);
       },
-      error: (error) => console.error('Error fetching products', error),
-      complete: () => (this.loading = false),
+      error: (error: any) => {
+        this.toastService.danger(error, 'Error fetching products', {duration: 2000});
+      },
+      complete: () => {
+        // Set loading to false when complete
+        this.loading = false;
+        this.whenSearch = icon;
+      },
     });
   }
-
   searchProducts() {
-
+    if (this.productSearch.value){
+      this.loadProducts(this.productSearch.value, true);
+    }
   }
   trimLeadingSpace(event: any) {
     const input = event.target;
@@ -75,6 +125,24 @@ export class ViewProductsComponent implements OnInit {
     // Allow only alphabetic characters and spaces after a character has been entered
     input.value = input.value.replace(/[^a-zA-Z ]/g, '');
     input.dispatchEvent(new Event('input')); // Updates the form control
+  }
+  storeCartAndFav(product: ProductsDTO, type: any) {
+    if(type === 'cart') {
+      if (this.productData.cart.includes(product._id))
+        this.productData.cart.splice(this.productData.cart.indexOf(product._id), 1);
+      else
+        this.productData.cart.push(product._id);
+    } else {
+      if (this.productData.wishlist.includes(product._id))
+        this.productData.wishlist.splice(this.productData.wishlist.indexOf(product._id), 1);
+      else
+        this.productData.wishlist.push(product._id);
+    }
+
+    // Set the cookie with explicit path to ensure it's accessible
+    this.cookieService.set('productData', JSON.stringify(this.productData));
+
+    console.log('Stored in cookie:', JSON.stringify(this.productData));
   }
   removeProduct(removeProductDialog: any, name: string, id: string) {
     this.productName = name;
@@ -97,7 +165,7 @@ export class ViewProductsComponent implements OnInit {
       },
       error: (error) => {
         this.toastService.danger(error, this.productName, {duration: 2000});
-      }, complete: () => {this.loading = true; this.loadProducts();},
+      }, complete: () => {this.loading = true; this.loadProducts(this.productSearch.value ? this.productSearch.value : '', false);},
     })
   }
 }

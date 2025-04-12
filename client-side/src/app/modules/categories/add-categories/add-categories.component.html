@@ -10,7 +10,7 @@
         </button>
       </div>
       <h5 class="fw-semibold m-0">Categories / Sub Categories
-        <nb-icon nbPrefix icon="info-outline" class="cursor-pointer" nbTooltip="You can add the categories or sub categories. Also, you can add sub categories in the existing categories" nbTooltipPlacement="bottom"></nb-icon>
+        <nb-icon nbPrefix icon="info-outline" class="cursor-pointer-npk" nbTooltip="You can add the categories or sub categories. Also, you can add sub categories in the existing categories" nbTooltipPlacement="bottom"></nb-icon>
       </h5>
     </div>
   </div>
@@ -23,8 +23,8 @@
             <div class="row">
               <div class="d-flex justify-content-between align-items-center mb-1">
                 <p class="fw-semibold m-0">Categories
-                <nb-icon nbPrefix icon="info-outline" class="cursor-pointer" nbTooltip="Once you select the category from autocomplete. Then only reset button will be appear. If you reset the category, then you can able to select the category again or enter" nbTooltipPlacement="bottom"></nb-icon></p>
-                <nb-checkbox class="cursor-pointer"
+                <nb-icon nbPrefix icon="info-outline" class="cursor-pointer-npk" nbTooltip="Once you select the category from autocomplete. Then only reset button will be appear. If you reset the category, then you can able to select the category again or enter" nbTooltipPlacement="bottom"></nb-icon></p>
+                <nb-checkbox class="cursor-pointer-npk"
                              (change)="subCategoriesValidation(i, category.get('enableSubCategory')?.value)"
                              [nbTooltip]="'Enable / Disable the sub categories in the index of category ' + (i + 1)"
                              formControlName="enableSubCategory">Sub Categories</nb-checkbox>
@@ -32,7 +32,7 @@
               <div class="col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <label class="label fw-semibold">Name*</label>
                 <nb-form-field>
-                  <nb-icon nbSuffix icon="refresh-outline" pack="eva" class="cursor-pointer"
+                  <nb-icon nbSuffix icon="refresh-outline" pack="eva" class="cursor-pointer-npk"
                            (click)="resetCategoryName(i)"
                            [nbTooltip]="'Reset the category data'"
                            [ngClass]="category.get('_id')?.value ? 'd-block' : 'd-none'"></nb-icon>
@@ -72,7 +72,7 @@
             <div class="row" *ngIf="category.get('enableSubCategory')?.value">
               <p-divider type="solid" />
               <p class="fw-semibold mb-1">Sub Categories
-                <nb-icon nbPrefix icon="info-outline" class="cursor-pointer" nbTooltip="If you disable the sub categories after filling the data, You will lost the sub categories data" nbTooltipPlacement="bottom"></nb-icon></p>
+                <nb-icon nbPrefix icon="info-outline" class="cursor-pointer-npk" nbTooltip="If you disable the sub categories after filling the data, You will lost the sub categories data" nbTooltipPlacement="bottom"></nb-icon></p>
               <div formArrayName="subcategories">
                 <div *ngFor="let subCategory of getSubcategories(i).controls; let j = index" [formGroupName]="j">
                   <div class="row" [ngClass]="j > 0 ? 'mt-3' : ''">

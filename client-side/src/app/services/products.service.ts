@@ -3,7 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { ResponseWithError } from '../models/commonDTO';
 import { ProductsDTO } from '../models/productsDTO';
-import {ADD_PRODUCTS, DOMAIN_URL, GET_ALL_PRODUCTS} from "../constants/API-DTO";
+import {ADD_PRODUCTS, DOMAIN_URL, GET_ALL_CATEGORIES, GET_ALL_PRODUCTS} from "../constants/API-DTO";
+import {CategoriesDTO} from "../models/categoriesDTO";
+import {response} from "express";
 
 @Injectable({
   providedIn: 'root'
@@ -12,9 +14,10 @@ export class ProductsService {
   constructor(private http: HttpClient) {}
 
 
-  getProducts(): Observable<ResponseWithError<ProductsDTO[]>> {
-    return this.http.get<ResponseWithError<ProductsDTO[]>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}`)
-      .pipe(map(response => response));
+  getProducts(search: string): Observable<ResponseWithError<ProductsDTO[]>> {
+    return this.http.get<ResponseWithError<ProductsDTO[]>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}`, {
+      params: {search}
+    }).pipe(map(response => response));
   }
 
   addProducts(formData: FormData): Observable<ResponseWithError<any>> {

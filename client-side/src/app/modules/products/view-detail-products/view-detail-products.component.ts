@@ -5,7 +5,7 @@ import {
   NbButtonModule,
   NbCardModule,
   NbDialogService,
-  NbIconModule,
+  NbIconModule, NbProgressBarModule,
   NbToastrService,
   NbTooltipModule
 } from "@nebular/theme";
@@ -28,7 +28,8 @@ import {ResponseWithError} from "../../../models/commonDTO";
     NgForOf,
     NgIf,
     NgxImageZoomModule,
-    NgClass
+    NgClass,
+    NbProgressBarModule
   ],
   templateUrl: './view-detail-products.component.html',
   styleUrl: './view-detail-products.component.scss'
@@ -77,6 +78,10 @@ export class ViewDetailProductsComponent implements OnInit{
   backToPrev() {
     this.location.back();
   }
+  copySharedLink() {
+    navigator.clipboard.writeText(window.location.href);
+    this.toastService.success('Link copied to clipboard', 'Success', {duration: 2000});
+  }
   previewImgUrl(url: string){
     this.previewImage = url;
   }
@@ -84,4 +89,6 @@ export class ViewDetailProductsComponent implements OnInit{
     this.emiDetails = emiDetails;
     this.dialogService.open(productEMIDialog, {closeOnBackdropClick: false});
   }
+
+  protected readonly Object = Object;
 }

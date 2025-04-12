@@ -61,8 +61,8 @@
                 <p-button label="Login"  (click)="login()" severity="contrast" />
               </div>
               <div class="mt-3">
-                <p class="small mb-2">Are you forgot your password? <span (click)="forgotPassword()" class="fw-semibold text-decoration-underline cursor-pointer">Send Email</span></p>
-                <p class="m-0 small">Don't have an account? <span [routerLink]="['/register']" class="fw-semibold text-decoration-underline cursor-pointer">Register</span></p>
+                <p class="small mb-2">Are you forgot your password? <span (click)="forgotPassword()" class="fw-semibold text-decoration-underline cursor-pointer-npk">Send Email</span></p>
+                <p class="m-0 small">Don't have an account? <span [routerLink]="['/register']" class="fw-semibold text-decoration-underline cursor-pointer-npk">Register</span></p>
               </div>
             </div>
             <div *ngIf="ifForgot">
@@ -70,7 +70,7 @@
                 <p-button label="Submit"  (click)="changePassword()" severity="contrast" />
               </div>
               <div class="mt-3">
-                <p class="small mb-2">Back to login? <span (click)="backToLogin()" class="fw-semibold text-decoration-underline cursor-pointer">Go back</span></p>
+                <p class="small mb-2">Back to login? <span (click)="backToLogin()" class="fw-semibold text-decoration-underline cursor-pointer-npk">Go back</span></p>
               </div>
             </div>
           </div>

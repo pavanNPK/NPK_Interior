@@ -87,5 +87,12 @@ p-togglebutton {
 }
 p-dataview .p-dataview-content{
   background: transparent !important;
-  margin-bottom: 2rem
+}
+p-dataview {
+  .p-component{
+    button{
+      height: 35px;
+      border-radius: 5px;
+    }
+  }
 }

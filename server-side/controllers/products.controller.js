@@ -9,7 +9,15 @@ import {deleteFileFromS3, getSignedUrlForS3, migrateS3Folder, uploadWithPutObjec
 // Get all products
 export const getProducts = async (req, res) => {
     try {
-        const products = await Product.find({}, {}, { lean: true }).exec();
+        let searchQuery = {}; // Default query
+        if (req.query.search) {
+            searchQuery = {
+                $or: [
+                    { name: { $regex: req.query.search, $options: 'i' } },
+                ]
+            };
+        }
+        const products = await Product.find(searchQuery, {}, { lean: true }).exec();
         if (products.length){
             for (let i = 0; i < products.length; i++) {
                 if (products[i].images && Array.isArray(products[i].images) && products[i].images.length > 0) {

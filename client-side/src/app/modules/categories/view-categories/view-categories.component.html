@@ -3,14 +3,14 @@
     <div class="appLayoutHeaderText d-flex justify-content-between align-items-center">
       <h5 class="fw-semibold m-0"> Categories / Sub Categories
         <nb-icon icon="info-outline"
-                 class="cursor-pointer"
+                 class="cursor-pointer-npk"
                  nbTooltip="You can update categories and sub categories individually by
                            clicking on the edit icon as well as delete the categories and sub categories."
                  nbTooltipPlacement="bottom"></nb-icon>
       </h5>
       <div class="d-flex gap-3 align-items-center">
         <nb-form-field>
-          <nb-icon nbSuffix class="cursor-pointer" icon="search-outline" pack="eva"
+          <nb-icon nbSuffix class="cursor-pointer-npk" icon="search-outline" pack="eva"
                    (click)="searchCategories()"></nb-icon>
           <input type="text" nbInput class="form-control"
                  [formControl]="categorySearch"
