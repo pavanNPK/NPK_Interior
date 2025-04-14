@@ -4,44 +4,79 @@ import Product from '../models/product.model.js';
 import slugify from 'slugify';
 import fs from 'fs';
 import {deleteFileFromS3, getSignedUrlForS3, migrateS3Folder, uploadWithPutObject} from "./s3upload.controller.js";
+import {cartSchema} from "../models/cart.model.js";
+import {wishlistSchema} from "../models/wishlist.model.js";
 
+const dbCache = new Map();
+
+const getDbConnection = async (dbName) => {
+    if (dbCache.has(dbName)) {
+        return dbCache.get(dbName);
+    }
+    const DB_URL = process.env.DB_URL.replace('npk_interior', dbName);
+    const connection = await mongoose.createConnection(DB_URL).asPromise();
+    dbCache.set(dbName, connection);
+    return connection;
+};
+
+const getModel = (connection, name, schema) => {
+    return connection.models[name] || connection.model(name, schema);
+};
 
 // Get all products
 export const getProducts = async (req, res) => {
     try {
-        let searchQuery = {}; // Default query
-        if (req.query.search) {
-            searchQuery = {
-                $or: [
-                    { name: { $regex: req.query.search, $options: 'i' } },
-                ]
-            };
-        }
-        const products = await Product.find(searchQuery, {}, { lean: true }).exec();
-        if (products.length){
-            for (let i = 0; i < products.length; i++) {
-                if (products[i].images && Array.isArray(products[i].images) && products[i].images.length > 0) {
-                    for (let j = 0; j < products[i].images.length; j++) {
-                        // get signed url
-                        products[i].images[j].url = await getSignedUrlForS3(products[i].images[j].key);
-                    }
-                }
+        const searchQuery = req.query.search
+            ? { name: { $regex: req.query.search, $options: 'i' } }
+            : {};
+
+        const products = await Product.find(
+            searchQuery,
+            {
+                name: 1,
+                _id: 1,
+                cart: 1,
+                wishlist: 1,
+                description: 1,
+                images: { $slice: 1 }, // Fetch only the first image
+                slug: 1,
+                price: 1,
+                discount: 1,
+                discountedPrice: 1
             }
-        }
-        res.json({response: products, success: true, message: "Products fetched successfully"});
+        ).lean().exec();
+
+        const urlPromises = products.map(async (product) => {
+            if (product.images?.[0]?.key) {
+                const url = await getSignedUrlForS3(product.images[0].key);
+                product.images[0].url = url;
+            }
+            return product;
+        });
+
+        const signedProducts = await Promise.all(urlPromises);
+
+        res.json({
+            response: signedProducts,
+            success: true,
+            message: "Products fetched successfully"
+        });
     } catch (error) {
         console.error('Error fetching products:', error);
-        res.status(500).json({ response: null, success: false, message: 'Error fetching products' });
+        res.status(500).json({
+            response: null,
+            success: false,
+            message: 'Error fetching products'
+        });
     }
 };
-
 
 // Get product by id
 export const getProductById = async (req, res) => {
     const slug = req.params.slug;
     try {
-        const product = await Product.findOne({slug: slug}, {}, { lean: true }).exec();
-        if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+        const product = await Product.findOne({slug}).lean().exec();
+        if (product?.images?.length > 0) {
             for (let j = 0; j < product.images.length; j++) {
                 // get signed url
                 product.images[j].url = await getSignedUrlForS3(product.images[j].key);
@@ -164,6 +199,11 @@ export const addProduct = async (req, res) => {
             product.slug = slug;
             product.createdAt = new Date();
             product.updatedAt = new Date();
+            product.fetchRemainingTime = new Date();
+            product.createdBy = req.user.id;
+            product.updatedBy = req.user.id;
+            product.cart = false;
+            product.wishlist = false;
 
             // Upload images to S3
             let s3UploadedImages = [];
@@ -213,6 +253,7 @@ export const addProduct = async (req, res) => {
 
 // Update a product
 export const updateProduct = async (req, res) => {
+    console.log(req.user)
     const slug = req.params.slug;
     try {
         let productDetails = req.body;
@@ -231,12 +272,12 @@ export const updateProduct = async (req, res) => {
             // Check if name has changed and generate new slug
             if (productDetails.oldName !== productDetails.name) {
                 newSlug = slugify(productDetails.name, { lower: true, strict: true });
-                let existingProduct = await Product.findOne({ slug: newSlug }, {}, { lean: true }).exec();
+                let existingProduct = await Product.findOne({ slug: newSlug }).lean().exec();
                 let count = 1;
 
                 while (existingProduct) {
                     newSlug = `${newSlug}-${count}`;
-                    existingProduct = await Product.findOne({ slug: newSlug }, {}, { lean: true }).exec();
+                    existingProduct = await Product.findOne({ slug: newSlug }).lean().exec();
                     count++;
                 }
 
@@ -306,6 +347,9 @@ export const updateProduct = async (req, res) => {
             }
 
             productDetails.images = s3UploadedImages;
+            productDetails.updatedBy = req.user.id;
+            productDetails.updatedAt = new Date();
+            productDetails.fetchRemainingTime = new Date();
 
             if (productDetails.loadedImages.length){
                 productDetails.loadedImages.forEach(x => {
@@ -316,6 +360,8 @@ export const updateProduct = async (req, res) => {
             delete productDetails.removedImages;
             delete productDetails.loadedImages;
             delete productDetails.oldName;
+
+            console.log(productDetails);
 
         } catch (e) {
             console.error("Error parsing product fields:", e);
@@ -344,5 +390,56 @@ export const deleteProduct = async (req, res) => {
     } catch (error) {
         console.error('Error deleting product:', error);
         res.status(500).json({response: null, success: false, message: 'Error deleting product' });
+    }
+};
+
+export const updateProductType = async (req, res) => {
+    const { id } = req.params;
+    const type = req.body;
+    const dbName = req.user.code;
+
+    const typeKey = Object.keys(type)[0];
+    const shouldAdd = type[typeKey];
+
+    try {
+        const product = await Product.findByIdAndUpdate(id, type, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        // Respond immediately
+        res.status(200).json({
+            success: true,
+            message: 'Product updated',
+            response: product,
+        });
+
+        // Async cart/wishlist update (background)
+        if (['cart', 'wishlist'].includes(typeKey)) {
+            const connection = await getDbConnection(dbName);
+            const schemaMap = {
+                cart: cartSchema,
+                wishlist: wishlistSchema,
+            };
+            const model = getModel(connection, typeKey.charAt(0).toUpperCase() + typeKey.slice(1), schemaMap[typeKey]);
+
+            if (shouldAdd) {
+                await model.create({
+                    productId: id,
+                    userId: req.user.id,
+                    addedOn: new Date(),
+                    removedOn: new Date(),
+                });
+            } else {
+                await model.deleteOne({ productId: id, userId: req.user.id });
+            }
+        }
+    } catch (error) {
+        console.error('Error during update:', error);
+        // Don't respond here again — already responded
     }
 };

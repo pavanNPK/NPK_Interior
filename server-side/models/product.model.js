@@ -28,7 +28,6 @@ const productSchema = new mongoose.Schema({
         interestAmount: Number,
         principal: Number
     }],
-    // images: [{ key: String, originalName: String,  }],
     images: [],
     specifications: {
         brand: String,
@@ -45,8 +44,12 @@ const productSchema = new mongoose.Schema({
     isFeatured: { type: Boolean, default: false },
     isTrending: { type: Boolean, default: false },
     isNewArrival: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    cart: { type: Boolean, default: false },
+    wishlist: { type: Boolean, default: false },
+    createdAt: { type: Date, default: new Date() },
+    updatedAt: { type: Date, default: new Date() },
+    createdBy: {  type: mongoose.Schema.Types.ObjectId, ref: "User", required: true  },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 // Create and export the Product model using ES module syntax

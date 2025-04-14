@@ -19,6 +19,8 @@ import compression from 'compression';    // Compress responses
 import productRoutes from './routes/products.route.js';      // Product API routes
 import ratingRoutes from './routes/ratings.route.js';        // Rating API routes
 import categoryRoutes from './routes/categories.routes.js';  // Category API routes
+import cartRoutes from './routes/cart.routes.js';  // Cart API routes
+import wishlistRoutes from './routes/wishlist.routes.js';  // wishlist API routes
 import userRoutes from "./routes/user.routes.js";  // User API routes
 import { upload, uploadFiles } from './controllers/upload.controller.js'; // File upload controller functions
 import { uploadS3, uploadFilesOnS3 } from './controllers/s3upload.controller.js'; // File upload controller functions
@@ -73,6 +75,8 @@ app.get('/', (req, res) => res.send('Hello World!')); // Simple root route
 app.use('/products', productRoutes);      // Mount product routes under /products
 app.use('/ratings', ratingRoutes);        // Mount rating routes under /ratings
 app.use('/categories', categoryRoutes);   // Mount category routes under /categories
+app.use('/carts', cartRoutes);   // Mount cart routes under /carts
+app.use('/wishlists', wishlistRoutes);   // Mount wishlist routes under /wishlists
 app.use('/users', userRoutes);
 
 

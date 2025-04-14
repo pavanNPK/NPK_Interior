@@ -67,18 +67,18 @@
                   <div class="row mt-2" *ngIf="index === 0 || index === 1">
                     <div class="col-6">
                       <button nbButton size="small"
-                              (click)="storeCartAndFav(item, 'cart')"
+                              (click)="storeCartAndFav(item._id, item.cart, 'cart')"
                               nbTooltip="Add the product to cart." nbTooltipPlacement="bottom"
                               class=" rounded-2 fw-semibold bg-dark text-white w-100">
-                        {{productData.cart.includes(item._id) ? 'Added' : 'Add'}} to Cart <nb-icon [icon]="productData.cart.includes(item._id) ? 'checkmark-outline' : 'shopping-cart-outline'"></nb-icon>
+                        {{item.cart ? 'Added' : 'Add'}} to Cart<nb-icon [icon]="item.cart ? 'checkmark-outline' : 'shopping-cart-outline'"></nb-icon>
                       </button>
                     </div>
                     <div class="col-6">
                       <button nbButton size="small"
-                              (click)="storeCartAndFav(item, 'wishlist')"
+                              (click)="storeCartAndFav(item._id, item.wishlist, 'wishlist')"
                               nbTooltip="Wishlist the product" nbTooltipPlacement="bottom"
                               class=" rounded-2 fw-semibold text-black w-100">
-                        {{productData.wishlist.includes(item._id) ? 'Wish listed' : 'Wishlist'}} <nb-icon [status]="productData.wishlist.includes(item._id) ? 'danger' : 'basic'"  [icon]="productData.wishlist.includes(item._id) ? 'heart' : 'heart-outline'"></nb-icon>
+                        {{item.wishlist ? 'Wish listed' : 'Wishlist'}} <nb-icon [status]="item.wishlist? 'danger' : 'basic'"  [icon]="item.wishlist ? 'heart' : 'heart-outline'"></nb-icon>
                       </button>
                     </div>
                   </div>

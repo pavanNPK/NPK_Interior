@@ -39,4 +39,8 @@ export class ProductsService {
     return this.http.delete<ResponseWithError<any>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}/${id}`)
       .pipe(map(response => response));
   }
+
+  addProductToCartOrWishlist(id: string, typeValue: boolean, type: string): Observable<ResponseWithError<any>> {
+    return this.http.patch<ResponseWithError<any>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}/${id}`, {[type]: !typeValue})
+  }
 }

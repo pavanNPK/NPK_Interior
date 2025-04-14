@@ -34,13 +34,19 @@ export class ProductsDTO {
   isTrending?: boolean;
   isNewArrival?: boolean;
   createdAt?: Date;
+  fetchRemainingTime?: Date;
   updatedAt?: Date;
+  createdBy?: string;
+  updatedBy?: string;
+  cart?: boolean;
+  wishlist?: boolean;
 }
 export class ProductImagesDTO {
   key?: string;
   type?: string;
   name?: string;
   url?: string;
+  fetchedImageTime?: string;
   file?: File;
 }
 export class EMIDetailsDTO{

@@ -10,7 +10,7 @@ import {
     getProducts,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct, updateProductType
 } from '../controllers/products.controller.js';
 
 import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware.js';
@@ -63,6 +63,7 @@ router.post('/', authenticateToken, authorizeRoles('supervise', 'shopper'), uplo
 router.get('/', authenticateToken, authorizeRoles('supervise', 'shopper'), getProducts);
 router.get('/:slug', authenticateToken, authorizeRoles('supervise', 'shopper'), getProductById);
 router.put('/:slug',  authenticateToken, authorizeRoles('supervise', 'shopper'), uploadUpdate.any(), updateProduct);
+router.patch('/:id', authenticateToken, authorizeRoles('supervise', 'shopper'), updateProductType);
 router.delete('/:id',  authenticateToken, authorizeRoles('supervise', 'shopper'),deleteProduct);
 
 // Export the router
