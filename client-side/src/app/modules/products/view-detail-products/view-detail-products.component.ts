@@ -14,6 +14,7 @@ import {EMIDetailsDTO, ProductsDTO} from "../../../models/productsDTO";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ProductsService} from "../../../services/products.service";
 import {ResponseWithError} from "../../../models/commonDTO";
+import {EventService} from "../../../shared/services/event.service";
 
 @Component({
   selector: 'app-view-detail-products',
@@ -42,7 +43,13 @@ export class ViewDetailProductsComponent implements OnInit{
   previewImage: string = '';
   emiDetails: EMIDetailsDTO[] = [];
 
-  constructor(private location: Location, private router: Router, private route: ActivatedRoute, private ps: ProductsService, private toastService: NbToastrService, private dialogService: NbDialogService) {
+  constructor(private location: Location,
+              private router: Router,
+              private route: ActivatedRoute,
+              private ps: ProductsService,
+              private toastService: NbToastrService,
+              private eventService: EventService,
+              private dialogService: NbDialogService) {
   }
 
   ngOnInit() {
@@ -89,6 +96,31 @@ export class ViewDetailProductsComponent implements OnInit{
     this.emiDetails = emiDetails;
     this.dialogService.open(productEMIDialog, {closeOnBackdropClick: false});
   }
+
+  storeCartAndFav(product: any, typeValue: boolean, type: any) {
+    this.ps.addProductToCartOrWishlist(product, typeValue, type).subscribe({
+      next: (response: ResponseWithError<any>) => {
+        if (response.role !== 'notAllowed') {
+          if (response.success) {
+            // this.toastService.control(response.message, type, {duration: 2000});
+          } else {
+            this.toastService.danger(`Failed to add the product to ${type}`, type, {duration: 2000});
+          }
+        } else {
+          this.toastService.danger(`You don't have permission to add to ${type}.`, type, {duration: 2000});
+        }
+      },
+      error: (error) => {
+        this.toastService.danger(error, this.product.name, {duration: 2000});
+      },
+      complete: () => {
+        this.loading = true;
+        this.getProduct(this.slug);
+        this.eventService.triggerNavbar();
+      }
+    })
+  }
+
 
   protected readonly Object = Object;
 }

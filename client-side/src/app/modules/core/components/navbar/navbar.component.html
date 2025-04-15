@@ -42,6 +42,7 @@
                      (click)="sidebarVisible = false"
                      nbTooltip="Cart" nbTooltipPlacement="bottom"
                      [routerLink]="['/cart/view']" pack="eva"></nb-icon>
+            <nb-badge [hidden]="cartCount < 1" class="navUserActionBadge" [text]="cartCount" status="danger" position="top right"></nb-badge>
           </div>
           <div class="navUserAction">
             <nb-icon nbPrefix icon="heart-outline"
@@ -49,7 +50,7 @@
                      nbTooltip="Wishlist" nbTooltipPlacement="bottom"
                      [routerLink]="['/wishlist/view']"
                      pack="eva"></nb-icon>
-            <nb-badge [hidden]="cartCount < 1" class="navUserActionBadge" [text]="cartCount" status="danger" position="top right"></nb-badge>
+            <nb-badge [hidden]="wishlistCount < 1" class="navUserActionBadge" [text]="wishlistCount" status="danger" position="top right"></nb-badge>
           </div>
           <div class="navUserAction">
             <nb-icon nbPrefix icon="settings-2-outline"

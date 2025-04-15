@@ -73,21 +73,23 @@ export const getProducts = async (req, res) => {
 
 // Get product by id
 export const getProductById = async (req, res) => {
-    const slug = req.params.slug;
     try {
-        const product = await Product.findOne({slug}).lean().exec();
-        if (product?.images?.length > 0) {
-            for (let j = 0; j < product.images.length; j++) {
-                // get signed url
-                product.images[j].url = await getSignedUrlForS3(product.images[j].key);
-            }
+        const product = await Product.findOne({ slug: req.params.slug }).lean();
+
+        if (product?.images?.length) {
+            const urls = await Promise.all(
+                product.images.map(img => getSignedUrlForS3(img.key))
+            );
+            product.images = product.images.map((img, i) => ({ ...img, url: urls[i] }));
         }
-        res.json({response: product, success: true, message: "Product fetched successfully"});
+
+        res.json({ response: product, success: true, message: "Product fetched successfully" });
     } catch (error) {
-        console.error('Error fetching product by id:', error);
-        res.status(404).json({response: null, success: false, message: 'Product not found' });
+        console.error('Error:', error);
+        res.status(404).json({ response: null, success: false, message: 'Product not found' });
     }
 };
+
 
 export const addProduct = async (req, res) => {
     try {

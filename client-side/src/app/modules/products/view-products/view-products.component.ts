@@ -16,6 +16,7 @@ import {RouterLink} from "@angular/router";
 import {FormControl, ReactiveFormsModule} from "@angular/forms";
 import {DataViewModule} from "primeng/dataview";
 import {UserDTO} from "../../../models/userDTO";
+import {EventService} from "../../../shared/services/event.service";
 
 @Component({
   selector: 'app-view-products',
@@ -48,6 +49,7 @@ export class ViewProductsComponent implements OnInit {
   productSearch = new FormControl('');
   constructor(private productsService: ProductsService,
               private toastService: NbToastrService,
+              private eventService: EventService,
               private dialogService: NbDialogService)
   {
     const storedUser = localStorage.getItem('user');
@@ -98,7 +100,7 @@ export class ViewProductsComponent implements OnInit {
       next: (response: ResponseWithError<any>) => {
         if (response.role !== 'notAllowed') {
           if (response.success) {
-            this.toastService.control(response.message, type, {duration: 2000});
+            // this.toastService.control(response.message, type, {duration: 2000});
           } else {
             this.toastService.danger(`Failed to add the product to ${type}`, type, {duration: 2000});
           }
@@ -112,7 +114,8 @@ export class ViewProductsComponent implements OnInit {
       complete: () => {
         this.loading = true;
         this.loadProducts(this.productSearch.value || '', !!this.productSearch.value);
-        }
+        this.eventService.triggerNavbar();
+      }
     })
   }
   removeProduct(removeProductDialog: any, name: string, id: string) {

@@ -66,8 +66,9 @@
                   <div>
                     <button nbButton size="small"
                             nbTooltip="Add the product to cart." nbTooltipPlacement="bottom"
+                            (click)="storeCartAndFav(product._id, product.cart, 'cart')"
                             class=" rounded-2 fw-semibold bg-dark text-white w-100">
-                      Add to Cart<nb-icon icon="shopping-cart-outline"></nb-icon>
+                      {{ product?.cart ? 'Added' : 'Add' }} to Cart<nb-icon [icon]="product?.cart ? 'checkmark-outline' : 'shopping-cart-outline'"></nb-icon>
                     </button>
                     <button nbButton size="small"
                             nbTooltip="Currently this product is not available. If you want to notify then click here." nbTooltipPlacement="bottom"
@@ -75,9 +76,10 @@
                       Notify me<nb-icon icon="bell-outline"></nb-icon>
                     </button>
                     <button nbButton size="small"
-                            nbTooltip="Buy now the product." nbTooltipPlacement="bottom"
+                            nbTooltip="Add the product to wishlist." nbTooltipPlacement="bottom"
+                            (click)="storeCartAndFav(product._id, product.wishlist, 'wishlist')"
                             class=" rounded-2 fw-semibold bg-primary text-white w-100 mt-1">
-                      Wishlist <nb-icon icon="heart-outline"></nb-icon>
+                      {{ product?.wishlist ? 'Wish listed' : 'Wishlist' }} <nb-icon [icon]="product?.wishlist ? 'heart' : 'heart-outline'"></nb-icon>
                     </button>
                     <button nbButton size="small"
                             nbTooltip="Buy now the product." nbTooltipPlacement="bottom"
@@ -206,12 +208,10 @@
           <div class="productSpecifications mt-3">
             <table class="table table-bordered table-hover table-responsive">
               <tbody class="">
-                @for (key of Object.keys(product?.specifications);track key) {
-                  <tr>
-                    <th>{{key}}</th>
-                    <th class="fw-normal">{{product?.specifications[key]}}</th>
-                  </tr>
-                }
+                <tr *ngFor="let key of Object.keys(product?.specifications || {}); let i = index">
+                  <th>{{key}}</th>
+                  <th class="fw-normal">{{product?.specifications[key]}}</th>
+                </tr>
               </tbody>
             </table>
           </div>

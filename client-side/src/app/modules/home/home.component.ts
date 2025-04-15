@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {RouterOutlet} from "@angular/router";
 import {NbLayoutModule} from "@nebular/theme";
 import {NavbarComponent} from "../core/components/navbar/navbar.component";
-import {NoopAnimationsModule} from "@angular/platform-browser/animations";
-
+import {EventService} from "../../shared/services/event.service";
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -15,6 +14,13 @@ import {NoopAnimationsModule} from "@angular/platform-browser/animations";
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent {
-
+export class HomeComponent implements OnInit {
+  constructor(private eventService: EventService) {
+    eventService.triggerNavbar();
+  }
+  ngOnInit() {
+    setTimeout(() => {
+      this.eventService.triggerNavbar();
+    }, 0);
+  }
 }

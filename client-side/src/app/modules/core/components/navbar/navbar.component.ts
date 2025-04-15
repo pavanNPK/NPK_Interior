@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {
   NbBadgeModule,
   NbButtonModule,
@@ -20,8 +20,10 @@ import {AuthService} from "../../../../services/auth.service";
 import {UserDTO} from "../../../../models/userDTO";
 import {CookieService} from "ngx-cookie-service";
 import {CartService} from "../../../../services/cart.service";
+import {EventService} from "../../../../shared/services/event.service";
+import {forkJoin, Subscription} from "rxjs";
 import {ResponseWithError} from "../../../../models/commonDTO";
-import {ProductsDTO} from "../../../../models/productsDTO";
+import { WishlistService } from '../../../../services/wishlist.service';
 
 @Component({
   selector: 'app-navbar',
@@ -50,7 +52,8 @@ import {ProductsDTO} from "../../../../models/productsDTO";
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
+  private eventSub!: Subscription;
   items:NbMenuItem[] = [
     {title: 'Dashboard', icon: 'home-outline', link: '/dashboard/view'},
     {title: 'Categories', icon: 'clipboard-outline', link: '/categories', pathMatch: 'prefix'},
@@ -69,8 +72,12 @@ export class NavbarComponent implements OnInit {
   userData?: UserDTO | any;
   lastLoggedIn?: any;
   cartCount: any;
-  wishlistCount: number = 0;
-  constructor(private as: AuthService, private cookieService: CookieService, private cs: CartService) {
+  wishlistCount: any;
+  constructor(private as: AuthService,
+              private cookieService: CookieService,
+              private cs: CartService,
+              private ws: WishlistService,
+              private eventService: EventService) {
   }
   ngOnInit() {
     const storedUser = localStorage.getItem('user');
@@ -79,25 +86,24 @@ export class NavbarComponent implements OnInit {
     this.lastLoggedIn = this.userData?._id
       ? JSON.parse(localStorage.getItem('lastLoggedIn') || '{}')[this.userData._id] || null
       : null;
-    this.getCounts();
+    this.eventSub = this.eventService.navbarTrigger$.subscribe(() => {
+      this.getCounts();
+    });
   }
   getCounts(){
-    this.cs.getCartCount().subscribe({
-      next: (response: ResponseWithError<any>) => {
-        if (response.success) {
-          this.cartCount = response.response || 0;
-        } else {
-          this.cartCount = 0;
+    forkJoin(this.ws.getWishlistCount(), this.cs.getCartCount()).subscribe({
+      next: (response: [ResponseWithError<any>, ResponseWithError<any>]) => {
+        if (response[0].success) {
+          this.wishlistCount = response[0].response || 0;
         }
-        console.log(this.cartCount);
+        if (response[1].success) {
+          this.cartCount = response[1].response || 0;
+        }
       },
-      error: (error: any) => {
-        console.log('Cart count error', error)
-      },
+      error: (error) => console.error('Error fetching products', error),
       complete: () => {
-        // Set loading to false when complete
       },
-    });
+    })
   }
 
   logOut() {
@@ -107,5 +113,10 @@ export class NavbarComponent implements OnInit {
 
   openInNewTab(comPrivacyPolicy: string) {
     window.open(comPrivacyPolicy, '_blank');
+  }
+  ngOnDestroy(): void {
+    if (this.eventSub) {
+      this.eventSub.unsubscribe();
+    }
   }
 }
