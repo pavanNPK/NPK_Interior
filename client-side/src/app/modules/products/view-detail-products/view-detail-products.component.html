@@ -60,6 +60,8 @@
                       <span class="productMrp ml-2 fw-semibold" style="font-family: system-ui,serif !important;">{{product?.discountedPrice | currency:'INR':'symbol-narrow':'1.0-0'}}</span>
                     </p>
                     <p class="fw-semibold m-0 mt-2 text-0xl text-black-50 text-decoration-line-through" style="font-family: system-ui,serif !important;">MRP: {{ product?.price | currency:'INR':'symbol-narrow':'1.0-0' }}</p>
+                    <p class="productStockBanner productStockBannerOOS" *ngIf="product.remainingCount <= 0">Out of Stock</p>
+                    <p class="productStockBanner productStockBannerLS" *ngIf="product.remainingCount > 0 && product.remainingCount < 50">Low Stock</p>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
@@ -67,14 +69,17 @@
                     <button nbButton size="small"
                             nbTooltip="Add the product to cart." nbTooltipPlacement="bottom"
                             (click)="storeCartAndFav(product._id, product.cart, 'cart')"
-                            class=" rounded-2 fw-semibold bg-dark text-white w-100">
+                            class=" rounded-2 fw-semibold bg-dark text-white w-100"
+                            *ngIf="product.remainingCount > 0">
                       {{ product?.cart ? 'Added' : 'Add' }} to Cart<nb-icon [icon]="product?.cart ? 'checkmark-outline' : 'shopping-cart-outline'"></nb-icon>
                     </button>
-                    <button nbButton size="small"
-                            nbTooltip="Currently this product is not available. If you want to notify then click here." nbTooltipPlacement="bottom"
-                            class=" rounded-2 fw-semibold bg-info text-white w-100 d-none">
-                      Notify me<nb-icon icon="bell-outline"></nb-icon>
-                    </button>
+                      <button nbButton size="small"
+                              (click)="notifyUserForProduct(product, product.notified)"
+                              nbTooltip="Currently this product is not available. If you want to notify then click here." nbTooltipPlacement="bottom"
+                              class=" rounded-2 fw-semibold bg-dark text-white w-100"
+                              *ngIf="product.remainingCount < 1">
+                        {{product.notified ? 'Notified' : 'Notify'}} <nb-icon [status]="product.notified? 'danger' : 'basic'"  [icon]="product.notified ? 'bell' : 'bell-outline'"></nb-icon>
+                      </button>
                     <button nbButton size="small"
                             nbTooltip="Add the product to wishlist." nbTooltipPlacement="bottom"
                             (click)="storeCartAndFav(product._id, product.wishlist, 'wishlist')"
@@ -82,7 +87,8 @@
                       {{ product?.wishlist ? 'Wish listed' : 'Wishlist' }} <nb-icon [icon]="product?.wishlist ? 'heart' : 'heart-outline'"></nb-icon>
                     </button>
                     <button nbButton size="small"
-                            nbTooltip="Buy now the product." nbTooltipPlacement="bottom"
+                            [disabled]="product.remainingCount <= 0"
+                            [nbTooltip]="product.remainingCount <= 0 ? 'Once the product is in stock then you can buy the product.' : 'Buy now the product.'" nbTooltipPlacement="bottom"
                             class=" rounded-2 fw-semibold bg-success text-white w-100 mt-1">
                       Buy Now
                     </button>

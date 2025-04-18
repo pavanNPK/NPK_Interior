@@ -121,6 +121,30 @@ export class ViewDetailProductsComponent implements OnInit{
     })
   }
 
+  notifyUserForProduct(product: any, typeValue: boolean) {
+    this.ps.notifyUserForProduct(product._id, typeValue).subscribe({
+      next: (response: ResponseWithError<any>) => {
+        if (response.role !== 'notAllowed') {
+          if (response.success) {
+            this.toastService.success(response.message, product.name, {duration: 2000});
+          } else {
+            this.toastService.danger('Failed to notify the Product', product.name, {duration: 2000});
+          }
+        } else {
+          this.toastService.danger(`You don't have permission to notify.`,  `${product.name}`, {duration: 2000});
+        }
+      },
+      error: (error) => {
+        this.toastService.danger(error, product.name, {duration: 2000});
+      },
+      complete: () => {
+        this.loading = true;
+        this.getProduct(this.slug);
+        this.eventService.triggerNavbar();
+      }
+    })
+  }
+
 
   protected readonly Object = Object;
 }

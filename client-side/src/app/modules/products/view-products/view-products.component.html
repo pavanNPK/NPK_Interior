@@ -19,9 +19,20 @@
                 class=" rounded-2 fw-semibold">
           <nb-icon icon="flip-2-outline"></nb-icon>
         </button>
-        <button nbButton size="small"
-                nbTooltip="Import the raw data" nbTooltipPlacement="bottom"
-                class=" rounded-2 fw-semibold">
+        <input
+          type="file"
+          accept=".xls,.xlsx"
+          #fileInput
+          style="display: none;"
+          (change)="onFileSelected($event)"
+        />
+        <button
+          nbButton
+          size="small"
+          nbTooltip="Import the raw data"
+          nbTooltipPlacement="bottom"
+          class="rounded-2 fw-semibold"
+          (click)="fileInput.click()">
           <nb-icon icon="cloud-download-outline"></nb-icon>
         </button>
         <button nbButton size="small"
@@ -34,6 +45,19 @@
     </div>
   </div>
   <div class="appLayoutBody">
+    <!-- Table to Display Excel Data -->
+    <table *ngIf="excelData.length" class="table table-bordered mt-3">
+      <thead>
+      <tr>
+        <th *ngFor="let key of tableHeaders">{{ key }}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let row of excelData">
+        <td *ngFor="let key of tableHeaders">{{ row[key] }}</td>
+      </tr>
+      </tbody>
+    </table>
     <div>
       <p-dataView class="bg-transparent mb-1" #dv [value]="products" [paginator]="true" [rows]="4" filterBy="brand"
                   layout="grid" *ngIf="products.length">
@@ -64,13 +88,21 @@
                       </span>
                     </small>
                   </div>
-                  <div class="row mt-2" *ngIf="index === 0 || index === 1">
-                    <div class="col-6">
+                  <div class="row mt-2">
+                    <div class="col-6" *ngIf="item.remainingCount > 0">
                       <button nbButton size="small"
                               (click)="storeCartAndFav(item._id, item.cart, 'cart')"
                               nbTooltip="Add the product to cart." nbTooltipPlacement="bottom"
                               class=" rounded-2 fw-semibold bg-dark text-white w-100">
                         {{item.cart ? 'Added' : 'Add'}} to Cart<nb-icon [icon]="item.cart ? 'checkmark-outline' : 'shopping-cart-outline'"></nb-icon>
+                      </button>
+                    </div>
+                    <div class="col-6" *ngIf="item.remainingCount < 1">
+                      <button nbButton size="small"
+                              (click)="notifyUserForProduct(item, item.notified)"
+                              nbTooltip="Currently this product is not available. If you want to notify then click here." nbTooltipPlacement="bottom"
+                              class=" rounded-2 fw-semibold bg-dark text-white w-100">
+                        {{item.notified ? 'Notified' : 'Notify'}} <nb-icon [status]="item.notified? 'danger' : 'basic'"  [icon]="item.notified ? 'bell' : 'bell-outline'"></nb-icon>
                       </button>
                     </div>
                     <div class="col-6">
@@ -82,7 +114,7 @@
                       </button>
                     </div>
                   </div>
-                  <div class="row mt-2" *ngIf="index === 3">
+                  <div class="row mt-2" *ngIf="index === 10">
                     <div class="col-4">
                       <button nbButton size="small"
                               [routerLink]="['/products/details']" [queryParams]="{product: item.slug}"
@@ -108,23 +140,6 @@
                       </button>
                     </div>
                   </div>
-                  <div class="row mt-2" *ngIf="index === 2">
-                    <div class="col-6">
-                      <button nbButton size="small"
-                              nbTooltip="Currently this product is not available. If you want to notify then click here." nbTooltipPlacement="bottom"
-                              class=" rounded-2 fw-semibold bg-dark text-white w-100">
-                        Notify me<nb-icon icon="bell-outline"></nb-icon>
-                      </button>
-                    </div>
-                    <div class="col-6">
-                      <button nbButton size="small"
-                              nbTooltip="Wishlist the product" nbTooltipPlacement="bottom"
-                              class=" rounded-2 fw-semibold text-black w-100">
-                        Wishlist <nb-icon icon="heart-outline"></nb-icon>
-                      </button>
-                    </div>
-                  </div>
-<!--                  <div class="row mt-2" *ngIf="index === 3">-->
                   <div class="row mt-2 d-none" *ngIf="index === 3">
                     <div class="col-10">
                       <button nbButton size="small"
@@ -143,8 +158,8 @@
                     </div>
                   </div>
                 </nb-card-body>
-                <p class="productStockBanner productStockBannerOOS" *ngIf="even">Out of Stock</p>
-                <p class="productStockBanner productStockBannerLS" *ngIf="odd">Low Stock</p>
+                <p class="productStockBanner productStockBannerOOS" *ngIf="item.remainingCount <= 0">Out of Stock</p>
+                <p class="productStockBanner productStockBannerLS" *ngIf="item.remainingCount > 0 && item.remainingCount < 50">Low Stock</p>
               </nb-card>
             </div>
           </div>

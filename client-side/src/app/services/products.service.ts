@@ -3,7 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { ResponseWithError } from '../models/commonDTO';
 import { ProductsDTO } from '../models/productsDTO';
-import {ADD_PRODUCTS, DOMAIN_URL, GET_ALL_CATEGORIES, GET_ALL_PRODUCTS} from "../constants/API-DTO";
+import {
+  ADD_PRODUCTS,
+  DOMAIN_URL,
+  GET_ALL_CATEGORIES,
+  GET_ALL_PRODUCTS,
+  PRODUCT_NOTIFY_TO_USER
+} from "../constants/API-DTO";
 import {CategoriesDTO} from "../models/categoriesDTO";
 import {response} from "express";
 
@@ -42,5 +48,8 @@ export class ProductsService {
 
   addProductToCartOrWishlist(id: string, typeValue: boolean, type: string): Observable<ResponseWithError<any>> {
     return this.http.patch<ResponseWithError<any>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}/${id}`, {[type]: !typeValue})
+  }
+  notifyUserForProduct(id: string, typeValue: boolean): Observable<ResponseWithError<any>> {
+    return this.http.patch<ResponseWithError<any>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}${PRODUCT_NOTIFY_TO_USER}/${id}`, {notify: !typeValue})
   }
 }

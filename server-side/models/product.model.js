@@ -11,12 +11,13 @@ const productSchema = new mongoose.Schema({
         name: { type: String, required: true }
     },
     subCategory: {
-        id: { type: mongoose.Schema.Types.ObjectId, ref: "Subcategory" },
+        id: { type: mongoose.Schema.Types.ObjectId, ref: "Subcategory", required: true },
         name: { type: String }
     },
     price: { type: Number, required: true },
     discount: { type: Number, default: 0 },
     discountedPrice: { type: Number, default: 0 },
+    remainingCount: { type: Number, default: 0 },
     emiStartsAt: { type: Number, default: 0 },
     anualInterest: { type: Number, default: 0 },
     stock: { type: String, required: false },
@@ -29,6 +30,7 @@ const productSchema = new mongoose.Schema({
         principal: Number
     }],
     images: [],
+    notifyUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     specifications: {
         brand: String,
         washingInstructions: String,

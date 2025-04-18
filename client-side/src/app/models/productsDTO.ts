@@ -15,6 +15,7 @@ export class ProductsDTO {
   discountedPrice?: number;
   emiStartsAt?: number;
   anualInterest?: number;
+  remainingCount?: number;
   stock?: string;
   slug?: string;
   images?: ProductImagesDTO[];
@@ -33,6 +34,7 @@ export class ProductsDTO {
   isFeatured?: boolean;
   isTrending?: boolean;
   isNewArrival?: boolean;
+  notified?: boolean;
   createdAt?: Date;
   fetchRemainingTime?: Date;
   updatedAt?: Date;

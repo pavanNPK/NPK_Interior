@@ -38,3 +38,15 @@ lib-ngx-image-zoom {
   object-fit: contain !important;
 }
 
+.productViewDetailsCard{
+  position: relative;
+  inset: 0;
+  .productStockBanner{
+    margin: 0;
+    width: fit-content;
+    color: #ffffff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+  }
+}

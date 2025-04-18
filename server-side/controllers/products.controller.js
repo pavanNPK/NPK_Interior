@@ -30,6 +30,11 @@ export const getProducts = async (req, res) => {
             ? { name: { $regex: req.query.search, $options: 'i' } }
             : {};
 
+        const userId = req.user.id;
+        const objectUserId = userId ? new Object(userId) : null;
+
+        console.log(userId)
+
         const products = await Product.find(
             searchQuery,
             {
@@ -38,23 +43,40 @@ export const getProducts = async (req, res) => {
                 cart: 1,
                 wishlist: 1,
                 description: 1,
-                images: { $slice: 1 }, // Fetch only the first image
+                images: { $slice: 1 },
                 slug: 1,
                 price: 1,
                 discount: 1,
-                discountedPrice: 1
+                discountedPrice: 1,
+                remainingCount: 1,
+                notifyUsers: 1
             }
-        ).lean().exec();
+        ).lean();
 
-        const urlPromises = products.map(async (product) => {
-            if (product.images?.[0]?.key) {
-                const url = await getSignedUrlForS3(product.images[0].key);
-                product.images[0].url = url;
+        const signedProducts = await Promise.all(products.map(async (product) => {
+            const { notifyUsers, images, ...rest } = product;
+
+            console.log(notifyUsers)
+
+            const notified = Array.isArray(notifyUsers) && objectUserId
+                ? notifyUsers.some(id => id.toString() === objectUserId.toString())
+                : false;
+
+            if (images?.[0]?.key) {
+                try {
+                    const url = await getSignedUrlForS3(images[0].key);
+                    images[0].url = url;
+                } catch (err) {
+                    console.warn(`Image signing failed for product ${product._id}:`, err.message);
+                }
             }
-            return product;
-        });
 
-        const signedProducts = await Promise.all(urlPromises);
+            return {
+                ...rest,
+                images,
+                notified
+            };
+        }));
 
         res.json({
             response: signedProducts,
@@ -73,6 +95,10 @@ export const getProducts = async (req, res) => {
 
 // Get product by id
 export const getProductById = async (req, res) => {
+    const userId = req.user.id;
+    const objectUserId = userId ? new Object(userId) : null;
+
+    console.log(userId)
     try {
         const product = await Product.findOne({ slug: req.params.slug }).lean();
 
@@ -82,6 +108,9 @@ export const getProductById = async (req, res) => {
             );
             product.images = product.images.map((img, i) => ({ ...img, url: urls[i] }));
         }
+        product.notified = Array.isArray(product.notifyUsers) && objectUserId
+            ? product.notifyUsers.some(id => id.toString() === objectUserId.toString())
+            : false;
 
         res.json({ response: product, success: true, message: "Product fetched successfully" });
     } catch (error) {
@@ -206,6 +235,7 @@ export const addProduct = async (req, res) => {
             product.updatedBy = req.user.id;
             product.cart = false;
             product.wishlist = false;
+            product.remainingCount = 0;
 
             // Upload images to S3
             let s3UploadedImages = [];
@@ -445,3 +475,37 @@ export const updateProductType = async (req, res) => {
         // Don't respond here again — already responded
     }
 };
+
+export const notifyProductToUser = async (req, res) => {
+    const {id} = req.params;
+    const type = req.body;
+
+    console.log(id)
+    console.log(type)
+
+    const typeKey = Object.keys(type)[0];
+    const shouldAdd = type[typeKey];
+
+    console.log(id)
+    console.log(type)
+    console.log(typeKey)
+    console.log(shouldAdd)
+
+    const notifyUsers = shouldAdd ? [req.user.id] : [];
+    try {
+        const product = await Product.findByIdAndUpdate({_id: id}, {notifyUsers: notifyUsers}, {new: true, runValidators: true}).lean().exec();
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        // Respond immediately
+        res.status(200).json({
+            success: true,
+            message: shouldAdd ? 'You have been notified.' : 'You have no longer be notified.',
+            response: null,
+        });
+    } catch (error) {
+        console.error('Error fetching product:', error);
+        return res.status(500).json({success: false, message: 'Error fetching product'});
+    }
+}

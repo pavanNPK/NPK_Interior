@@ -229,7 +229,15 @@ input:-webkit-autofill:active {
     border: none !important;
   }
 }
+.productStockBannerOOS{
+  background: red;
+}
+.productStockBannerLS{
+  background: gray;
+}
+input[type="file"] {
 
+}
 
 //-----------------------------------------------------------------------------------------------------------
 // for guide text for privacy policy, terms and conditions and return policy
