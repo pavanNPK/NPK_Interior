@@ -51,7 +51,10 @@
       </p>
       <small class="" *ngIf="bulkInstructions"> Verify that slug* is essential to the operation of the product. Therefore, avoid manually entering the slug.
         <a href="https://slugify.online/" target="_blank" class="text-primary">To obtain the slug, use generate slug</a>. It must be written in tiny letters. If you have a folder of photographs, you can upload them after submitting the data, or you can upload the images straight into the AWS S3 you need to enter the document data (key, name, type) separately in excel. Please review the table below before uploading the bulk data.
-        For computations and pictures.
+        For computations and pictures. Here we provide the format of the
+        <span class="text-decoration-underline text-primary cursor-pointer-npk"
+              (click)="formatForExcel(bulkPDCTExcelFormat)">XLSX</span>
+        file.
       </small>
     </div>
   </div>
@@ -381,3 +384,118 @@
     </div>
   </div>
 </div>
+
+<ng-template #bulkPDCTExcelFormat let-data let-ref="dialogRef" id="bulkPDCTExcelFormat">
+  <nb-card class="globalDialogBox">
+    <nb-card-header class="d-flex justify-content-between align-items-center">
+      <h5 class="m-0 fw-semibold">Excel Format</h5>
+      <nb-icon class="cursor-pointer-npk" icon="close-outline" pack="eva" (click)="ref.close()"></nb-icon>
+    </nb-card-header>
+    <nb-card-body class="globalDialogBoxCardBody">
+      <div class="formatData" style="height: 60vh;overflow: scroll;">
+        <table class="table table-bordered table-hover table-responsive text-left m-0">
+          <thead>
+          <tr>
+            <th>#</th>
+            <th>Header</th>
+            <th>Type</th>
+            <th>Value</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (format of ExcelFormatForBulkProducts; track format.key; let idx = $index) {
+              @if (!format.children) {
+                <!-- Simple row without children -->
+                <tr>
+                  <td>{{ format.index }}</td>
+                  <td>{{ format.key }}</td>
+                  <td>{{ format.type }}</td>
+                  <td>
+                    {{ format.value }}
+                    @if (format?.link) {
+                      <br />
+                      <a href="{{ format.link }}" target="_blank" rel="noopener noreferrer">Click Here</a>
+                    }
+                    @if (format?.note) {
+                      <br />
+                      <small class="fw-semibold" [innerHTML]="format?.note.split('\n').join('<br />')"></small>
+                    }
+                    @if (format?.formula) {
+                      <br />
+                      <small>{{format.formula}}</small>
+                    }
+                  </td>
+                </tr>
+              } @else {
+                <!-- Parent row -->
+                <tr>
+                  <td>{{ format.index }}</td>
+                  <td>{{ format.key }}</td>
+                  <td>{{ format.type }}</td>
+                  <td>
+                    {{ format.value }}
+                    @if (format?.link) {
+                      <br />
+                      <a href="{{ format.link }}" target="_blank" rel="noopener noreferrer">Click here</a>
+                    }
+                    @if (format?.note) {
+                      <br />
+                      <small class="fw-semibold" [innerHTML]="format?.note.split('\n').join('<br />')"></small>
+                    }
+                    @if (format?.subNote) {
+                      <br />
+                      <small [innerHTML]="format?.subNote.split('\n').join('<br />')"></small>
+                    }
+                    @if (format?.formula) {
+                      <br />
+                      <small>{{format.formula}}</small>
+                    }
+                  </td>
+                </tr>
+
+                <!-- Nested children table -->
+                <tr>
+                  <td colspan="4">
+                    <table class="table table-bordered mb-0">
+                      <thead class="table-light">
+                      <tr>
+                        <th>#</th>
+                        <th>Header</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        @for (child of format.children; track child.key; let childIdx = $index) {
+                          <tr>
+                            <td>{{ child.index }}</td>
+                            <td>{{ child.key }}</td>
+                            <td>
+                              {{ child.type }}
+                            </td>
+                            <td>{{ child.value }}
+                              @if (child?.note) {
+                                <br />
+                                <small [innerHTML]="child?.note.split('\n').join('<br />')"></small>
+                              }
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </nb-card-body>
+    <nb-card-footer>
+      <div class=" text-left">
+        <p class="fw-semibold mb-1">Note:</p>
+        <small>Names of the columns are case-sensitive. Please do not change the names of the columns. Keep the names as it is.</small>
+      </div>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

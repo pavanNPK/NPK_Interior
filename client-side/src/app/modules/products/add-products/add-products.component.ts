@@ -1,12 +1,12 @@
   import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
   import {
-    NbButtonModule,
-    NbFormFieldModule,
-    NbIconModule,
-    NbInputModule, NbSelectModule,
-    NbToastrService,
-    NbTooltipModule
-  } from "@nebular/theme";
+  NbButtonModule, NbCardModule, NbDialogService,
+  NbFormFieldModule,
+  NbIconModule,
+  NbInputModule, NbSelectModule,
+  NbToastrService,
+  NbTooltipModule
+} from "@nebular/theme";
   import {Location, NgClass, NgForOf, NgIf} from "@angular/common";
   import {
     AbstractControl,
@@ -25,7 +25,7 @@
   import {FileUploadModule} from "primeng/fileupload";
   import {ProductsService} from "../../../services/products.service";
   import * as XLSX from "xlsx";
-  import {ProductsDTO} from "../../../models/productsDTO";
+  import {ExcelFormatForBulkProducts} from "../excelFormatForBulkProducts";
 
   @Component({
     selector: 'app-add-products',
@@ -42,7 +42,8 @@
       NbSelectModule,
       NgClass,
       ToggleButtonModule,
-      FileUploadModule
+      FileUploadModule,
+      NbCardModule
     ],
     templateUrl: './add-products.component.html',
     styleUrl: './add-products.component.scss'
@@ -73,6 +74,7 @@
     constructor(private location: Location,
                 private fb: FormBuilder,
                 private cs: CategoriesService,
+                private dialogService: NbDialogService,
                 private router: Router,
                 private ps: ProductsService,
                 private toastService: NbToastrService,) {}
@@ -345,6 +347,9 @@
         this.fileInput.nativeElement.value = '';
       }
     }
+    formatForExcel(bulkPDCTExcelFormat: any) {
+      this.dialogService.open(bulkPDCTExcelFormat, {closeOnBackdropClick: false});
+    }
     uploadBulkProducts(){
       console.log(this.excelData);
       console.log(this.tableHeaders);
@@ -436,4 +441,6 @@
         }
       })
     }
+
+    protected readonly ExcelFormatForBulkProducts:any = ExcelFormatForBulkProducts;
   }
