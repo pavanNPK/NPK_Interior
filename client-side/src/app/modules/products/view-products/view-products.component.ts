@@ -49,8 +49,6 @@ export class ViewProductsComponent implements OnInit {
   productName: string = '';
   productId: string = '';
   userData?: UserDTO | any;
-  excelData: any[] = [];
-  tableHeaders: string[] = [];
   productSearch = new FormControl('');
   constructor(private productsService: ProductsService,
               private toastService: NbToastrService,
@@ -170,82 +168,4 @@ export class ViewProductsComponent implements OnInit {
       }, complete: () => {this.loading = true; this.loadProducts(this.productSearch.value ? this.productSearch.value : '', false);},
     })
   }
-
-  // onFileSelected(event: Event) {
-  //   // let files = (event.target as HTMLInputElement).files;
-  //   // if (files && files.length > 0) {
-  //   //   const file = files[0];
-  //   //   console.log(file);
-  //   // }
-  //   // @ts-ignore
-  //   const target: DataTransfer = <DataTransfer>event.target;
-  //
-  //   console.log(target.files)
-  //
-  //   if (target.files.length !== 1) {
-  //     console.error('Cannot use multiple files');
-  //     return;
-  //   }
-  //   const reader: FileReader = new FileReader();
-  //   reader.onload = (e: any) => {
-  //     const bstr: string = e.target.result;
-  //     const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
-  //     const wsname: string = wb.SheetNames[0];
-  //     const ws: XLSX.WorkSheet = wb.Sheets[wsname];
-  //     const data = XLSX.utils.sheet_to_json(ws);
-  //     this.excelData = data;
-  //     // @ts-ignore
-  //     this.tableHeaders = data.length ? Object.keys(data[0]) : [];
-  //   };
-  //   reader.readAsBinaryString(target.files[0]);
-  // }
-
-  onFileSelected(event: Event) {
-    const target = event.target as HTMLInputElement;
-
-    if (!target.files || target.files.length !== 1) {
-      console.error('Please select exactly one file.');
-      return;
-    }
-
-    const file = target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = (e: any) => {
-      const bstr = e.target.result;
-      const wb = XLSX.read(bstr, { type: 'binary' });
-      const wsname = wb.SheetNames[0];
-      const ws = wb.Sheets[wsname];
-
-      const sheet = XLSX.utils.sheet_to_json(ws, { header: 1 });
-
-      // Handle headers (first 2 rows)
-      const headerRow1 = sheet[0];
-      const headerRow2 = sheet[1];
-
-      // @ts-ignore
-      const finalHeaders = headerRow1.map((col: any, i: string | number) => {
-        // @ts-ignore
-        if (headerRow2 && headerRow2[i]) {
-          // @ts-ignore
-          return `${col}.${headerRow2[i]}`.trim();
-        }
-        return col;
-      });
-
-      const dataRows = sheet.slice(2);
-      this.excelData = dataRows.map(row => {
-        const obj: any = {};
-        finalHeaders.forEach((key: string | number, i: string | number) => {
-          // @ts-ignore
-          obj[key] = row[i];
-        });
-        return obj;
-      });
-      this.tableHeaders = finalHeaders;
-    };
-
-    reader.readAsBinaryString(file);
-  }
-
 }

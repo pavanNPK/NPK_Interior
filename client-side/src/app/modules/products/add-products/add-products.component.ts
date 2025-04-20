@@ -1,4 +1,4 @@
-  import {Component, OnInit} from '@angular/core';
+  import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
   import {
     NbButtonModule,
     NbFormFieldModule,
@@ -24,6 +24,8 @@
   import {ToggleButtonModule} from "primeng/togglebutton";
   import {FileUploadModule} from "primeng/fileupload";
   import {ProductsService} from "../../../services/products.service";
+  import * as XLSX from "xlsx";
+  import {ProductsDTO} from "../../../models/productsDTO";
 
   @Component({
     selector: 'app-add-products',
@@ -47,8 +49,11 @@
   })
 
   export class AddProductsComponent implements OnInit{
+    @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
     addProductsForm!: FormGroup;
     loading: boolean = false;
+    bulkInstructions: boolean = false;
+    nonUpload: boolean = false;
     submitted: boolean = false;
     categoriesData: GetCatAndSubCatDTO[] = [];
     uploadedFiles: any[] = [];
@@ -62,6 +67,8 @@
      * After accessing them in template, So we use the below one.
      */
     selectedSubCategoriesMap: {[index: number]: SubCategoriesDTO[]} = {};
+    excelData: any[] = [];
+    tableHeaders: string[] = [];
 
     constructor(private location: Location,
                 private fb: FormBuilder,
@@ -124,14 +131,14 @@
           name: ['', Validators.required],
         }),
         specifications: this.fb.group({
-          brand: ['NPK', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+          brand: ['', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
           washingInstructions: [''],
-          material: ['nknxdk', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
-          dimensions: ['30*40*50 cm', [Validators.required, this.dimensionFormatValidator()]], // Example: "200x80x90 cm"
-          weight: ['40 kg', [Validators.required, this.weightFormatValidator()]], // Example: "40 KG"
-          color: ['fsdk', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
-          finish: ['sadf', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]], // Matte, Glossy, etc.
-          warranty: ['6 months', [Validators.required, this.warrantyFormatValidator()]], // Example: "2 Years"
+          material: ['', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+          dimensions: ['', [Validators.required, this.dimensionFormatValidator()]], // Example: "200x80x90 cm"
+          weight: ['', [Validators.required, this.weightFormatValidator()]], // Example: "40 KG"
+          color: ['', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+          finish: ['', [Validators.required, Validators.pattern('^[^\\s][\\w\\W\\s]*$')]], // Matte, Glossy, etc.
+          warranty: ['', [Validators.required, this.warrantyFormatValidator()]], // Example: "2 Years"
         }),
         additionalDetails: [''],
         isFeatured: [false],
@@ -271,6 +278,104 @@
       this.p.at(i).get('images')?.setValue(updatedImages);
     }
 
+    onFileSelected(event: Event) {
+      this.nonUpload = true;
+      this.bulkInstructions = true;
+      const target = event.target as HTMLInputElement;
+
+      if (!target.files || target.files.length !== 1) {
+        console.error('Please select exactly one file.');
+        return;
+      }
+
+      const file = target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        const bstr = e.target.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+
+        const sheet = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+        // Handle headers (first 2 rows)
+        const headerRow1 = sheet[0];
+        const headerRow2 = sheet[1];
+
+        // @ts-ignore
+        const finalHeaders = headerRow1.map((col: any, i: string | number) => {
+          // @ts-ignore
+          if (headerRow2 && headerRow2[i]) {
+            // @ts-ignore
+            return `${col}.${headerRow2[i]}`.trim();
+          }
+          return col;
+        });
+
+        const dataRows = sheet.slice(2);
+        this.excelData = dataRows
+          .map(row => {
+            const obj: any = {};
+            finalHeaders.forEach((key: string | number, i: string | number) => {
+              // @ts-ignore
+              obj[key] = row[i];
+            });
+            return obj;
+          })
+          .filter(row =>
+            Object.values(row).some(value => value !== null && value !== undefined && value !== '')
+          );
+
+        this.tableHeaders = finalHeaders;
+      };
+
+      reader.readAsBinaryString(file);
+    }
+
+    closeUpload(){
+      this.nonUpload = false;
+      this.submitted = false;
+      this.bulkInstructions = false;
+      this.p.reset();
+      this.excelData = [];
+      this.tableHeaders = [];
+      // Reset the file input so same file can be re-uploaded
+      if (this.fileInput) {
+        this.fileInput.nativeElement.value = '';
+      }
+    }
+    uploadBulkProducts(){
+      console.log(this.excelData);
+      console.log(this.tableHeaders);
+      const products = this.excelData.map((row: any) => {
+        console.log(row)
+        return {
+          name: row[this.tableHeaders[0]],
+          slug: row[this.tableHeaders[1]],
+          description: row[this.tableHeaders[2]],
+          category: {
+            name: row[this.tableHeaders[3]],
+            id: row[this.tableHeaders[4]]
+          },
+          subCategory: {
+            name: row[this.tableHeaders[5]],
+            id: row[this.tableHeaders[6]]
+          },
+          price: row[this.tableHeaders[7]],
+          discount: row[this.tableHeaders[8]],
+          discountedPrice: row[this.tableHeaders[9]],
+          emiStartAt: row[this.tableHeaders[10]],
+          annualInterest: row[this.tableHeaders[11]],
+          isTrending: row[this.tableHeaders[12]],
+          isFeatured: row[this.tableHeaders[13]],
+          isNewArrival: row[this.tableHeaders[14]],
+        };
+      })
+
+      console.log(products)
+
+    }
     addProducts() {
       this.submitted = true;
       if (this.p.controls.some((c, i) => this.getImageCount(i) > 5)) return;

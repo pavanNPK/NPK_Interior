@@ -19,22 +19,6 @@
                 class=" rounded-2 fw-semibold">
           <nb-icon icon="flip-2-outline"></nb-icon>
         </button>
-        <input
-          type="file"
-          accept=".xls,.xlsx"
-          #fileInput
-          style="display: none;"
-          (change)="onFileSelected($event)"
-        />
-        <button
-          nbButton
-          size="small"
-          nbTooltip="Import the raw data"
-          nbTooltipPlacement="bottom"
-          class="rounded-2 fw-semibold"
-          (click)="fileInput.click()">
-          <nb-icon icon="cloud-download-outline"></nb-icon>
-        </button>
         <button nbButton size="small"
                 [routerLink]="['/products/add']"
                 nbTooltip="By clicking this you can add the products" nbTooltipPlacement="bottom"
@@ -45,19 +29,6 @@
     </div>
   </div>
   <div class="appLayoutBody">
-    <!-- Table to Display Excel Data -->
-    <table *ngIf="excelData.length" class="table table-bordered mt-3">
-      <thead>
-      <tr>
-        <th *ngFor="let key of tableHeaders">{{ key }}</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let row of excelData">
-        <td *ngFor="let key of tableHeaders">{{ row[key] }}</td>
-      </tr>
-      </tbody>
-    </table>
     <div>
       <p-dataView class="bg-transparent mb-1" #dv [value]="products" [paginator]="true" [rows]="4" filterBy="brand"
                   layout="grid" *ngIf="products.length">
