@@ -9,7 +9,7 @@ export const ExcelFormatForBulkProducts = [
   {
     header: 'Slug',
     key: 'slug',
-    value: 'This is a unique slug for the product. Please dont enter the slug manually. Use the Generate Slug. And copy the slug',
+    value: 'This is a unique slug for the each product. Please don\'t enter the slug manually. Use the Generate Slug. And copy the slug',
     link: 'https://slugify.online/',
     type: 'String',
     index: 2
@@ -25,7 +25,7 @@ export const ExcelFormatForBulkProducts = [
     header: 'Category',
     key: 'category',
     type: 'Object',
-    value: 'Its an object of category id and category name, If you dont have category, You need to create it first.',
+    value: 'It\'s an object of category id and category name. If you don\'t have a category, you need to create it first.',
     children: [
       {
         key: 'id',
@@ -79,7 +79,7 @@ export const ExcelFormatForBulkProducts = [
   {
     header: 'Discounted Price',
     key: 'discountedPrice',
-    value: 'Must be a number, To get the discounted price, use this formula',
+    value: 'Must be a number. To get the discounted price, use this formula',
     formula: 'price - (price * discount / 100)',
     type: 'Number',
     index: 8
@@ -87,7 +87,7 @@ export const ExcelFormatForBulkProducts = [
   {
     header: 'EMI Starts At',
     key: 'emiStartsAt',
-    value: 'Must be a number, Its the EMI for 3 months, To get the EMI for 3 months, You need to make the calculations for EMI Details',
+    value: 'Must be a number. It\'s the EMI for 3 months. To get the EMI for 3 months, you need to make the calculations for EMI Details',
     type: 'Number',
     index: 9
   },
@@ -96,13 +96,13 @@ export const ExcelFormatForBulkProducts = [
     key: 'annualInterest',
     value: 'Must be a number, 0-16',
     type: 'Number',
-    index: 9
+    index: 10
   },
   {
     header: 'EMI Details',
     key: 'emiDetails',
-    value: 'Must be an array of objects, To get the EMI details, You need to make the calculations for EMI Details',
-    note: '- EXCEL headers for EMI is emailDetails3, emailDetails6, emailDetails9, emailDetails12',
+    value: 'Must be an array of objects. To get the EMI details, you need to make the calculations for EMI Details',
+    note: '- EXCEL headers for EMI are emiDetails3, emiDetails6, emiDetails9, emiDetails12',
     subNote: ' Where:\n' +
       '    &nbsp;&nbsp;. Annual Interest Rate: 12%\n' +
       '    &nbsp;&nbsp;. Monthly Interest Rate: 1% (12 / 12 / 100 = 0.01)\n' +
@@ -200,35 +200,29 @@ export const ExcelFormatForBulkProducts = [
         index: 17.2
       },
       {
-        key: 'size',
+        key: 'material',
         value: 'Must be a string',
         type: 'String',
         index: 17.3
       },
       {
-        key: 'material',
+        key: 'brand',
         value: 'Must be a string',
         type: 'String',
         index: 17.4
       },
       {
-        key: 'brand',
-        value: 'Must be a string',
-        type: 'String',
-        index: 17.5
-      },
-      {
         key: 'washingInstructions',
         value: 'Must be a string',
         type: 'String',
-        index: 17.6
+        index: 17.5
       },
       {
         key: 'dimensions',
         value: 'Must be a string (4x4x4 cm|mm|in)',
         note: 'format "LxWxH cm|mm|in"',
         type: 'String',
-        index: 17.7
+        index: 17.6
       },
       {
         key: 'weight',
@@ -251,7 +245,8 @@ export const ExcelFormatForBulkProducts = [
     key: 'images',
     type: 'Array',
     value: 'Product images, max 5 images. You can upload images in URL (key) format from the AWS S3 bucket.',
-    note: 'EXCEL headers for Images is images1, images2, images3, images4 and images5',
+    note: 'EXCEL headers for Images are images1, images2, images3, images4, and images5,\n' +
+      'While creating the folder name, use the slug as the folder name. Make sure don\'t duplicate the folder name.',
     subNote: '&nbsp;&nbsp;. It\'s an optional field for bulk upload. However, for single or multiple products through the form,\n' +
       '&nbsp;&nbsp;. it is a required field. You can update later once you have uploaded the products, but you must upload the images.',
     children: [
@@ -265,13 +260,13 @@ export const ExcelFormatForBulkProducts = [
         key: 'key',
         value: 'Must be a string of image key from AWS S3 bucket',
         type: 'String',
-        index: 18.1
+        index: 18.2
       },
       {
         key: 'type',
         value: 'Must be a string of image type',
         type: 'String',
-        index: 18.1
+        index: 18.3
       }
     ],
     index: 18

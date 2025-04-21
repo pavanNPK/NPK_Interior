@@ -14,7 +14,7 @@ export class ProductsDTO {
   discount?: number;
   discountedPrice?: number;
   emiStartsAt?: number;
-  anualInterest?: number;
+  annualInterest?: number;
   remainingCount?: number;
   stock?: string;
   slug?: string;

@@ -19,7 +19,7 @@ const productSchema = new mongoose.Schema({
     discountedPrice: { type: Number, default: 0 },
     remainingCount: { type: Number, default: 0 },
     emiStartsAt: { type: Number, default: 0 },
-    anualInterest: { type: Number, default: 0 },
+    annualInterest: { type: Number, default: 0 },
     stock: { type: String, required: false },
     productType: { type: String, required: false },
     emiDetails: [{

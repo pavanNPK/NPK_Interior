@@ -4,7 +4,7 @@ import { map, Observable } from 'rxjs';
 import { ResponseWithError } from '../models/commonDTO';
 import { ProductsDTO } from '../models/productsDTO';
 import {
-  ADD_PRODUCTS,
+  ADD_PRODUCTS, BULK_UPLOAD,
   DOMAIN_URL,
   GET_ALL_CATEGORIES,
   GET_ALL_PRODUCTS,
@@ -51,5 +51,10 @@ export class ProductsService {
   }
   notifyUserForProduct(id: string, typeValue: boolean): Observable<ResponseWithError<any>> {
     return this.http.patch<ResponseWithError<any>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}${PRODUCT_NOTIFY_TO_USER}/${id}`, {notify: !typeValue})
+  }
+
+  bulkUploadProducts(products: any): Observable<ResponseWithError<any>> {
+    return this.http.post<ResponseWithError<any>>(`${DOMAIN_URL}${ADD_PRODUCTS}${BULK_UPLOAD}`, products)
+      .pipe(map(response => response));
   }
 }

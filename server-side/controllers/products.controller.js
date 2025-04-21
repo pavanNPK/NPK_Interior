@@ -509,3 +509,36 @@ export const notifyProductToUser = async (req, res) => {
         return res.status(500).json({success: false, message: 'Error fetching product'});
     }
 }
+
+export const bulkUpload = async (req, res) => {
+    try {
+        const products  = req.body;
+        console.log(products);
+        let arr = [];
+        for (let i = 0; i < products.length; i++) {
+            const product = products[i];
+            //check about slug
+            let newSlug = product.slug;
+            let existingProduct = await Product.findOne({ slug: newSlug }).lean().exec();
+            if (existingProduct) {
+                let count = 1;
+                while (existingProduct) {
+                    newSlug = `${product.slug}-${count}`;
+                    existingProduct = await Product.findOne({ slug: newSlug }).lean().exec();
+                    count++;
+                }
+                product.slug = newSlug;
+            }
+            product.createdBy = req.user.id;
+            product.updatedBy = req.user.id;
+            product.createdAt = new Date();
+            product.updatedAt = new Date();
+            arr.push(product);
+        }
+        await Product.insertMany(arr);
+        res.json({response: null, success: true, message: 'Products uploaded successfully' });
+    } catch (error) {
+        console.error('Error uploading products:', error);
+        res.status(500).json({response: null, success: false, message: 'Error uploading products' });
+    }
+};

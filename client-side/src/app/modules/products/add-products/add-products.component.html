@@ -49,7 +49,7 @@
               (click)="bulkInstructions = !bulkInstructions">{{ bulkInstructions ? 'Hide' : 'Show' }} Instructions
         </span>
       </p>
-      <small class="" *ngIf="bulkInstructions"> Verify that slug* is essential to the operation of the product. Therefore, avoid manually entering the slug.
+      <small class="" *ngIf="bulkInstructions"> Verify that slug* is essential to the operation of the product. Therefore, avoid manually entering the slug. It must be unique.
         <a href="https://slugify.online/" target="_blank" class="text-primary">To obtain the slug, use generate slug</a>. It must be written in tiny letters. If you have a folder of photographs, you can upload them after submitting the data, or you can upload the images straight into the AWS S3 you need to enter the document data (key, name, type) separately in excel. Please review the table below before uploading the bulk data.
         For computations and pictures. Here we provide the format of the
         <span class="text-decoration-underline text-primary cursor-pointer-npk"
@@ -156,12 +156,12 @@
                   <nb-form-field>
                     <nb-icon nbSuffix icon="percent-outline" pack="eva"></nb-icon>
                     <input type="number" nbInput class="form-control"
-                           (keyup)="anualInterestChange($event, i);"
-                           fullWidth formControlName="anualInterest" placeholder="Enter product discount" min="0" max="16"
-                           [ngClass]="{ 'is-invalid': submitted && pdt.get('anualInterest')?.errors }" >
+                           (keyup)="annualInterestChange($event, i);"
+                           fullWidth formControlName="annualInterest" placeholder="Enter product discount" min="0" max="16"
+                           [ngClass]="{ 'is-invalid': submitted && pdt.get('annualInterest')?.errors }" >
                   </nb-form-field>
-                  <div *ngIf="submitted && pdt.get('anualInterest')?.errors" class="invalid-feedback">
-                    <div *ngIf="pdt.get('anualInterest')?.errors?.['required']">Please enter the discount.</div>
+                  <div *ngIf="submitted && pdt.get('annualInterest')?.errors" class="invalid-feedback">
+                    <div *ngIf="pdt.get('annualInterest')?.errors?.['required']">Please enter the discount.</div>
                   </div>
                 </div>
 

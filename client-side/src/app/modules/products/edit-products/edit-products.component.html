@@ -107,12 +107,12 @@
             <label class="label fw-semibold">Interest*</label>
             <nb-form-field>
               <nb-icon nbSuffix icon="percent-outline" pack="eva"></nb-icon>
-              <input type="number" nbInput fullWidth formControlName="anualInterest"
+              <input type="number" nbInput fullWidth formControlName="annualInterest"
                      placeholder="Enter product discount" min="0" max="16"
-                     (keyup)="anualInterestChange($event);"
-                     [status]="submitted && p.anualInterest?.errors ? 'danger' : 'basic'">
+                     (keyup)="annualInterestChange($event);"
+                     [status]="submitted && p.annualInterest?.errors ? 'danger' : 'basic'">
             </nb-form-field>
-            <p class="caption status-danger" *ngIf="submitted && p.anualInterest?.errors?.['required']">
+            <p class="caption status-danger" *ngIf="submitted && p.annualInterest?.errors?.['required']">
               Please enter the discount.
             </p>
           </div>

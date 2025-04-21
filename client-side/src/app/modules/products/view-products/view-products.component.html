@@ -30,7 +30,7 @@
   </div>
   <div class="appLayoutBody">
     <div>
-      <p-dataView class="bg-transparent mb-1" #dv [value]="products" [paginator]="true" [rows]="4" filterBy="brand"
+      <p-dataView class="bg-transparent mb-1" #dv [value]="products" [paginator]="true" [rows]="pgSize" filterBy="brand"
                   layout="grid" *ngIf="products.length">
         <ng-template #list let-products pTemplate="gridItem">
           <div class="row">

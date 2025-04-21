@@ -121,7 +121,7 @@
         discount: ['5', [Validators.required, Validators.min(0), Validators.max(99)]],
         discountedPrice: [0, [Validators.required]],
         emiStartsAt: [0, [Validators.required]],
-        anualInterest: [12, [Validators.required, Validators.min(0), Validators.max(16)]],
+        annualInterest: [12, [Validators.required, Validators.min(0), Validators.max(16)]],
         images: [[], [Validators.required]],
         emiDetails: [[], [Validators.required]],
         category: this.fb.group({
@@ -193,7 +193,7 @@
       this.p.at(i).get('discountedPrice')?.setValue(discountedPrice);
 
       // Step 2: Get Annual Interest (from form)
-      const annualInterest = this.p.at(i).get('anualInterest')?.value || 12;
+      const annualInterest = this.p.at(i).get('annualInterest')?.value || 12;
       const monthlyRate = annualInterest / 12 / 100;
 
       // Step 3: EMI Formula Function
@@ -233,11 +233,11 @@
       this.p.at(i).get('emiDetails')?.setValue(emiDetails);
     }
 
-    anualInterestChange(event: any, i: number) {
+    annualInterestChange(event: any, i: number) {
       if (event.target.value > 16) {
-        this.p.at(i).get('anualInterest')?.setValue(16);
+        this.p.at(i).get('annualInterest')?.setValue(16);
       } else if (event.target.value < 0 || event.target.value === '') {
-        this.p.at(i).get('anualInterest')?.setValue(0);
+        this.p.at(i).get('annualInterest')?.setValue(0);
       }
       this.discountedPriceChange(this.p.at(i).get('price')?.value, this.p.at(i).get('discount')?.value, i);
     }
@@ -339,7 +339,6 @@
       this.nonUpload = false;
       this.submitted = false;
       this.bulkInstructions = false;
-      this.p.reset();
       this.excelData = [];
       this.tableHeaders = [];
       // Reset the file input so same file can be re-uploaded
@@ -353,33 +352,87 @@
     uploadBulkProducts(){
       console.log(this.excelData);
       console.log(this.tableHeaders);
-      const products = this.excelData.map((row: any) => {
-        console.log(row)
-        return {
-          name: row[this.tableHeaders[0]],
-          slug: row[this.tableHeaders[1]],
-          description: row[this.tableHeaders[2]],
-          category: {
-            name: row[this.tableHeaders[3]],
-            id: row[this.tableHeaders[4]]
-          },
-          subCategory: {
-            name: row[this.tableHeaders[5]],
-            id: row[this.tableHeaders[6]]
-          },
-          price: row[this.tableHeaders[7]],
-          discount: row[this.tableHeaders[8]],
-          discountedPrice: row[this.tableHeaders[9]],
-          emiStartAt: row[this.tableHeaders[10]],
-          annualInterest: row[this.tableHeaders[11]],
-          isTrending: row[this.tableHeaders[12]],
-          isFeatured: row[this.tableHeaders[13]],
-          isNewArrival: row[this.tableHeaders[14]],
-        };
-      })
+      const getValue = (obj: any, key: string, fallback: any = 'changed') => {
+        return Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : fallback;
+      };
+      const durations = [3, 6, 9, 12];
+      const productImages = [1, 2, 3, 4, 5];
 
+      const products = this.excelData.map((row: any) => ({
+        name: getValue(row, 'name'),
+        slug: getValue(row, 'slug'),
+        description: getValue(row, 'description'),
+        category: {
+          name: getValue(row, 'category.name'),
+          id: getValue(row, 'category.id')
+        },
+        subCategory: {
+          name: getValue(row, 'subCategory.name'),
+          id: getValue(row, 'subCategory.id')
+        },
+        price: getValue(row, 'price', 0),
+        discount: getValue(row, 'discount', 0),
+        discountedPrice: getValue(row, 'discountedPrice', 0),
+        emiStartsAt: getValue(row, 'emiStartsAt', 0),
+        annualInterest: getValue(row, 'annualInterest', 0),
+        isTrending: getValue(row, 'isTrending', false),
+        isFeatured: getValue(row, 'isFeatured', false),
+        isNewArrival: getValue(row, 'isNewArrival', false),
+        cart: getValue(row, 'cart', false),
+        wishlist: getValue(row, 'wishlist', false),
+        remainingCount: getValue(row, 'remainingCount', 0),
+        specifications: {
+          color: getValue(row, 'specifications.color'),
+          brand: getValue(row, 'specifications.brand'),
+          material: getValue(row, 'specifications.material'),
+          weight: getValue(row, 'specifications.weight'),
+          washingInstructions: getValue(row, 'specifications.washingInstructions'),
+          dimensions: getValue(row, 'specifications.dimensions'),
+          finish: getValue(row, 'specifications.finish'),
+          warranty: getValue(row, 'specifications.warranty'),
+        },
+        emiDetails: durations.map(duration => {
+          const prefix = `emiDetails${duration}`;
+          return {
+            month: getValue(row, `${prefix}.month`),
+            monthlyEmi: getValue(row, `${prefix}.monthlyEmi`),
+            totalPayable: getValue(row, `${prefix}.totalPayable`),
+            interestAmount: getValue(row, `${prefix}.interestAmount`),
+            principal: getValue(row, `${prefix}.principal`),
+          };
+        }),
+        images: productImages
+          .map(image => {
+            const prefix = `images${image}`;
+            const name = getValue(row, `${prefix}.name`);
+            const key = getValue(row, `${prefix}.key`);
+            const type = getValue(row, `${prefix}.type`);
+            if (!name || !key || !type) return null;
+            return {
+              name,
+              key,
+              type,
+            };
+          })
+          .filter(Boolean)
+      }));
       console.log(products)
 
+      this.ps.bulkUploadProducts(products).subscribe({
+        next: (response: any) => {
+          if (response.role !== 'notAllowed') {
+            if (response.success) {
+              this.toastService.success('Successfully added new products', 'Products', {duration: 2000});
+              this.closeUpload();
+              this.router.navigate(['/products/view']);
+            } else {
+              this.toastService.danger('Failed to add new products', 'Products', {duration: 2000});
+            }
+          } else {
+            this.toastService.danger(`You don't have permission to create.`,  'Bulk Products', {duration: 2000});
+          }
+        }
+      })
     }
     addProducts() {
       this.submitted = true;
@@ -401,7 +454,7 @@
         formData.append(`products[${index}][discount]`, product.discount);
         formData.append(`products[${index}][discountedPrice]`, product.discountedPrice);
         formData.append(`products[${index}][emiStartsAt]`, product.emiStartsAt);
-        formData.append(`products[${index}][anualInterest]`, product.anualInterest);
+        formData.append(`products[${index}][annualInterest]`, product.annualInterest);
         formData.append(`products[${index}][specifications]`, JSON.stringify(product.specifications));
         formData.append(`products[${index}][isFeatured]`, product.isFeatured);
         formData.append(`products[${index}][isTrending]`, product.isTrending);

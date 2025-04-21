@@ -10,7 +10,7 @@ import {
     getProducts,
     getProductById,
     updateProduct,
-    deleteProduct, updateProductType, notifyProductToUser
+    deleteProduct, updateProductType, notifyProductToUser, bulkUpload
 } from '../controllers/products.controller.js';
 
 import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware.js';
@@ -60,6 +60,7 @@ const uploadUpdate = multer({
 
 // Define routes with any field name that follows the pattern "images-X"
 router.post('/', authenticateToken, authorizeRoles('supervise', 'shopper'), upload.any(), addProduct);
+router.post('/bulkUpload', authenticateToken, authorizeRoles('supervise', 'shopper'), upload.any(), bulkUpload);
 router.get('/', authenticateToken, authorizeRoles('supervise', 'shopper'), getProducts);
 router.get('/:slug', authenticateToken, authorizeRoles('supervise', 'shopper'), getProductById);
 router.put('/:slug',  authenticateToken, authorizeRoles('supervise', 'shopper'), uploadUpdate.any(), updateProduct);

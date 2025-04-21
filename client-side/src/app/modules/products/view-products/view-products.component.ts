@@ -50,6 +50,7 @@ export class ViewProductsComponent implements OnInit {
   productId: string = '';
   userData?: UserDTO | any;
   productSearch = new FormControl('');
+  pgSize: number = 50;
   constructor(private productsService: ProductsService,
               private toastService: NbToastrService,
               private eventService: EventService,

@@ -120,7 +120,7 @@ export class EditProductsComponent implements OnInit{
       discount: [this.product.discount || '5', [Validators.required, Validators.min(0), Validators.max(99)]],
       discountedPrice: [this.product.discountedPrice || 0, [Validators.required]],
       emiStartsAt: [this.product.emiStartsAt || 0, [Validators.required]],
-      anualInterest: [this.product.anualInterest || 12, [Validators.required, Validators.min(0), Validators.max(16)]],
+      annualInterest: [this.product.annualInterest || 12, [Validators.required, Validators.min(0), Validators.max(16)]],
       images: [[]],
       emiDetails: [this.product.emiDetails || [], [Validators.required]],
       category: this.fb.group({
@@ -197,7 +197,7 @@ export class EditProductsComponent implements OnInit{
     this.editProductsForm.get('discountedPrice')?.setValue(discountedPrice);
 
     // Step 2: Get Annual Interest (from form)
-    const annualInterest = this.editProductsForm.get('anualInterest')?.value || 12;
+    const annualInterest = this.editProductsForm.get('annualInterest')?.value || 12;
     const monthlyRate = annualInterest / 12 / 100;
 
     // Step 3: EMI Formula Function
@@ -236,11 +236,11 @@ export class EditProductsComponent implements OnInit{
     console.log('EMI Options:', emiDetails); // or use them in a UI popup
     this.editProductsForm.get('emiDetails')?.setValue(emiDetails);
   }
-  anualInterestChange(event: any) {
+  annualInterestChange(event: any) {
     if (event.target.value > 16) {
-      this.editProductsForm.get('anualInterest')?.setValue(16);
+      this.editProductsForm.get('annualInterest')?.setValue(16);
     } else if (event.target.value < 0 || event.target.value === '') {
-      this.editProductsForm.get('anualInterest')?.setValue(0);
+      this.editProductsForm.get('annualInterest')?.setValue(0);
     }
     this.discountedPriceChange(this.editProductsForm.get('price')?.value, this.editProductsForm.get('discount')?.value);
   }
@@ -286,7 +286,7 @@ export class EditProductsComponent implements OnInit{
     formData.append('discount', this.editProductsForm.get('discount')?.value);
     formData.append('discountedPrice', this.editProductsForm.get('discountedPrice')?.value);
     formData.append('emiStartsAt', this.editProductsForm.get('emiStartsAt')?.value);
-    formData.append('anualInterest', this.editProductsForm.get('anualInterest')?.value);
+    formData.append('annualInterest', this.editProductsForm.get('annualInterest')?.value);
     formData.append('specifications', JSON.stringify(this.editProductsForm.get('specifications')?.value));
     formData.append('isFeatured', this.editProductsForm.get('isFeatured')?.value);
     formData.append('isTrending', this.editProductsForm.get('isTrending')?.value);

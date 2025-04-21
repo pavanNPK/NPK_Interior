@@ -153,7 +153,7 @@ dimensionFormatValidator(): ValidatorFn {
       this.p.at(i).get('discountedPrice')?.setValue(discountedPrice);
 
       // Step 2: Get Annual Interest (from form)
-      const annualInterest = this.p.at(i).get('anualInterest')?.value || 12;
+      const annualInterest = this.p.at(i).get('annualInterest')?.value || 12;
       const monthlyRate = annualInterest / 12 / 100;
 
       // Step 3: EMI Formula Function
@@ -193,11 +193,11 @@ dimensionFormatValidator(): ValidatorFn {
       this.p.at(i).get('emiDetails')?.setValue(emiDetails);
     }
 
-    anualInterestChange(event: any, i: number) {
+    annualInterestChange(event: any, i: number) {
       if (event.target.value > 16) {
-        this.p.at(i).get('anualInterest')?.setValue(16);
+        this.p.at(i).get('annualInterest')?.setValue(16);
       } else if (event.target.value < 0 || event.target.value === '') {
-        this.p.at(i).get('anualInterest')?.setValue(0);
+        this.p.at(i).get('annualInterest')?.setValue(0);
       }
       this.discountedPriceChange(this.p.at(i).get('price')?.value, this.p.at(i).get('discount')?.value, i);
     }
