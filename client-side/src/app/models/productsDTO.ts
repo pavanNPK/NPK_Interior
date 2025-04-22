@@ -42,6 +42,7 @@ export class ProductsDTO {
   updatedBy?: string;
   cart?: boolean;
   wishlist?: boolean;
+  bulkUpload?: boolean;
 }
 export class ProductImagesDTO {
   key?: string;

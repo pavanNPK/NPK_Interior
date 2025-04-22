@@ -3,8 +3,8 @@ import mongoose from 'mongoose';
 
 // Define the product schema
 const productSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    slug: { type: String, unique: true },
+    name: { type: String, required: true, unique: true },
+    slug: { type: String, unique: true, required: true },
     description: { type: String, required: true },
     category: {
         id: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
@@ -46,6 +46,7 @@ const productSchema = new mongoose.Schema({
     isFeatured: { type: Boolean, default: false },
     isTrending: { type: Boolean, default: false },
     isNewArrival: { type: Boolean, default: false },
+    bulkUpload: { type: Boolean, default: false },
     cart: { type: Boolean, default: false },
     wishlist: { type: Boolean, default: false },
     createdAt: { type: Date, default: new Date() },

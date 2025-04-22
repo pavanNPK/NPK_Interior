@@ -6,22 +6,7 @@ import fs from 'fs';
 import {deleteFileFromS3, getSignedUrlForS3, migrateS3Folder, uploadWithPutObject} from "./s3upload.controller.js";
 import {cartSchema} from "../models/cart.model.js";
 import {wishlistSchema} from "../models/wishlist.model.js";
-
-const dbCache = new Map();
-
-const getDbConnection = async (dbName) => {
-    if (dbCache.has(dbName)) {
-        return dbCache.get(dbName);
-    }
-    const DB_URL = process.env.DB_URL.replace('npk_interior', dbName);
-    const connection = await mongoose.createConnection(DB_URL).asPromise();
-    dbCache.set(dbName, connection);
-    return connection;
-};
-
-const getModel = (connection, name, schema) => {
-    return connection.models[name] || connection.model(name, schema);
-};
+import {getDbConnection, getModel} from "./dbSwitch.controller.js";
 
 // Get all products
 export const getProducts = async (req, res) => {
@@ -49,7 +34,7 @@ export const getProducts = async (req, res) => {
                 discount: 1,
                 discountedPrice: 1,
                 remainingCount: 1,
-                notifyUsers: 1
+                notifyUsers: 1,
             }
         ).lean();
 
@@ -533,6 +518,9 @@ export const bulkUpload = async (req, res) => {
             product.updatedBy = req.user.id;
             product.createdAt = new Date();
             product.updatedAt = new Date();
+            product.cart = false;
+            product.wishlist = false;
+            product.bulkUpload = true;
             arr.push(product);
         }
         await Product.insertMany(arr);

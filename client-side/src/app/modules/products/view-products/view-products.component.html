@@ -85,7 +85,7 @@
                       </button>
                     </div>
                   </div>
-                  <div class="row mt-2" *ngIf="index === 10">
+                  <div class="row mt-2" *ngIf="last">
                     <div class="col-4">
                       <button nbButton size="small"
                               [routerLink]="['/products/details']" [queryParams]="{product: item.slug}"

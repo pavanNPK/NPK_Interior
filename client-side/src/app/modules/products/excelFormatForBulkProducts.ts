@@ -167,20 +167,6 @@ export const ExcelFormatForBulkProducts = [
     index: 14
   },
   {
-    header: 'Cart',
-    key: 'cart',
-    value: 'Must be a boolean',
-    type: 'Boolean',
-    index: 15
-  },
-  {
-    header: 'Wishlist',
-    key: 'wishlist',
-    value: 'Must be a boolean',
-    type: 'Boolean',
-    index: 16
-  },
-  {
     header: 'Specifications',
     key: 'specifications',
     type: 'Object',
