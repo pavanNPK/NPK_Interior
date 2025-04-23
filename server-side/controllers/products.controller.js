@@ -1,12 +1,11 @@
 // Import mongoose and the Category model with ES module syntax
-import mongoose from 'mongoose';
 import Product from '../models/product.model.js';
+import {cartSchema} from "../models/cart.model.js";
+import {wishlistSchema} from "../models/wishlist.model.js";
 import slugify from 'slugify';
 import fs from 'fs';
 import {deleteFileFromS3, getSignedUrlForS3, migrateS3Folder, uploadWithPutObject} from "./s3upload.controller.js";
-import {cartSchema} from "../models/cart.model.js";
-import {wishlistSchema} from "../models/wishlist.model.js";
-import {getDbConnection, getModel} from "./dbSwitch.controller.js";
+import {closeDbConnection, getDbConnection, getModel} from "./dbSwitch.controller.js";
 
 // Get all products
 export const getProducts = async (req, res) => {
@@ -35,11 +34,13 @@ export const getProducts = async (req, res) => {
                 discountedPrice: 1,
                 remainingCount: 1,
                 notifyUsers: 1,
+                cartUsers: 1,
+                wishlistUsers: 1,
             }
         ).lean();
 
         const signedProducts = await Promise.all(products.map(async (product) => {
-            const { notifyUsers, images, ...rest } = product;
+            const { notifyUsers, cartUsers, wishlistUsers, images, ...rest } = product;
 
             console.log(notifyUsers)
 
@@ -47,10 +48,17 @@ export const getProducts = async (req, res) => {
                 ? notifyUsers.some(id => id.toString() === objectUserId.toString())
                 : false;
 
+            const cart = Array.isArray(cartUsers) && objectUserId
+                ? cartUsers.some(id => id.toString() === objectUserId.toString())
+                : false;
+
+            const wishlist = Array.isArray(wishlistUsers) && objectUserId
+                ? wishlistUsers.some(id => id.toString() === objectUserId.toString())
+                : false;
+
             if (images?.[0]?.key) {
                 try {
-                    const url = await getSignedUrlForS3(images[0].key);
-                    images[0].url = url;
+                    images[0].url = await getSignedUrlForS3(images[0].key);
                 } catch (err) {
                     console.warn(`Image signing failed for product ${product._id}:`, err.message);
                 }
@@ -59,7 +67,9 @@ export const getProducts = async (req, res) => {
             return {
                 ...rest,
                 images,
-                notified
+                notified,
+                cart,
+                wishlist
             };
         }));
 
@@ -218,8 +228,6 @@ export const addProduct = async (req, res) => {
             product.fetchRemainingTime = new Date();
             product.createdBy = req.user.id;
             product.updatedBy = req.user.id;
-            product.cart = false;
-            product.wishlist = false;
             product.remainingCount = 0;
 
             // Upload images to S3
@@ -412,88 +420,101 @@ export const deleteProduct = async (req, res) => {
 
 export const updateProductType = async (req, res) => {
     const { id } = req.params;
-    const type = req.body;
+    const type = req.body; // e.g. { cart: true } or { wishlist: false }
     const dbName = req.user.code;
+    const userId = req.user.id;
 
-    const typeKey = Object.keys(type)[0];
+    const typeKey = Object.keys(type)[0]; // 'cart' or 'wishlist'
     const shouldAdd = type[typeKey];
 
+    if (!['cart', 'wishlist'].includes(typeKey)) {
+        return res.status(400).json({ success: false, message: 'Invalid type key' });
+    }
+
+    // Determine which field to update: 'cartUsers' or 'wishlistUsers'
+    const fieldKey = typeKey === 'cart' ? 'cartUsers' : 'wishlistUsers';
+    const updateQuery = shouldAdd
+        ? { $addToSet: { [fieldKey]: userId } } // Add userId if not already present
+        : { $pull: { [fieldKey]: userId } };    // Remove userId if present
+
     try {
-        const product = await Product.findByIdAndUpdate(id, type, {
-            new: true,
-            runValidators: true,
-        });
+        const product = await Product.findByIdAndUpdate(
+            id,
+            updateQuery,
+            { new: true, runValidators: true }
+        );
 
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
 
-        // Respond immediately
+        // Respond to client
         res.status(200).json({
             success: true,
-            message: 'Product updated',
+            message: `Product ${typeKey} status updated`,
             response: product,
         });
 
-        // Async cart/wishlist update (background)
-        if (['cart', 'wishlist'].includes(typeKey)) {
-            const connection = await getDbConnection(dbName);
-            const schemaMap = {
-                cart: cartSchema,
-                wishlist: wishlistSchema,
-            };
-            const model = getModel(connection, typeKey.charAt(0).toUpperCase() + typeKey.slice(1), schemaMap[typeKey]);
+        // Optionally update separate Cart/Wishlist collection in background (if needed)
+        const connection = await getDbConnection(dbName);
+        const schemaMap = { cart: cartSchema, wishlist: wishlistSchema };
+        const modelName = typeKey.charAt(0).toUpperCase() + typeKey.slice(1);
+        const Model = getModel(connection, modelName, schemaMap[typeKey]);
 
-            if (shouldAdd) {
-                await model.create({
-                    productId: id,
-                    userId: req.user.id,
-                    addedOn: new Date(),
-                    removedOn: new Date(),
-                });
-            } else {
-                await model.deleteOne({ productId: id, userId: req.user.id });
-            }
+        if (shouldAdd) {
+            await Model.updateOne(
+                { productId: id, userId },
+                { $setOnInsert: { addedOn: new Date() } },
+                { upsert: true }
+            );
+        } else {
+            await Model.deleteOne({ productId: id, userId });
         }
+
     } catch (error) {
-        console.error('Error during update:', error);
-        // Don't respond here again — already responded
+        console.error('Error updating product type:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ success: false, message: 'Update failed', response: null });
+        }
     }
 };
 
 export const notifyProductToUser = async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     const type = req.body;
+    const userId = req.user.id;
 
-    console.log(id)
-    console.log(type)
-
-    const typeKey = Object.keys(type)[0];
+    const typeKey = Object.keys(type)[0]; // e.g. 'notify'
     const shouldAdd = type[typeKey];
 
-    console.log(id)
-    console.log(type)
-    console.log(typeKey)
-    console.log(shouldAdd)
-
-    const notifyUsers = shouldAdd ? [req.user.id] : [];
     try {
-        const product = await Product.findByIdAndUpdate({_id: id}, {notifyUsers: notifyUsers}, {new: true, runValidators: true}).lean().exec();
+        const update = shouldAdd
+            ? { $addToSet: { notifyUsers: userId } }
+            : { $pull: { notifyUsers: userId } };
+
+        const product = await Product.findByIdAndUpdate(
+            id,
+            update,
+            { new: true, runValidators: true }
+        ).lean().exec();
+
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
 
-        // Respond immediately
         res.status(200).json({
             success: true,
-            message: shouldAdd ? 'You have been notified.' : 'You have no longer be notified.',
+            message: shouldAdd
+                ? 'You have been added to notifications.'
+                : 'You will no longer receive notifications.',
             response: null,
         });
+
     } catch (error) {
-        console.error('Error fetching product:', error);
-        return res.status(500).json({success: false, message: 'Error fetching product'});
+        console.error('Error updating notifyUsers:', error);
+        return res.status(500).json({ success: false, message: 'Failed to update notifications.' });
     }
-}
+};
 
 export const bulkUpload = async (req, res) => {
     try {
@@ -518,8 +539,6 @@ export const bulkUpload = async (req, res) => {
             product.updatedBy = req.user.id;
             product.createdAt = new Date();
             product.updatedAt = new Date();
-            product.cart = false;
-            product.wishlist = false;
             product.bulkUpload = true;
             arr.push(product);
         }

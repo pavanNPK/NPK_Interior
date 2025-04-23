@@ -19,7 +19,6 @@ import {FormControl, ReactiveFormsModule} from "@angular/forms";
 import {DataViewModule} from "primeng/dataview";
 import {UserDTO} from "../../../models/userDTO";
 import {EventService} from "../../../shared/services/event.service";
-import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-view-products',
@@ -83,6 +82,7 @@ export class ViewProductsComponent implements OnInit {
         // Set loading to false when complete
         this.loading = false;
         this.whenSearch = icon;
+        this.eventService.triggerNavbar();
       },
     });
   }
@@ -106,7 +106,7 @@ export class ViewProductsComponent implements OnInit {
           if (response.success) {
             // this.toastService.control(response.message, type, {duration: 2000});
           } else {
-            this.toastService.danger(`Failed to add the product to ${type}`, type, {duration: 2000});
+            this.toastService.danger(response.message, type, {duration: 2000});
           }
         } else {
           this.toastService.danger(`You don't have permission to add to ${type}.`, type, {duration: 2000});
@@ -118,7 +118,6 @@ export class ViewProductsComponent implements OnInit {
       complete: () => {
         this.loading = true;
         this.loadProducts(this.productSearch.value || '', !!this.productSearch.value);
-        this.eventService.triggerNavbar();
       }
     })
   }

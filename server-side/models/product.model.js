@@ -31,6 +31,8 @@ const productSchema = new mongoose.Schema({
     }],
     images: [],
     notifyUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    cartUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    wishlistUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     specifications: {
         brand: String,
         washingInstructions: String,
@@ -47,13 +49,14 @@ const productSchema = new mongoose.Schema({
     isTrending: { type: Boolean, default: false },
     isNewArrival: { type: Boolean, default: false },
     bulkUpload: { type: Boolean, default: false },
-    cart: { type: Boolean, default: false },
-    wishlist: { type: Boolean, default: false },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
     createdBy: {  type: mongoose.Schema.Types.ObjectId, ref: "User", required: true  },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
+
+// Create a text index on the name field for searching
+productSchema.index({ name: 'text' });
 
 // Create and export the Product model using ES module syntax
 const Product = mongoose.model('Product', productSchema);
