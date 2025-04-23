@@ -20,8 +20,8 @@
 .productSubTitle {
   font-size: 12px;
   font-weight: 500;
-  line-height: 1.2em; /* Each line is 1.2 times the font size */
-  height: 3.6em; /* 1.2em * 4 = 4.8em to fit exactly 4 lines */
+  line-height: 1.3em; /* Each line is 1.2 times the font size */
+  height: 2.2em; /* 1.2em * 4 = 4.8em to fit exactly 4 lines */
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3; /* Limit to 4 lines */

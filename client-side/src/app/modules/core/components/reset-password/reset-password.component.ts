@@ -57,12 +57,38 @@ export class ResetPasswordComponent implements OnInit{
   get r(){
     return this.resetPasswordForm.controls
   }
+  // ngOnInit() {
+  //   this.token = this.cookieService.get('resetToken');
+  //   if (this.token){
+  //     this.loadForm();
+  //     this.loading = true;
+  //   }
+  // }
   ngOnInit() {
-    this.token = this.cookieService.get('resetToken');
-    if (this.token){
-      this.loadForm();
-      this.loading = true;
-    }
+    // First check for token in URL parameters
+    this.route.queryParams.subscribe(params => {
+      if (params['token']) {
+        // If token exists in URL, save it to cookie
+        this.token = params['token'];
+        this.cookieService.set('resetToken', this.token, {
+          path: '/',
+          sameSite: 'Lax'
+        });
+        this.loadForm();
+        this.loading = true;
+      } else {
+        // If not in URL, check cookie
+        this.token = this.cookieService.get('resetToken');
+        if (this.token) {
+          this.loadForm();
+          this.loading = true;
+        } else {
+          // No token found - show access denied
+          this.loading = false;
+          this.ms.add({severity: 'error', summary: 'Error', detail: 'Invalid or expired reset link'});
+        }
+      }
+    });
   }
   loadForm() {
     this.resetPasswordForm = this.fb.group({

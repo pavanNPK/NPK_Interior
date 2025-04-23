@@ -338,6 +338,58 @@ export const loginUser = async (req, res) => {
     }
 };
 
+// export const forgotPassword = async (req, res) => {
+//     try {
+//         const { email } = req.body;
+//         const user = await User.findOne({ email }, {}, { lean: true }).exec();
+//         if (!user) {
+//             return res.json({response: 'notFound', success: false, message: 'Entered email is not registered' });
+//         }
+//
+//         // Generate password reset token
+//         const resetToken = jwt.sign(
+//             { id: user._id },
+//             process.env.JWT_SECRET || 'default-jwt-secret',
+//             { expiresIn: '15m' }
+//         );
+//
+//         // Store reset token in Redis
+//         await redis.set(`resetToken:${user._id}`, resetToken, 'EX', 900); // 15 minutes
+//
+//         const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:4200'}/reset-password`;
+//
+//         const emailSent = await sendForgotPasswordEmail(email, resetUrl);
+//         if (!emailSent) {
+//             return res.status(500).json({
+//                 response: null,
+//                 success: false,
+//                 message: 'Error sending forgot password email'
+//             });
+//         }
+//         // Set secure, HTTP-only cookie (token is not accessible by JavaScript)
+//         // res.cookie('resetToken', resetToken, {
+//         //     httpOnly: true,    // Prevents client-side JavaScript access
+//         //     secure: process.env.NODE_ENV === 'production', // Secure in HTTPS (only in production)
+//         //     sameSite: 'Strict', // Prevents CSRF attacks
+//         //     maxAge: 900000 // 15 minutes
+//         // });
+//         // Update in your forgotPassword controller
+//         res.cookie('resetToken', resetToken, {
+//             httpOnly: false,  // Allow JavaScript access since Angular needs to read it
+//             secure: false,    // Don't require HTTPS for localhost
+//             sameSite: 'Lax', // Allow cookies to be sent with navigation from email
+//             maxAge: 900000,   // 15 minutes
+//             path: '/',        // Available on all paths
+//             domain: 'localhost' // Explicitly set domain for localhost
+//         });
+//
+//         res.json({response: email, success: true, message: 'Email sent successfully' });
+//     } catch (error) {
+//         console.error('Error sending OTP:', error);
+//         res.json({response: null, success: false, message: 'Error sending OTP' });
+//     }
+// };
+
 export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
@@ -350,13 +402,14 @@ export const forgotPassword = async (req, res) => {
         const resetToken = jwt.sign(
             { id: user._id },
             process.env.JWT_SECRET || 'default-jwt-secret',
-            { expiresIn: '15m' }
+            { expiresIn: '5m' }
         );
 
         // Store reset token in Redis
-        await redis.set(`resetToken:${user._id}`, resetToken, 'EX', 900); // 15 minutes
+        await redis.set(`resetToken:${user._id}`, resetToken, 'EX', 300); // 5 minutes
 
-        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:4200'}/reset-password`;
+        // Include the token directly in the URL
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:4200'}/reset-password?token=${resetToken}`;
 
         const emailSent = await sendForgotPasswordEmail(email, resetUrl);
         if (!emailSent) {
@@ -366,20 +419,6 @@ export const forgotPassword = async (req, res) => {
                 message: 'Error sending forgot password email'
             });
         }
-        // Set secure, HTTP-only cookie (token is not accessible by JavaScript)
-        // res.cookie('resetToken', resetToken, {
-        //     httpOnly: true,    // Prevents client-side JavaScript access
-        //     secure: process.env.NODE_ENV === 'production', // Secure in HTTPS (only in production)
-        //     sameSite: 'Strict', // Prevents CSRF attacks
-        //     maxAge: 900000 // 15 minutes
-        // });
-        res.cookie('resetToken', resetToken, {
-            httpOnly: false, // Allows frontend to access it
-            secure: false,   // Set to true only in production
-            sameSite: 'Lax', // Allows cookie for same-origin requests
-            maxAge: 900000,   // 15 minutes
-            path: '/'
-        });
 
         res.json({response: email, success: true, message: 'Email sent successfully' });
     } catch (error) {
@@ -387,7 +426,6 @@ export const forgotPassword = async (req, res) => {
         res.json({response: null, success: false, message: 'Error sending OTP' });
     }
 };
-
 const sendForgotPasswordEmail = async (email, resetUrl) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -440,47 +478,98 @@ const sendForgotPasswordEmail = async (email, resetUrl) => {
 
 export const resetPassword = async (req, res) => {
     try {
-        const {password, token} = req.body;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-jwt-secret');
+        const { password, token } = req.body;
+
+        if (!token || !password) {
+            return res.status(400).json({
+                response: null,
+                success: false,
+                message: 'Password and token are required'
+            });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-jwt-secret');
+        } catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                return res.status(401).json({
+                    response: null,
+                    success: false,
+                    message: 'Password reset token has expired'
+                });
+            }
+            return res.status(401).json({
+                response: null,
+                success: false,
+                message: 'Invalid reset token'
+            });
+        }
+
         // Check if token exists in Redis
         const storedToken = await redis.get(`resetToken:${decoded.id}`);
         if (!storedToken || storedToken !== token) {
-            return res.status(400).json({
+            return res.status(401).json({
                 response: null,
                 success: false,
                 message: 'Invalid or expired reset token'
             });
         }
+
         const userId = decoded.id;
-        const user = await User.findById(userId).exec();
-        if (!user) {
-            return res.json({response: null, success: false, message: 'User not found'});
-        }
+
         // Hash the new password
         const salt = await bcrypt.genSalt(10);
-        // Update user password
-        user.password = await bcrypt.hash(password, salt);
-        await user.save();
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Update user directly without fetching first
+        const updateResult = await User.updateOne(
+            { _id: userId },
+            {
+                $set: {
+                    password: hashedPassword,
+                    verifiedOn: new Date(),
+                    isVerified: true
+                }
+            }
+        );
+
+        if (updateResult.matchedCount === 0) {
+            return res.status(404).json({
+                response: null,
+                success: false,
+                message: 'User not found'
+            });
+        }
 
         // Delete the reset token from Redis
         await redis.del(`resetToken:${decoded.id}`);
 
-        // send email template
-        await sendChangedPasswordEmail(user.firstName + user.lastName, user.email);
+        // Clear the reset token cookie if it exists
+        res.clearCookie('resetToken', { path: '/' });
 
-        res.json({response: user, success: true, message: 'Password reset successfully'});
-    }catch (error) {
-        console.error('Error resetting password:', error);
-        if (error.name === 'TokenExpiredError') {
-            return res.json({
-                response: null,
-                success: false,
-                message: 'Password reset token has expired'
-            });
+        // Get user email for confirmation email
+        const user = await User.findById(userId).lean().exec();
+
+        // Send email notification about password change
+        if (user) {
+            await sendChangedPasswordEmail(user.firstName + ' ' + user.lastName, user.email);
         }
-        res.json({response: null, success: false, message: 'Error resetting password' });
+
+        return res.status(200).json({
+            response: user ? { email: user.email } : null,
+            success: true,
+            message: 'Password reset successfully'
+        });
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        return res.status(500).json({
+            response: null,
+            success: false,
+            message: 'Error resetting password'
+        });
     }
-}
+};
 
 const sendChangedPasswordEmail = async (userName, email) => {
     const transporter = nodemailer.createTransport({

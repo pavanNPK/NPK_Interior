@@ -59,7 +59,7 @@
                       </span>
                     </small>
                   </div>
-                  <div class="row mt-2">
+                  <div class="row mt-2 " *ngIf="userData.role === 'shopper'">
                     <div class="col-6" *ngIf="item.remainingCount > 0">
                       <button nbButton size="small"
                               (click)="storeCartAndFav(item._id, item.cart, 'cart')"
@@ -85,7 +85,7 @@
                       </button>
                     </div>
                   </div>
-                  <div class="row mt-2" *ngIf="last">
+                  <div class="row mt-2" *ngIf="userData.role === 'supervise'">
                     <div class="col-4">
                       <button nbButton size="small"
                               [routerLink]="['/products/details']" [queryParams]="{product: item.slug}"
