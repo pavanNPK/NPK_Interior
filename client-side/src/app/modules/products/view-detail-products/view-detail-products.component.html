@@ -65,7 +65,7 @@
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                  <div>
+                  <div *ngIf="!showAction">
                     <button nbButton size="small"
                             nbTooltip="Add the product to cart." nbTooltipPlacement="bottom"
                             (click)="storeCartAndFav(product._id, product.cart, 'cart')"

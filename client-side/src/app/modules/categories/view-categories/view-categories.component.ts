@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {CategoriesDTO} from "../../../models/categoriesDTO";
 import {CategoriesService} from "../../../services/categories.service";
 import {ResponseWithError} from "../../../models/commonDTO";
@@ -16,6 +16,7 @@ import {DividerModule} from "primeng/divider";
 import {DatePipe, NgClass, NgForOf, NgIf} from "@angular/common";
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NoDataComponent} from "../../core/components/no-data/no-data.component";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
   selector: 'app-view-categories',
@@ -51,7 +52,12 @@ export class ViewCategoriesComponent implements OnInit {
   catName: string = '';
   catId: string = '';
   categoryForm?: FormGroup | any;
-  constructor(private dialogService: NbDialogService,private categoriesService: CategoriesService,private toastService: NbToastrService,private fb: FormBuilder) { }
+  private authS = inject(AuthService)
+  showAction: boolean = this.authS.giveAccess;
+  constructor(private dialogService: NbDialogService,
+              private categoriesService: CategoriesService,
+              private toastService: NbToastrService,
+              private fb: FormBuilder) { }
   get c(){
     return this.categoryForm?.controls;
   }

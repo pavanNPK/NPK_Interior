@@ -40,6 +40,10 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  public get giveAccess(): boolean {
+    return this.currentUserSubject.value?.role?.startsWith('sup') ?? false;
+  }
+
   // Login with your existing service
   login(email: string, password: string): Observable<ResponseWithError<User>> {
     return this.userService.loginUser({ email, password }).pipe(

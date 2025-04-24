@@ -14,9 +14,9 @@ export const roleGuard: CanActivateFn = (
   const currentUrl = state.url.toLowerCase();
   if (role.startsWith('sup')) return true;
   if (role.startsWith('shop')) {
-    const restrictedPaths = ['category', 'categories', 'subcategory'];
+    const restrictedPaths = ['categories'];
     const allowedPaths = ['view', 'details'];
-    const segments = currentUrl.split('/');
+    const segments = currentUrl.split('?')[0].split('/');
     // If any restricted path is present in the URL segments, deny access
     if (segments.some(seg => restrictedPaths.includes(seg))) {
       return router.createUrlTree(['/access-denied']);

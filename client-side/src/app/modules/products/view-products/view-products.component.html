@@ -1,7 +1,7 @@
 <div class="viewProductsMain" *ngIf="!loading">
   <div class="appLayoutHeader">
     <div class="appLayoutHeaderText d-flex justify-content-between align-items-center">
-      <h5 class="fw-semibold m-0"> Products</h5>
+      <h5 class="fw-semibold m-0 small-text hide-on-very-small sm:-mr-3"> Products</h5>
       <div class="d-flex gap-3 align-items-center">
         <nb-form-field>
           <nb-icon nbSuffix class="cursor-pointer-npk" icon="search-outline" pack="eva"
@@ -19,7 +19,7 @@
                 class=" rounded-2 fw-semibold">
           <nb-icon icon="flip-2-outline"></nb-icon>
         </button>
-        <button nbButton size="small"
+        <button nbButton size="small" *ngIf="showAction"
                 [routerLink]="['/products/add']"
                 nbTooltip="By clicking this you can add the products" nbTooltipPlacement="bottom"
                 class=" rounded-2 fw-semibold">
@@ -59,7 +59,7 @@
                       </span>
                     </small>
                   </div>
-                  <div class="row mt-2 " *ngIf="userData.role === 'shopper'">
+                  <div class="row mt-2 " *ngIf="!showAction">
                     <div class="col-6" *ngIf="item.remainingCount > 0">
                       <button nbButton size="small"
                               (click)="storeCartAndFav(item._id, item.cart, 'cart')"
@@ -85,7 +85,7 @@
                       </button>
                     </div>
                   </div>
-                  <div class="row mt-2" *ngIf="userData.role === 'supervise'">
+                  <div class="row mt-2" *ngIf="showAction">
                     <div class="col-4">
                       <button nbButton size="small"
                               [routerLink]="['/products/details']" [queryParams]="{product: item.slug}"

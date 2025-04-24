@@ -10,6 +10,76 @@
 @import "primeicons/primeicons.css";
 @import "primeng/resources/themes/lara-light-blue/theme.css";
 @import "primeng/resources/primeng.min.css";
+
+$very-small-screen: 400px;
+$small-screen: 576px;
+$medium-screen: 768px;
+$large-screen: 992px;
+$x-large-screen: 1200px;
+
+@mixin very-small-screen {
+  @media (max-width: #{$very-small-screen}) {
+    @content;
+  }
+}
+@mixin small-screen {
+  @media (max-width: #{$small-screen}) {
+    @content;
+  }
+}
+
+@mixin medium-screen {
+  @media (min-width: #{$small-screen + 1px}) and (max-width: #{$medium-screen}) {
+    @content;
+  }
+}
+
+@mixin large-screen {
+  @media (min-width: #{$medium-screen + 1px}) and (max-width: #{$large-screen}) {
+    @content;
+  }
+}
+
+@mixin x-large-screen {
+  @media (min-width: #{$large-screen + 1px}) {
+    @content;
+  }
+}
+
+.hide-on-very-small, .navUserAction {
+  @include very-small-screen {
+    display: none;
+  }
+}
+
+.hide-on-small, .navUserAction {
+  @include small-screen {
+    display: none;
+  }
+}
+.small-text{
+  @include small-screen {
+    font-size: 1rem !important;
+  }
+}
+.hide-on-medium, .navUserAction {
+  @include medium-screen {
+    display: none;
+  }
+}
+
+.hide-on-large {
+  @include large-screen {
+    display: none;
+  }
+}
+
+.hide-on-x-large {
+  @include x-large-screen {
+    display: none;
+  }
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 6px;

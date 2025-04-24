@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {CurrencyPipe, Location, NgClass, NgForOf, NgIf} from "@angular/common";
 import {DividerModule} from "primeng/divider";
 import {
@@ -15,6 +15,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {ProductsService} from "../../../services/products.service";
 import {ResponseWithError} from "../../../models/commonDTO";
 import {EventService} from "../../../shared/services/event.service";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
   selector: 'app-view-detail-products',
@@ -42,7 +43,8 @@ export class ViewDetailProductsComponent implements OnInit{
   loading: boolean = false;
   previewImage: string = '';
   emiDetails: EMIDetailsDTO[] = [];
-
+  private authS = inject(AuthService)
+  showAction: boolean = this.authS.giveAccess;
   constructor(private location: Location,
               private router: Router,
               private route: ActivatedRoute,

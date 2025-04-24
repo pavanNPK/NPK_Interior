@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {ProductsService} from "../../../services/products.service";
 import {ProductsDTO} from "../../../models/productsDTO";
 import {ResponseWithError} from "../../../models/commonDTO";
@@ -19,6 +19,7 @@ import {FormControl, ReactiveFormsModule} from "@angular/forms";
 import {DataViewModule} from "primeng/dataview";
 import {UserDTO} from "../../../models/userDTO";
 import {EventService} from "../../../shared/services/event.service";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
   selector: 'app-view-products',
@@ -50,13 +51,14 @@ export class ViewProductsComponent implements OnInit {
   userData?: UserDTO | any;
   productSearch = new FormControl('');
   pgSize: number = 50;
+  private authS = inject(AuthService)
+  showAction: boolean = this.authS.giveAccess;
   constructor(private productsService: ProductsService,
               private toastService: NbToastrService,
               private eventService: EventService,
               private dialogService: NbDialogService)
   {
-    const storedUser = localStorage.getItem('user');
-    this.userData = storedUser ? JSON.parse(storedUser) : null;
+    this.userData = this.authS.currentUserValue || null;
   }
 
   ngOnInit(): void {

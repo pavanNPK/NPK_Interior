@@ -101,6 +101,14 @@ export const getProductById = async (req, res) => {
             ? product.notifyUsers.some(id => id.toString() === objectUserId.toString())
             : false;
 
+        product.cart = Array.isArray(product.cartUsers) && objectUserId
+            ? product.cartUsers.some(id => id.toString() === objectUserId.toString())
+            : false;
+
+        product.wishlist = Array.isArray(product.wishlistUsers) && objectUserId
+            ? product.wishlistUsers.some(id => id.toString() === objectUserId.toString())
+            : false;
+
         res.json({ response: product, success: true, message: "Product fetched successfully" });
     } catch (error) {
         console.error('Error:', error);

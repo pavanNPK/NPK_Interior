@@ -26,6 +26,7 @@
           <nb-icon icon="flip-2-outline"></nb-icon>
         </button>
         <button nbButton size="small"
+                *ngIf="showAction"
                 [routerLink]="['/categories/add']"
                 nbTooltip="By clicking this you can add the categories and sub categories" nbTooltipPlacement="bottom"
                 class=" rounded-2 fw-semibold">
@@ -59,7 +60,7 @@
                   <p class="mb-1 fw-semibold">{{i+1 + '.'}}{{j+1 + '. ' + subCategory.name}}</p>
                   <p class="m-0 label text-black-50 ms-3">{{subCategory.description}}</p>
                 </div>
-                <div>
+                <div *ngIf="showAction">
                   <button nbButton size="small"
                           (click)="viewProducts(subCategory._id)"
                           nbTooltip="By clicking this you can see the products of this sub category." nbTooltipPlacement="bottom"

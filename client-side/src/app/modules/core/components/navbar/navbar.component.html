@@ -1,32 +1,31 @@
 <div class="mainNavbar">
   <div class="row">
-    <div class="col-sm-12 col-md-2 col-lg-2 col-xl-2 ps-0">
-      <div class="navUser d-flex align-items-center gap-3">
-        <div class="navUserCoverImg">
+    <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 m-auto">
+      <div class="navUser d-flex align-items-center gap-3 d-none">
+        <div class="navUserCoverImg d-none">
           <img src="./assets/core/logo.png" alt="User Cover Image" class="userCoverImage" />
         </div>
       </div>
+      <nb-icon class="cursor-pointer-npk me-3"
+               [hidden]="sidebarVisible"
+               nbTooltip="'Menu'"
+               (click)="sidebarVisible = !sidebarVisible; showProfile = false"
+               nbTooltipPlacement="bottom"
+               style="font-size: 30px"
+               nbPrefix icon="keypad-outline"
+               pack="eva"
+               [nbContextMenu]="items"
+      ></nb-icon>
     </div>
-    <div class="col-sm-12 col-md-10 col-lg-10 col-xl-10 pe-0 d-block m-auto">
+    <div class="col-10 col-sm-10 col-md-10 col-lg-10 col-xl-10 d-block m-auto">
       <div class="d-flex w-100 justify-content-end align-items-center">
-        <div>
-          <nb-icon class="cursor-pointer-npk me-3"
-                   nbTooltip="Menu"
-                   (click)="sidebarVisible = !sidebarVisible; showProfile = false"
-                   nbTooltipPlacement="bottom"
-                   style="font-size: 30px"
-                   nbPrefix icon="grid-outline"
-                   pack="eva"
-                   [nbContextMenu]="items"
-          ></nb-icon>
-        </div>
         <div class="navGlobalSearch">
           <nb-form-field>
             <nb-icon nbPrefix icon="search-outline" pack="eva"></nb-icon>
             <input type="text" placeholder="search or ask a question" nbTooltipPlacement="bottom-start" nbTooltip="Global Search" nbInput fullWidth>
           </nb-form-field>
         </div>
-        <div class="navUserActions d-flex justify-content-between align-items-center">
+        <div class="navUserActions d-flex justify-content-between align-items-center" >
           <div class="navUserAction">
             <nb-icon nbPrefix icon="home-outline" pack="eva"
                      (click)="sidebarVisible = false"
@@ -37,14 +36,14 @@
                      (click)="sidebarVisible = false"
                      nbTooltipPlacement="bottom" pack="eva"></nb-icon>
           </div>
-          <div class="navUserAction">
+          <div class="navUserAction" *ngIf="!showAction">
             <nb-icon nbPrefix icon="shopping-bag-outline"
                      (click)="sidebarVisible = false"
                      nbTooltip="Cart" nbTooltipPlacement="bottom"
                      [routerLink]="['/cart/view']" pack="eva"></nb-icon>
             <nb-badge *ngIf="cartCount > 0" class="navUserActionBadge" [text]="cartCount" status="danger" position="top right"></nb-badge>
           </div>
-          <div class="navUserAction">
+          <div class="navUserAction" *ngIf="!showAction">
             <nb-icon nbPrefix icon="heart-outline"
                      (click)="sidebarVisible = false"
                      nbTooltip="Wishlist" nbTooltipPlacement="bottom"
@@ -61,15 +60,16 @@
           </div>
           <div class="navUserActionProfile">
             <nb-user size="medium" name="{{userData?.userName}}"
+                     [onlyPicture]="isCompactView"
                      (click)="op.toggle($event)"
-                     picture="./assets/profile/userPic.webp">
+                     [picture]="userData.role.startsWith('shop') ? './assets/profile/userPic.webp' : './assets/profile/admin.png'">
             </nb-user>
             <div class="">
               <p-overlayPanel #op>
                 <div class="profileManagement bg-white rounded-2 text-center">
                   <div class="profileInfo">
                     <nb-user size="large" onlyPicture class="d-flex justify-content-center"
-                             picture="./assets/profile/userPic.webp">
+                             [picture]="userData.role.startsWith('shop') ? './assets/profile/userPic.webp' : './assets/profile/admin.png'">
                     </nb-user>
                     <p class="fw-semibold mb-1 mt-2">{{ userData?.firstName }} {{userData?.lastName}}</p>
                     <small class="text-black-50 d-block mb-1 small">{{ userData?.email }}</small>
