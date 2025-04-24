@@ -229,7 +229,6 @@
           principal: discountedPrice
         });
       });
-      console.log('EMI Options:', emiDetails); // or use them in a UI popup
       this.p.at(i).get('emiDetails')?.setValue(emiDetails);
     }
 
@@ -350,8 +349,6 @@
       this.dialogService.open(bulkPDCTExcelFormat, {closeOnBackdropClick: false});
     }
     uploadBulkProducts(){
-      console.log(this.excelData);
-      console.log(this.tableHeaders);
       const getValue = (obj: any, key: string, fallback: any = 'changed') => {
         return Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : fallback;
       };
@@ -416,20 +413,15 @@
           })
           .filter(Boolean)
       }));
-      console.log(products)
 
       this.ps.bulkUploadProducts(products).subscribe({
         next: (response: any) => {
-          if (response.role !== 'notAllowed') {
-            if (response.success) {
-              this.toastService.success('Successfully added new products', 'Products', {duration: 2000});
-              this.closeUpload();
-              this.router.navigate(['/products/view']);
-            } else {
-              this.toastService.danger('Failed to add new products', 'Products', {duration: 2000});
-            }
+          if (response.success) {
+            this.toastService.success('Successfully added new products', 'Products', {duration: 2000});
+            this.closeUpload();
+            this.router.navigate(['/products/view']);
           } else {
-            this.toastService.danger(`You don't have permission to create.`,  'Bulk Products', {duration: 2000});
+            this.toastService.danger('Failed to add new products', 'Products', {duration: 2000});
           }
         }
       })
@@ -473,21 +465,17 @@
 
       this.ps.addProducts(formData).subscribe({
         next: (response: any) => {
-          if (response.role !== 'notAllowed') {
-            if (response.success) {
-              this.submitted = false;
-              this.addProductsForm.reset();
-              this.p.reset();
-              this.uploadedFiles = [];
-              this.router.navigate(['/products/view']);
-              this.toastService.success('Successfully added new products', 'Products', {duration: 2000});
-            } else {
-              this.toastService.danger('Failed to add new products', 'Products', {duration: 2000});
-            }
-            this.loading = false;
+          if (response.success) {
+            this.submitted = false;
+            this.addProductsForm.reset();
+            this.p.reset();
+            this.uploadedFiles = [];
+            this.router.navigate(['/products/view']);
+            this.toastService.success('Successfully added new products', 'Products', {duration: 2000});
           } else {
-            this.toastService.danger(`You don't have permission to create.`,  'Add Product', {duration: 2000});
+            this.toastService.danger('Failed to add new products', 'Products', {duration: 2000});
           }
+          this.loading = false;
         },
         error: (err: any) => {
           this.toastService.danger({ severity: 'error', summary: 'Error', detail: err.message });

@@ -14,11 +14,10 @@ import {
 import {NbButtonModule, NbFormFieldModule, NbIconModule, NbInputModule} from "@nebular/theme";
 import {Button} from "primeng/button";
 import {MessageService} from "primeng/api";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {UserService} from "../../../../services/user.service";
 import {ResponseWithError} from "../../../../models/commonDTO";
 import {CookieService} from "ngx-cookie-service";
-import {AccessDeniedComponent} from "../access-denied/access-denied.component";
 
 @Component({
   selector: 'app-reset-password',
@@ -34,7 +33,7 @@ import {AccessDeniedComponent} from "../access-denied/access-denied.component";
     NbInputModule,
     NgClass,
     Button,
-    AccessDeniedComponent
+    RouterLink
   ],
   providers: [MessageService],
   templateUrl: './reset-password.component.html',
@@ -57,13 +56,6 @@ export class ResetPasswordComponent implements OnInit{
   get r(){
     return this.resetPasswordForm.controls
   }
-  // ngOnInit() {
-  //   this.token = this.cookieService.get('resetToken');
-  //   if (this.token){
-  //     this.loadForm();
-  //     this.loading = true;
-  //   }
-  // }
   ngOnInit() {
     // First check for token in URL parameters
     this.route.queryParams.subscribe(params => {
@@ -151,6 +143,8 @@ export class ResetPasswordComponent implements OnInit{
         error: (err: any) => {
           this.loading = false;
           this.ms.add({severity: 'error', summary: 'Error', detail: err.error.message});
+        }, complete: () => {
+          this.cookieService.delete('resetToken', '/');
         }
       })
     }

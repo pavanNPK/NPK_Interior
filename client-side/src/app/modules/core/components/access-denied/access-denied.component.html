@@ -5,5 +5,9 @@
   <p class="text-dark mb-1">Please check your credentials or contact the administrator.</p>
   <p class="text-dark">Click below to log in again.</p>
 
-  <p-button label="Go to Login" [routerLink]="['/login']" severity="contrast"  />
+  <div class="gap-2 d-flex accessDeniedButtons">
+    <p-button class="btn btn-sm" label="Re-Login" [routerLink]="['/dashboard/view']" severity="primary"  />
+    <p-button class="btn btn-sm"  label="Back to Previous" (click)="backToPrev()" severity="contrast"  />
+    <p-button class="btn btn-sm"  label="Logout" [routerLink]="['/login']" severity="warning"  />
+  </div>
 </div>

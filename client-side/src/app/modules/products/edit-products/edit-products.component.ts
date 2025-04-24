@@ -88,13 +88,10 @@ export class EditProductsComponent implements OnInit{
           this.categoriesData = response[0].response || [];
         else
           this.categoriesData = [];
-        if (response[1].role !== 'notAllowed')
-        {
-          if (response[1].success)
-            this.product = response[1].response || {};
-          else
-            this.product = {};
-        }
+        if (response[1].success)
+          this.product = response[1].response || {};
+        else
+          this.product = {};
       },
       error: (error) => console.error('Error fetching products', error),
       complete: () => {
@@ -233,7 +230,6 @@ export class EditProductsComponent implements OnInit{
         principal: discountedPrice
       });
     });
-    console.log('EMI Options:', emiDetails); // or use them in a UI popup
     this.editProductsForm.get('emiDetails')?.setValue(emiDetails);
   }
   annualInterestChange(event: any) {
@@ -248,7 +244,6 @@ export class EditProductsComponent implements OnInit{
     let filesMap = event.currentFiles.filter((file: any) => {
       return file
     });
-    console.log(filesMap);
     this.editProductsForm.get('images')?.setValue(filesMap);
     this.getImageCount()
   }
@@ -305,26 +300,17 @@ export class EditProductsComponent implements OnInit{
     if (this.removedFiles.length){
       formData.append('removedImages', JSON.stringify(this.removedFiles));
     }
-    // @ts-ignore
-    for (const value of formData.values()) {
-      console.log(value);
-    }
 
     this.ps.updateProduct(this.slug, formData).subscribe({
       next: (response) => {
-        if (response.role !== 'notAllowed') {
-          if (response.success) {
-            this.submitted = false;
-            this.editProductsForm.reset();
-            this.commonFiles =this.removedFiles = this.loadedFiles = this.uploadedFiles = [];
-            this.router.navigate(['/products/view']);
-            this.toastService.success('Successfully updated the product', this.product.name, {duration: 2000});
-          } else {
-            this.toastService.danger('Failed to update the product', this.product.name, {duration: 2000});
-          }
-          this.loading = false;
+        if (response.success) {
+          this.submitted = false;
+          this.editProductsForm.reset();
+          this.commonFiles =this.removedFiles = this.loadedFiles = this.uploadedFiles = [];
+          this.router.navigate(['/products/view']);
+          this.toastService.success('Successfully updated the product', this.product.name, {duration: 2000});
         } else {
-          this.toastService.danger(`You don't have permission to update.`,  this.product.name, {duration: 2000});
+          this.toastService.danger('Failed to update the product', this.product.name, {duration: 2000});
         }
       },
       error: (error) => {

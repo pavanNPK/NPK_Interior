@@ -16,7 +16,6 @@ import {DividerModule} from "primeng/divider";
 import {DatePipe, NgClass, NgForOf, NgIf} from "@angular/common";
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NoDataComponent} from "../../core/components/no-data/no-data.component";
-import {AccessDeniedComponent} from "../../core/components/access-denied/access-denied.component";
 
 @Component({
   selector: 'app-view-categories',
@@ -37,14 +36,12 @@ import {AccessDeniedComponent} from "../../core/components/access-denied/access-
     NoDataComponent,
     DatePipe,
     NgClass,
-    AccessDeniedComponent,
   ],
   templateUrl: './view-categories.component.html',
   styleUrl: './view-categories.component.scss'
 })
 export class ViewCategoriesComponent implements OnInit {
   loading: boolean = false;
-  roleAllow: boolean = true;
   categories: CategoriesDTO[] = [];
   categorySearch = new FormControl('');
   whenSearch: boolean = false;
@@ -64,16 +61,12 @@ export class ViewCategoriesComponent implements OnInit {
   loadCategories(type: any, value: any, icon: boolean){
     this.categoriesService.getCategories('', value).subscribe({
       next: (response: ResponseWithError<CategoriesDTO[]>) => {
-        if (response.role !== 'notAllowed'){
-          if (response.success){
-            this.categories = response.response || [];
-          } else{
-            this.categories = [];
-          }
-          this.whenSearch = icon;
-        } else {
-          this.roleAllow = false;
+        if (response.success){
+          this.categories = response.response || [];
+        } else{
+          this.categories = [];
         }
+        this.whenSearch = icon;
       },
       error: (error) => console.error('Error fetching products', error),
       complete: () => (this.loading = true),
@@ -106,16 +99,12 @@ export class ViewCategoriesComponent implements OnInit {
   delete(ref: any) {
     this.categoriesService.deleteCategory(this.catId, this.catType).subscribe( {
       next: (response: ResponseWithError<any>) => {
-        if (response.role !== 'notAllowed') {
-          if (response.success) {
-            this.toastService.success('Successfully delete the Category', this.catName, {duration: 2000});
-            this.loadCategories('', '', false);
-            ref.close();
-          } else {
-            this.toastService.danger('Failed to delete the Category', this.catName, {duration: 2000});
-          }
+        if (response.success) {
+          this.toastService.success('Successfully delete the Category', this.catName, {duration: 2000});
+          this.loadCategories('', '', false);
+          ref.close();
         } else {
-          this.toastService.danger(`You don't have permission to delete.`,  `${this.catType}`, {duration: 2000});
+          this.toastService.danger('Failed to delete the Category', this.catName, {duration: 2000});
         }
       },
       error: (error) => {
@@ -147,20 +136,16 @@ export class ViewCategoriesComponent implements OnInit {
       const formValues = this.categoryForm.value;
       this.categoriesService.updateCategory(formValues, this.catType).subscribe({
         next: (response: ResponseWithError<CategoriesDTO>) => {
-          if (response.role !== 'notAllowed'){
-            if (response.success){
-              this.loadCategories('', '', false);
-              this.loadForm = false;
-              this.submitted = false;
-              this.categorySearch.setValue('');
-              ref.close();
-              this.toastService.success(`Successfully updated the ${this.catType}`, this.catName, {duration: 2000});
-            }
-            else{
-              this.toastService.danger(`Failed to update the ${this.catType}`, this.catName, {duration: 2000});
-            }
-          } else {
-            this.toastService.danger(`You don't have permission to update.`,  `${this.catType}`, {duration: 2000});
+          if (response.success){
+            this.loadCategories('', '', false);
+            this.loadForm = false;
+            this.submitted = false;
+            this.categorySearch.setValue('');
+            ref.close();
+            this.toastService.success(`Successfully updated the ${this.catType}`, this.catName, {duration: 2000});
+          }
+          else{
+            this.toastService.danger(`Failed to update the ${this.catType}`, this.catName, {duration: 2000});
           }
         },
         error: (error: any) => {

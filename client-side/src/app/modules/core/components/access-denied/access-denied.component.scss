@@ -1,5 +1,5 @@
 .accessDenied{
-  height: 70vh;
+  height: 100vh;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -9,4 +9,12 @@
 .notFoundImage{
   width: 12rem;
   mix-blend-mode: multiply;
+}
+::ng-deep {
+  .accessDeniedButtons{
+    border-radius: 8px !important;
+    button{
+      border-radius: 8px !important;
+    }
+  }
 }

@@ -5,7 +5,7 @@ import {wishlistSchema} from "../models/wishlist.model.js";
 import slugify from 'slugify';
 import fs from 'fs';
 import {deleteFileFromS3, getSignedUrlForS3, migrateS3Folder, uploadWithPutObject} from "./s3upload.controller.js";
-import {closeDbConnection, getDbConnection, getModel} from "./dbSwitch.controller.js";
+import {getDbConnection, getModel} from "./dbSwitch.controller.js";
 
 // Get all products
 export const getProducts = async (req, res) => {
@@ -16,8 +16,6 @@ export const getProducts = async (req, res) => {
 
         const userId = req.user.id;
         const objectUserId = userId ? new Object(userId) : null;
-
-        console.log(userId)
 
         const products = await Product.find(
             searchQuery,
@@ -41,8 +39,6 @@ export const getProducts = async (req, res) => {
 
         const signedProducts = await Promise.all(products.map(async (product) => {
             const { notifyUsers, cartUsers, wishlistUsers, images, ...rest } = product;
-
-            console.log(notifyUsers)
 
             const notified = Array.isArray(notifyUsers) && objectUserId
                 ? notifyUsers.some(id => id.toString() === objectUserId.toString())
@@ -92,8 +88,6 @@ export const getProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
     const userId = req.user.id;
     const objectUserId = userId ? new Object(userId) : null;
-
-    console.log(userId)
     try {
         const product = await Product.findOne({ slug: req.params.slug }).lean();
 
@@ -278,7 +272,6 @@ export const addProduct = async (req, res) => {
 
 // Update a product
 export const updateProduct = async (req, res) => {
-    console.log(req.user)
     const slug = req.params.slug;
     try {
         let productDetails = req.body;
@@ -385,8 +378,6 @@ export const updateProduct = async (req, res) => {
             delete productDetails.removedImages;
             delete productDetails.loadedImages;
             delete productDetails.oldName;
-
-            console.log(productDetails);
 
         } catch (e) {
             console.error("Error parsing product fields:", e);
@@ -519,7 +510,6 @@ export const notifyProductToUser = async (req, res) => {
 export const bulkUpload = async (req, res) => {
     try {
         const products  = req.body;
-        console.log(products);
         let arr = [];
         for (let i = 0; i < products.length; i++) {
             const product = products[i];

@@ -108,7 +108,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   logOut() {
     this.as.logout();
-    this.cookieService.delete('productData', '/');
+    this.cookieService.delete('resetToken', '/');
   }
 
   openInNewTab(comPrivacyPolicy: string) {

@@ -73,7 +73,6 @@ export class ViewProductsComponent implements OnInit {
         } else {
           this.products = [];
         }
-        console.log(this.products);
       },
       error: (error: any) => {
         this.toastService.danger(error, 'Error fetching products', {duration: 2000});
@@ -102,14 +101,10 @@ export class ViewProductsComponent implements OnInit {
   storeCartAndFav(product: any, typeValue: boolean, type: any) {
     this.productsService.addProductToCartOrWishlist(product, typeValue, type).subscribe({
       next: (response: ResponseWithError<any>) => {
-        if (response.role !== 'notAllowed') {
-          if (response.success) {
-            // this.toastService.control(response.message, type, {duration: 2000});
-          } else {
-            this.toastService.danger(response.message, type, {duration: 2000});
-          }
+        if (response.success) {
+          // this.toastService.control(response.message, type, {duration: 2000});
         } else {
-          this.toastService.danger(`You don't have permission to add to ${type}.`, type, {duration: 2000});
+          this.toastService.danger(response.message, type, {duration: 2000});
         }
       },
       error: (error) => {
@@ -124,14 +119,10 @@ export class ViewProductsComponent implements OnInit {
   notifyUserForProduct(product: any, typeValue: boolean) {
     this.productsService.notifyUserForProduct(product._id, typeValue).subscribe({
       next: (response: ResponseWithError<any>) => {
-        if (response.role !== 'notAllowed') {
-          if (response.success) {
-            this.toastService.success(response.message, product.name, {duration: 2000});
-          } else {
-            this.toastService.danger('Failed to notify the Product', product.name, {duration: 2000});
-          }
+        if (response.success) {
+          this.toastService.success(response.message, product.name, {duration: 2000});
         } else {
-          this.toastService.danger(`You don't have permission to notify.`,  `${product.name}`, {duration: 2000});
+          this.toastService.danger('Failed to notify the Product', product.name, {duration: 2000});
         }
       },
       error: (error) => {
@@ -153,14 +144,10 @@ export class ViewProductsComponent implements OnInit {
     ref.close();
     this.productsService.deleteProduct(this.productId).subscribe({
       next: (response: ResponseWithError<any>) => {
-        if (response.role !== 'notAllowed') {
-          if (response.success) {
-            this.toastService.success('Successfully delete the Product', this.productName, {duration: 2000});
-          } else {
-            this.toastService.danger('Failed to delete the Product', this.productName, {duration: 2000});
-          }
+        if (response.success) {
+          this.toastService.success('Successfully delete the Product', this.productName, {duration: 2000});
         } else {
-          this.toastService.danger(`You don't have permission to delete.`,  `${this.productName}`, {duration: 2000});
+          this.toastService.danger('Failed to delete the Product', this.productName, {duration: 2000});
         }
       },
       error: (error) => {

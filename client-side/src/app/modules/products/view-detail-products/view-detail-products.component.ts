@@ -62,15 +62,10 @@ export class ViewDetailProductsComponent implements OnInit{
   getProduct(slug: string) {
     this.ps.getProductById(slug).subscribe({
       next: (response: ResponseWithError<ProductsDTO>) => {
-        if (response.role !== 'notAllowed')
-        {
-          if (response.success)
-            this.product = response.response || {};
-          else
-            this.product = {};
-        } else {
-          this.toastService.danger(`You don't have permission to create.`,  'Add Category', {duration: 2000});
-        }
+        if (response.success)
+          this.product = response.response || {};
+        else
+          this.product = {};
       },
       error: (error) => console.error('Error fetching products', error),
       complete: () => {
@@ -100,14 +95,10 @@ export class ViewDetailProductsComponent implements OnInit{
   storeCartAndFav(product: any, typeValue: boolean, type: any) {
     this.ps.addProductToCartOrWishlist(product, typeValue, type).subscribe({
       next: (response: ResponseWithError<any>) => {
-        if (response.role !== 'notAllowed') {
-          if (response.success) {
-            // this.toastService.control(response.message, type, {duration: 2000});
-          } else {
-            this.toastService.danger(`Failed to add the product to ${type}`, type, {duration: 2000});
-          }
+        if (response.success) {
+          // this.toastService.control(response.message, type, {duration: 2000});
         } else {
-          this.toastService.danger(`You don't have permission to add to ${type}.`, type, {duration: 2000});
+          this.toastService.danger(`Failed to add the product to ${type}`, type, {duration: 2000});
         }
       },
       error: (error) => {
@@ -124,14 +115,10 @@ export class ViewDetailProductsComponent implements OnInit{
   notifyUserForProduct(product: any, typeValue: boolean) {
     this.ps.notifyUserForProduct(product._id, typeValue).subscribe({
       next: (response: ResponseWithError<any>) => {
-        if (response.role !== 'notAllowed') {
-          if (response.success) {
-            this.toastService.success(response.message, product.name, {duration: 2000});
-          } else {
-            this.toastService.danger('Failed to notify the Product', product.name, {duration: 2000});
-          }
+        if (response.success) {
+          this.toastService.success(response.message, product.name, {duration: 2000});
         } else {
-          this.toastService.danger(`You don't have permission to notify.`,  `${product.name}`, {duration: 2000});
+          this.toastService.danger('Failed to notify the Product', product.name, {duration: 2000});
         }
       },
       error: (error) => {

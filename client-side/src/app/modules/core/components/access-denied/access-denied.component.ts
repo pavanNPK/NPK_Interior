@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import {RouterLink} from "@angular/router";
 import {Button} from "primeng/button";
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'app-access-denied',
@@ -14,4 +15,9 @@ import {Button} from "primeng/button";
 })
 export class AccessDeniedComponent {
 
+  constructor(private location: Location) {
+  }
+  backToPrev() {
+    this.location.back();
+  }
 }

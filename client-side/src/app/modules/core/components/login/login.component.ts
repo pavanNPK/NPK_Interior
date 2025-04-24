@@ -4,7 +4,7 @@ import {NbButtonModule, NbFormFieldModule, NbIconModule, NbInputModule} from "@n
 import {NgClass, NgIf} from "@angular/common";
 import {DividerModule} from "primeng/divider";
 import {Button} from "primeng/button";
-import {Router, RouterLink} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {MessageService} from "primeng/api";
 import {UserService} from "../../../../services/user.service";
 import {RegisterUserDTO} from "../../../../models/userDTO";
@@ -39,12 +39,31 @@ export class LoginComponent implements OnInit{
   loading: boolean = false;
   showPassword : boolean = false;
   ifForgot: boolean = false;
-  constructor(private fb: FormBuilder,private as: AuthService, private us: UserService, private ms: MessageService, private router: Router) {
+  constructor(private fb: FormBuilder,
+              private as: AuthService,
+              private us: UserService,
+              private route: ActivatedRoute,
+              private ms: MessageService,
+              private router: Router) {
   }
   get l(){
     return this.loginForm.controls
   }
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.ifForgot = params['resetPassword'] === 'again';
+
+      if ('resetPassword' in params && params['resetPassword'] !== 'again') {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { resetPassword: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        });
+      }
+    });
+
+
     // Check if user is already authenticated
     if (this.as.isAuthenticated()) {
       return this.redirectAfterLogin();
