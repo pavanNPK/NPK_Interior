@@ -1,0 +1,68 @@
+<div class="viewWholesalersMain">
+  <div class="appLayoutHeader">
+    <div class="appLayoutHeaderText d-flex gap-2 align-items-center p-2">
+      <div>
+        <button nbButton size="small"
+                (click)="backToPrev()"
+                nbTooltip="Back to previous page" nbTooltipPlacement="bottom"
+                class="rounded-2 fw-semibold">
+          <nb-icon icon="arrow-back-outline"></nb-icon>
+        </button>
+      </div>
+      <h5 class="fw-semibold m-0">Add Wholesalers</h5>
+    </div>
+  </div>
+  <div class="appLayoutBody">
+    <div class="addWholesalers" *ngIf="loading">
+      <form [formGroup]="wholesalersForm" class="card border-0 p-3">
+        <div class="row">
+          <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+            <nb-form-field>
+              <nb-icon nbPrefix class="cursor-pointer-npk" icon="person-outline" pack="eva"></nb-icon>
+              <input type="text" nbInput class="form-control" fullWidth
+                     formControlName="name"
+                     placeholder="Name">
+            </nb-form-field>
+          </div>
+          <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+            <nb-form-field>
+              <nb-icon nbPrefix class="cursor-pointer-npk" icon="email-outline" pack="eva"></nb-icon>
+              <input type="email" nbInput class="form-control" fullWidth
+                     formControlName="email"
+                     placeholder="Email">
+            </nb-form-field>
+          </div>
+          <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+            <nb-form-field>
+              <nb-icon nbPrefix class="cursor-pointer-npk" icon="phone-outline" pack="eva"></nb-icon>
+              <input type="text" nbInput class="form-control" fullWidth
+                     formControlName="phone"
+                     placeholder="Phone">
+            </nb-form-field>
+          </div>
+          <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+            <nb-form-field>
+              <nb-icon nbPrefix class="cursor-pointer-npk" icon="browser-outline" pack="eva"></nb-icon>
+              <input type="url" nbInput class="form-control" fullWidth
+                     formControlName="website"
+                     placeholder="Website">
+            </nb-form-field>
+          </div>
+          <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12 mb-3">
+            <nb-form-field>
+              <nb-icon nbPrefix class="cursor-pointer-npk" icon="pin-outline" pack="eva"></nb-icon>
+              <textarea type="text" nbInput class="form-control" fullWidth
+                     formControlName="address"
+                        placeholder="Address"></textarea>
+            </nb-form-field>
+          </div>
+          <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <button nbButton size="small" status="primary" nbTooltip="Add the wholesaler" nbTooltipPlacement="bottom" class="rounded-2 fw-semibold">
+              <nb-icon icon="plus-outline"></nb-icon>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

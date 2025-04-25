@@ -96,3 +96,14 @@ p-dataview {
     }
   }
 }
+nb-tabset{
+ .tabset{
+   .tab{
+     .tab-link{
+       .tab-text{
+         margin: auto;
+       }
+     }
+   }
+ }
+}

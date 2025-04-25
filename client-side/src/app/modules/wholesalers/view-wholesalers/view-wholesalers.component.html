@@ -1,0 +1,15 @@
+<div class="viewWholesalersMain" *ngIf="loading">
+  <div class="appLayoutHeader">
+    <div class="appLayoutHeaderText d-flex gap-2 align-items-center justify-content-between p-2">
+      <h5 class="fw-semibold m-0">Wholesalers</h5>
+      <button nbButton size="small"
+              [routerLink]="['/wholesalers/add']"
+              nbTooltip="Add the wholesalers" nbTooltipPlacement="bottom"
+              class="rounded-2 fw-semibold">
+        <nb-icon icon="plus-outline"></nb-icon>
+      </button>
+    </div>
+  </div>
+  <div class="appLayoutBody">
+  </div>
+</div>

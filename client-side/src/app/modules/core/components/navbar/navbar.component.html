@@ -7,7 +7,7 @@
         </div>
       </div>
       <nb-icon class="cursor-pointer-npk me-3"
-               [hidden]="sidebarVisible"
+               [ngStyle]="sidebarVisible ? {'display': 'none'} : {}"
                nbTooltip="'Menu'"
                (click)="sidebarVisible = !sidebarVisible; showProfile = false"
                nbTooltipPlacement="bottom"

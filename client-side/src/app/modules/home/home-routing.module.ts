@@ -22,6 +22,8 @@ const routes: Routes = [
       { path: 'settings', loadChildren: () => import('../settings/settings.module').then(m => m.SettingsModule) },
       { path: 'manage-account', loadChildren: () => import('../manage-account/manage-account.module').then(m => m.ManageAccountModule) },
       { path: 'categories', loadChildren: () => import('../categories/categories.module').then(m => m.CategoriesModule) },
+      { path: 'stock', loadChildren: () => import('../stock/stock.module').then(m => m.StockModule) },
+      { path: 'wholesalers', loadChildren: () => import('../wholesalers/wholesalers.module').then(m => m.WholesalersModule) },
     ]
   }
 ];

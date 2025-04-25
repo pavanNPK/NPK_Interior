@@ -22,6 +22,7 @@ import categoryRoutes from './routes/categories.routes.js';  // Category API rou
 import cartRoutes from './routes/cart.routes.js';  // Cart API routes
 import wishlistRoutes from './routes/wishlist.routes.js';  // wishlist API routes
 import userRoutes from "./routes/user.routes.js";  // User API routes
+import locationRoutes from "./routes/locations.routes.js";  // Locations API routes
 import { upload, uploadFiles } from './controllers/upload.controller.js'; // File upload controller functions
 import { uploadS3, uploadFilesOnS3 } from './controllers/s3upload.controller.js'; // File upload controller functions
 
@@ -78,6 +79,7 @@ app.use('/categories', categoryRoutes);   // Mount category routes under /catego
 app.use('/carts', cartRoutes);   // Mount cart routes under /carts
 app.use('/wishlists', wishlistRoutes);   // Mount wishlist routes under /wishlists
 app.use('/users', userRoutes);
+app.use('/locations', locationRoutes);
 
 
 // Set up file upload for a local

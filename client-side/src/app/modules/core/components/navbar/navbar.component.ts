@@ -70,7 +70,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     {title: 'Categories', icon: 'clipboard-outline', link: '/categories', pathMatch: 'prefix'},
     {title: 'Products', icon: 'layout-outline', link: '/products', pathMatch: 'prefix'},
     {title: 'Stock Availability', icon: 'cube-outline', link: '/stock', pathMatch: 'prefix'},
-    {title: 'Wholesalers', icon: 'layers-outline', link: '/stock', pathMatch: 'prefix'},
+    {title: 'Wholesalers', icon: 'layers-outline', link: '/wholesalers', pathMatch: 'prefix'},
     {title: 'Benefit Hub', icon: 'globe-2-outline', link: '/account-center'}, //deals, upcoming and pay&rewards
     {title: 'Shopping Hub', icon: 'flash-outline', link: '/account-center'}, // orders, cart and wishlist
     // {title: 'Orders', icon: 'car-outline', link: '/orders/view'},
