@@ -33,6 +33,10 @@ nb-option:focus.selected {
 .nb-theme-default nb-form-field .nb-form-field-addon-basic-highlight{
   color: #8f9bb3 !important
 }
+.nb-theme-default nb-option.selected{
+  background-color: #000 !important;
+  color: #fff;
+}
 p-togglebutton {
   .p-button{
     padding: 9px !important;
@@ -106,4 +110,9 @@ nb-tabset{
      }
    }
  }
+}
+ngb-typeahead-window{
+  height: 200px !important;
+  overflow: auto;
+  background: white !important;
 }

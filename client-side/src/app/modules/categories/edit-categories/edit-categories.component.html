@@ -87,12 +87,12 @@
         </div>
       </div>
       <div class="mt-3 d-flex justify-content-between">
-        <button nbButton class="bg-black text-white" (click)="addSubCategory()" type="button">+ Sub Category</button>
+        <button nbButton size="small" class="bg-black text-white" (click)="addSubCategory()" type="button">+ Sub Category</button>
         <div class="d-flex gap-3">
-          <button nbButton class="bg-transparent "
+          <button nbButton class="bg-transparent " size="small"
                   (click)="backToPrev()"
                   [nbTooltip]="'Cancel and go back to previous page. If you cancel, you will lost the data.'" type="button" style="border: 1px solid black !important;">Cancel</button>
-          <button nbButton class="bg-black text-white"
+          <button nbButton class="bg-black text-white"size="small"
                   type="button" (click)="updateCategories()">Update</button>
         </div>
       </div>

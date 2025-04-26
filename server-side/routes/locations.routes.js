@@ -12,7 +12,7 @@ import {
 import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware.js';
 
 // Define routes with the imported functions
-router.get('/', authenticateToken, authorizeRoles('supervise', 'shopper'), getLocations);
+router.get('/',  getLocations);
 
 // Export the router
 export default router;

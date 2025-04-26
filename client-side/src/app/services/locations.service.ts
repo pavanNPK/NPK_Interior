@@ -1,18 +1,25 @@
-import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {map, Observable} from "rxjs";
-import {ResponseWithError} from "../models/commonDTO";
-import {DOMAIN_URL, GET_ALL_LOCATIONS} from "../constants/API-DTO";
-import {LocationsDTO} from "../models/locationsDTO";
+import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs';
+import { ResponseWithError } from "../models/commonDTO";
+import { DOMAIN_URL, GET_ALL_LOCATIONS } from "../constants/API-DTO";
+import { LocationsDTO } from "../models/locationsDTO";
+
 @Injectable({
   providedIn: 'root'
 })
 export class LocationsService {
+  locations = signal<LocationsDTO[]>([]); // Signal to hold locations
 
-  constructor(private http: HttpClient ) { }
+  constructor(private http: HttpClient) {}
 
-  getLocations(): Observable<ResponseWithError<LocationsDTO[]>> {
-    return this.http.get<ResponseWithError<LocationsDTO[]>>(`${DOMAIN_URL}${GET_ALL_LOCATIONS}`)
-      .pipe(map(response => response));
+  loadLocations() {
+    this.http.get<ResponseWithError<LocationsDTO[]>>(`${DOMAIN_URL}${GET_ALL_LOCATIONS}`)
+      .subscribe(response => {
+        if (response.success) {
+          // @ts-ignore
+          this.locations.set(response.response); // Set signal data
+        }
+      });
   }
 }
