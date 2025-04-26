@@ -434,6 +434,7 @@
       const duplicates = duplicateNames.filter((name: string, index: number) => duplicateNames.indexOf(name) !== index);
       if (duplicates.length > 0) {
         console.error(`${duplicates.length} duplicate product name(s) found: ${duplicates.join(', ')}`);
+        this.toastService.warning(`${duplicates.length} duplicate product name(s) found: ${duplicates.join(', ')}`, duplicates.length, {duration: 2000});
         return;
       }
       const formData = new FormData();

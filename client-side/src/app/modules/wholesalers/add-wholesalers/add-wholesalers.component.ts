@@ -3,7 +3,7 @@ import {
   NbButtonModule,
   NbFormFieldModule,
   NbIconModule,
-  NbInputModule, NbSelectModule,
+  NbInputModule, NbSelectModule, NbToastrService,
   NbTooltipModule
 } from "@nebular/theme";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
@@ -13,6 +13,8 @@ import {LocationsService} from "../../../services/locations.service";
 import {NgbTypeahead} from "@ng-bootstrap/ng-bootstrap";
 import {debounceTime, distinctUntilChanged, map, Observable, OperatorFunction} from "rxjs";
 import {LocationsDTO} from "../../../models/locationsDTO";
+import {WholesalersService} from "../../../services/wholesalers.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-add-wholesalers',
@@ -36,10 +38,16 @@ import {LocationsDTO} from "../../../models/locationsDTO";
 export class AddWholesalersComponent implements OnInit{
   loading: boolean = false;
   submitted: boolean = false;
+  fileData: { [key: number]: any } = {};
   wholesalersForm!: FormGroup
   countries = computed(() => this.locationsService.locations().filter((loc: LocationsDTO) => loc.type === 'country'))
   states = computed(() => this.locationsService.locations().filter((loc: LocationsDTO) => loc.type === 'state'))
-  constructor(private location: Location, private fb: FormBuilder, private locationsService: LocationsService) {
+  constructor(private location: Location,
+              private fb: FormBuilder,
+              private toastService: NbToastrService,
+              private wsService: WholesalersService,
+              private router: Router,
+              private locationsService: LocationsService) {
   }
   ngOnInit(): void {
     this.loadForm();
@@ -60,22 +68,23 @@ export class AddWholesalersComponent implements OnInit{
 
   createWholesaler() {
     return this.fb.group({
-      name: ['', Validators.required],
-      address: ['', Validators.required],
-      email: ['', Validators.required],
-      phone: ['', Validators.required],
-      alternatePhone: ['', Validators.required],
-      shopName: ['', Validators.required],
+      name: ['j', Validators.required],
+      address: ['m', Validators.required],
+      email: ['h@gmail.com', Validators.required],
+      phone: ['l', Validators.required],
+      alternatePhone: ['2', Validators.required],
+      shopName: ['ds', Validators.required],
       status: ['ACTIVE', Validators.required],
       country: ['', Validators.required],
       country_id: ['', Validators.required],
       city: ['', Validators.required],
       state: ['', Validators.required],
       state_id: ['', Validators.required],
-      zipCode: ['', Validators.required],
-      website: ['', Validators.required],
-      description: ['', Validators.required],
-      image: ['', Validators.required],
+      zipCode: ['m', Validators.required],
+      gstNumber: ['m', Validators.required],
+      panNumber: ['m', Validators.required],
+      website: ['l',],
+      images: [[], Validators.required],
     });
   }
   addWholesaler() {
@@ -115,8 +124,8 @@ export class AddWholesalersComponent implements OnInit{
     return location && location.name ? location.name : ''; // Ensure it returns a string
   };
 
-  countrySelected(item: any) {
-    // this.ws['country_id'].setValue(item.id);
+  countrySelected(item: any, ws: any) {
+   ws.get('country_id').setValue(item._id);
   }
 
   // **state Search ngbTypeahead script ** //
@@ -140,8 +149,8 @@ export class AddWholesalersComponent implements OnInit{
     return location && location.name ? location.name : ''; // Ensure it returns a string
   };
 
-  stateSelected(item: any) {
-    // this.ws['state_id'].setValue(item.id);
+  stateSelected(item: any, ws: any) {
+    ws.get('state_id')?.setValue(item._id);
   }
 
   resetState(ws: any, i: number) {
@@ -156,16 +165,76 @@ export class AddWholesalersComponent implements OnInit{
   removeWholesaler(i: number) {
     this.wholesalers.removeAt(i);
   }
-  saveWholesalers() {
-    this.submitted = true;
-    if (this.wholesalersForm.invalid) {
-      return;
-    } else {
-      console.log(this.wholesalersForm.value);
+
+
+  onFileChange(event: any, ws: any, i: number) {
+    const file = event.target.files[0];
+    console.log(file)
+    if (file) {
+      this.wholesalers.at(i).get('images')?.setValue(file);
     }
   }
+  saveWholesalers() {
+    this.submitted = true;
+    if (this.wholesalersForm.invalid) return;
+    const duplicateValues = (prop: string) => {
+      const values = this.wholesalersForm.value.wholesalers.map((w: any) => w[prop]);
+      return values.filter((v: any, i: any) => values.indexOf(v) !== i);
+    };
+    const duplicateEmails = duplicateValues('email');
+    const duplicatePhones = duplicateValues('phone');
 
-  onFileChange(event: any, ws: any) {
+    if (duplicateEmails.length > 0 || duplicatePhones.length > 0) {
+      const message = [
+        duplicateEmails.length ? `${duplicateEmails.length} duplicate email(s): ${duplicateEmails.join(', ')}` : '',
+        duplicatePhones.length ? `${duplicatePhones.length} duplicate phone number(s): ${duplicatePhones.join(', ')}` : ''
+      ].filter(Boolean).join('\n');
 
+      console.error(message);
+      this.toastService.warning(message, 'Duplicate wholesaler(s) found', {duration: 2000});
+      return;
+    }
+    const formData = new FormData();
+    this.wholesalersForm.value.wholesalers.forEach((wholesaler: any, index: number) => {
+      console.log(wholesaler)
+      formData.append(`wholesalers[${index}][name]`, wholesaler.name);
+      formData.append(`wholesalers[${index}][email]`, wholesaler.email);
+      formData.append(`wholesalers[${index}][phone]`, wholesaler.phone);
+      formData.append(`wholesalers[${index}][alternatePhone]`, wholesaler.alternatePhone);
+      formData.append(`wholesalers[${index}][address]`, wholesaler.address);
+      formData.append(`wholesalers[${index}][country_id]`, wholesaler.country_id);
+      formData.append(`wholesalers[${index}][city]`, wholesaler.city);
+      formData.append(`wholesalers[${index}][state_id]`, wholesaler.state_id);
+      formData.append(`wholesalers[${index}][zipCode]`, wholesaler.zipCode);
+      formData.append(`wholesalers[${index}][shopName]`, wholesaler.shopName);
+      formData.append(`wholesalers[${index}][status]`, wholesaler.status);
+      formData.append(`wholesalers[${index}][gstNumber]`, wholesaler.gstNumber);
+      formData.append(`wholesalers[${index}][panNumber]`, wholesaler.panNumber);
+      formData.append(`wholesalers[${index}][website]`, wholesaler.website);
+
+      // Ensure that images are appended correctly
+      // Append images as File objects instead of JSON
+      if (wholesaler.images) {
+        // Use wholesaler index to associate images with specific products
+        formData.append(`images-${index}`, wholesaler.images);
+      }
+    });
+
+    //console form data inside saveWholesalers
+    // @ts-ignore
+    for (const value of formData.values()) {
+      console.log(value);
+    }
+    this.wsService.addWholesalers(formData).subscribe({
+      next: (response) => {
+        this.toastService.success(response.message, 'Wholesaler(s) added successfully', {duration: 2000});
+        this.wholesalersForm.reset();
+        this.wholesalers.clear();
+        this.router.navigate(['/wholesalers/view']);
+      },
+      error: (error) => {
+        this.toastService.danger(error.error.message, 'Wholesaler(s) not added', {duration: 2000});
+      }
+    });
   }
 }

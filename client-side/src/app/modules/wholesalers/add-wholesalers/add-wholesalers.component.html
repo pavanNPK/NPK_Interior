@@ -9,7 +9,9 @@
           <nb-icon icon="arrow-back-outline"></nb-icon>
         </button>
       </div>
-      <h5 class="fw-semibold m-0">Add Wholesalers</h5>
+      <h5 class="fw-semibold m-0">Add Wholesalers
+        <nb-icon nbPrefix icon="info-outline" class="cursor-pointer-npk" nbTooltip="Make sure to add the wholesalers. Data should be unique mainly email, phone number and alternative phone number" nbTooltipPlacement="bottom"></nb-icon>
+      </h5>
     </div>
   </div>
   <div class="appLayoutBody">
@@ -18,7 +20,8 @@
         <div formArrayName="wholesalers">
           <div *ngFor="let ws of wholesalers.controls; let i = index" [formGroupName]="i" class="card mb-3 border-0 p-4">
             <div class="row">
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Wholesaler Name*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="person-outline" pack="eva"></nb-icon>
                   <input type="text" nbInput class="form-control" fullWidth
@@ -30,7 +33,8 @@
                   <div *ngIf="ws.get('name')?.errors?.['required']">Please enter the name.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Wholesaler Email*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="email-outline" pack="eva"></nb-icon>
                   <input type="email" nbInput class="form-control" fullWidth
@@ -42,7 +46,8 @@
                   <div *ngIf="ws.get('email')?.errors?.['required']">Please enter the email.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Wholesaler Phone Number*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="phone-outline" pack="eva"></nb-icon>
                   <input type="tel" nbInput class="form-control" fullWidth
@@ -54,7 +59,8 @@
                   <div *ngIf="ws.get('phone')?.errors?.['required']">Please enter the phone number.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Wholesaler Alternative Number*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="phone-outline" pack="eva"></nb-icon>
                   <input type="tel" nbInput class="form-control" fullWidth
@@ -66,7 +72,8 @@
                   <div *ngIf="ws.get('alternatePhone')?.errors?.['required']">Please enter the alternative phone number.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Wholesaler Website</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="browser-outline" pack="eva"></nb-icon>
                   <input type="url" nbInput class="form-control" fullWidth
@@ -78,7 +85,8 @@
                   <div *ngIf="ws.get('website')?.errors?.['required']">Please enter the website.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Wholesaler Shop Name*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="home-outline" pack="eva"></nb-icon>
                   <input type="url" nbInput class="form-control" fullWidth
@@ -90,7 +98,34 @@
                   <div *ngIf="ws.get('shopName')?.errors?.['required']">Please enter the shop name.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Wholesaler GST Number*</label>
+                <nb-form-field>
+                  <nb-icon nbPrefix class="cursor-pointer-npk" icon="clipboard-outline" pack="eva"></nb-icon>
+                  <input type="url" nbInput class="form-control" fullWidth
+                         formControlName="gstNumber"
+                         placeholder="GST Number"
+                         [ngClass]="{ 'is-invalid': submitted && ws.get('gstNumber')?.errors }">
+                </nb-form-field>
+                <div *ngIf="submitted && ws.get('gstNumber')?.errors" class="small text-danger">
+                  <div *ngIf="ws.get('gstNumber')?.errors?.['required']">Please enter the GST Number.</div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Wholesaler PAN Number*</label>
+                <nb-form-field>
+                  <nb-icon nbPrefix class="cursor-pointer-npk" icon="clipboard-outline" pack="eva"></nb-icon>
+                  <input type="url" nbInput class="form-control" fullWidth
+                         formControlName="panNumber"
+                         placeholder="PAN Number"
+                         [ngClass]="{ 'is-invalid': submitted && ws.get('panNumber')?.errors }">
+                </nb-form-field>
+                <div *ngIf="submitted && ws.get('panNumber')?.errors" class="small text-danger">
+                  <div *ngIf="ws.get('panNumber')?.errors?.['required']">Please enter the PAN Number.</div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Country*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="globe-outline" pack="eva"></nb-icon>
                   <input type="text" nbInput class="form-control" formControlName="country" placeholder="Country"
@@ -101,7 +136,7 @@
                          [resultFormatter]="countryFormatter"
                          [editable]='true'
                          [readOnly]="ws.get('country_id')?.value"
-                         (selectItem)="countrySelected($event.item)">
+                         (selectItem)="countrySelected($event.item, ws)">
                   <nb-icon [hidden]="!ws.get('country')?.value"
                            (click)="resetCountry(ws, i)"
                            nbSuffix class="cursor-pointer-npk cursor-pointer" icon="refresh-outline" pack="eva"></nb-icon>
@@ -110,7 +145,8 @@
                   <div *ngIf="ws.get('country')?.errors?.['required']">Please enter the country.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">State*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="pin-outline" pack="eva"></nb-icon>
                   <input type="text" nbInput class="form-control" formControlName="state" placeholder="State"
@@ -121,7 +157,7 @@
                          [resultFormatter]="stateFormatter"
                          [editable]='true'
                          [readOnly]="ws.get('state_id')?.value"
-                         (selectItem)="stateSelected($event.item)">
+                         (selectItem)="stateSelected($event.item, ws)">
                   <nb-icon [hidden]="!ws.get('state')?.value"
                            (click)="resetState(ws, i)"
                            nbSuffix class="cursor-pointer-npk cursor-pointer" icon="refresh-outline" pack="eva"></nb-icon>
@@ -130,7 +166,8 @@
                   <div *ngIf="ws.get('state')?.errors?.['required']">Please enter the state.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">City*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="map-outline" pack="eva"></nb-icon>
                   <input type="text" nbInput class="form-control" fullWidth
@@ -142,7 +179,8 @@
                   <div *ngIf="ws.get('city')?.errors?.['required']">Please enter the city.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">PIN/ZIP Code*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="compass-outline" pack="eva"></nb-icon>
                   <input type="text" nbInput class="form-control" fullWidth
@@ -154,20 +192,21 @@
                   <div *ngIf="ws.get('zipCode')?.errors?.['required']">Please enter the zip code.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Wholesaler Image*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="image-outline" pack="eva"></nb-icon>
                   <input type="file" nbInput class="form-control" [multiple]="false"
                          fullWidth accept="image/jpeg, image/png, image/jpg"
-                         formControlName="image"
-                         (change)="onFileChange($event, ws)"
+                         (change)="onFileChange($event, ws, i)"
                          placeholder="Upload picture">
                 </nb-form-field>
                 <div *ngIf="submitted && ws.get('image')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('image')?.errors?.['required']">Please upload an image.</div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Current Status*</label>
                 <nb-form-field>
                   <nb-icon nbPrefix class="cursor-pointer-npk" icon="clipboard-outline" pack="eva"></nb-icon>
                   <nb-select fullWidth formControlName="status" placeholder="Status"
@@ -183,12 +222,11 @@
                 </div>
               </div>
               <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12 mb-3">
-                <nb-form-field>
-              <textarea type="text" nbInput class="form-control" fullWidth
-                        formControlName="address"
-                        placeholder="Address"
-                        [ngClass]="{ 'is-invalid': submitted && ws.get('address')?.errors }"></textarea>
-                </nb-form-field>
+                <label class="label fw-semibold">Wholesaler Shop Address*</label>
+               <textarea type="text" nbInput class="form-control" fullWidth
+                         formControlName="address"
+                         placeholder="Address"
+                         [ngClass]="{ 'is-invalid': submitted && ws.get('address')?.errors }"></textarea>
                 <div *ngIf="submitted && ws.get('address')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('address')?.errors?.['required']">Please enter the address.</div>
                 </div>

@@ -10,8 +10,6 @@ import {
   GET_ALL_PRODUCTS,
   PRODUCT_NOTIFY_TO_USER
 } from "../constants/API-DTO";
-import {CategoriesDTO} from "../models/categoriesDTO";
-import {response} from "express";
 
 @Injectable({
   providedIn: 'root'
