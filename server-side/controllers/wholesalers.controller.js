@@ -27,8 +27,12 @@ const createDatabase = async (dbName, wholesalerData) => {
         // Define the "users" schema
         const ShopAccountSchema = new mongoose.Schema({
             shopName: String,
-            gstNumber: String,
-            panNumber: String,
+            gstNumber: {type:String, unique: true},
+            panNumber: {type:String, unique: true},
+            bankAccountNumber: {type:String, unique: true},
+            bankHolderName: String,
+            bankName: String,
+            IFSCCode: String,
             createdOn: { type: Date, default: Date.now },
             updatedOn: { type: Date, default: Date.now },
         });
@@ -41,6 +45,10 @@ const createDatabase = async (dbName, wholesalerData) => {
             shopName: wholesalerData.shopName,
             panNumber: wholesalerData.panNumber,
             gstNumber: wholesalerData.gstNumber,
+            bankHolderName: wholesalerData.name,
+            bankAccountNumber: wholesalerData.bankAccountNumber,
+            bankName: wholesalerData.bankName,
+            IFSCCode: wholesalerData.IFSCCode,
             createdOn: new Date(),
             updatedOn: new Date(),
         });
@@ -94,7 +102,7 @@ const sendInvitationToWholesaler = async (wholesaler) => {
                 We look forward to collaborating with you and creating beautiful spaces together.
             </p>
             <p style="font-size: 14px; color: #555; text-align: center;">
-                We will be in touch with you soon, Regarding your account. For future invoices. This is your generated code: ${wholesaler.code}
+                We will be in touch with you soon, For future invoices. This is your generated code: <span style="font-weight: bold;">${wholesaler.code}</span>
             </p>
             <div style="text-align: center; margin: 20px;">
                 <a href="https://www.synycs.com/" style="background: linear-gradient(135deg, #444, #888); color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: bold; box-shadow: 2px 2px 8px rgba(0,0,0,0.2);">
@@ -172,6 +180,9 @@ export const addWholesaler = async (req, res) => {
 
                 delete wholesaler.gstNumber;
                 delete wholesaler.panNumber;
+                delete wholesaler.bankName;
+                delete wholesaler.bankAccountNumber;
+                delete wholesaler.IFSCCode;
 
                 // Upload images to Cloudinary
                 const uploadedImages = await Promise.all(
@@ -199,7 +210,6 @@ export const addWholesaler = async (req, res) => {
 
                 return {
                     ...wholesaler,
-                    email: wholesaler.email.toLowerCase(), // Save email lowercase
                     code,
                     createdAt: new Date(),
                     updatedAt: new Date(),

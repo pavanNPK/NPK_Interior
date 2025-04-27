@@ -12,6 +12,9 @@ export class WholesalersDTO {
   code?: string;
   email?: string;
   website?: string;
+  bankName?: string;
+  bankAccountNumber?: string;
+  IFSCCode?: string;
   description?: string;
   images?: WholesalersImagesDTO[];
   status?: string;

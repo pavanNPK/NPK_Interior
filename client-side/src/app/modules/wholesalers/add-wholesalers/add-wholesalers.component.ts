@@ -68,25 +68,37 @@ export class AddWholesalersComponent implements OnInit{
 
   createWholesaler() {
     return this.fb.group({
-      name: ['j', Validators.required],
-      address: ['m', Validators.required],
-      email: ['h@gmail.com', Validators.required],
-      phone: ['l', Validators.required],
-      alternatePhone: ['2', Validators.required],
-      shopName: ['ds', Validators.required],
+      name: ['', [Validators.required, Validators.maxLength(20), Validators.minLength(3), Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+      address: ['', [Validators.required, Validators.maxLength(100), Validators.minLength(3), Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern('^[6-9][0-9]{9}$')]],
+      alternatePhone: ['', [Validators.required, Validators.pattern('^[6-9][0-9]{9}$')]],
+      shopName: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(3), Validators.pattern('^[^\\s][\\w\\W\\s]*$')]],
       status: ['ACTIVE', Validators.required],
       country: ['', Validators.required],
       country_id: ['', Validators.required],
       city: ['', Validators.required],
       state: ['', Validators.required],
       state_id: ['', Validators.required],
-      zipCode: ['m', Validators.required],
-      gstNumber: ['m', Validators.required],
-      panNumber: ['m', Validators.required],
-      website: ['l',],
+      bankName: ['',[Validators.required,Validators.minLength(3),Validators.maxLength(50),Validators.pattern('^[A-Za-z ]+$')]],
+      bankAccountNumber: ['', [Validators.required, Validators.pattern('^[0-9]{9,18}$')]],
+      IFSCCode: ['', [Validators.required, Validators.pattern('^[A-Z]{4}0[A-Z0-9]{6}$')]],
+      zipCode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
+      gstNumber: ['', [Validators.required, Validators.pattern('^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$')]],
+      panNumber: ['', [Validators.required, Validators.pattern('^[A-Z]{5}[0-9]{4}[A-Z]{1}$')]],
+      website: ['',],
       images: [[], Validators.required],
-    });
+    }, {validators: this.phoneNumbersShouldNotMatchValidator});
   }
+  phoneNumbersShouldNotMatchValidator(formGroup: FormGroup) {
+    const phone = formGroup.get('phone');
+    const alternatePhone = formGroup.get('alternatePhone');
+    if (phone && alternatePhone && phone.value === alternatePhone.value) {
+      return { phoneNumbersShouldNotMatch: true };  // Custom error if both numbers match
+    }
+    return null;  // No error if numbers are different
+  }
+
   addWholesaler() {
     // Add a new wholesaler
     const wholesaler = this.createWholesaler();
@@ -211,6 +223,9 @@ export class AddWholesalersComponent implements OnInit{
       formData.append(`wholesalers[${index}][gstNumber]`, wholesaler.gstNumber);
       formData.append(`wholesalers[${index}][panNumber]`, wholesaler.panNumber);
       formData.append(`wholesalers[${index}][website]`, wholesaler.website);
+      formData.append(`wholesalers[${index}][bankName]`, wholesaler.bankName);
+      formData.append(`wholesalers[${index}][bankAccountNumber]`, wholesaler.bankAccountNumber);
+      formData.append(`wholesalers[${index}][IFSCCode]`, wholesaler.IFSCCode);
 
       // Ensure that images are appended correctly
       // Append images as File objects instead of JSON

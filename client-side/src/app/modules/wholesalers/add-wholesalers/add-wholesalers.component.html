@@ -31,6 +31,9 @@
                 </nb-form-field>
                 <div *ngIf="submitted && ws.get('name')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('name')?.errors?.['required']">Please enter the name.</div>
+                  <div *ngIf="ws.get('name')?.errors?.['pattern']">Name is not valid.</div>
+                  <div *ngIf="ws.get('name')?.errors?.['minlength']">Name must be at least 3 characters.</div>
+                  <div *ngIf="ws.get('name')?.errors?.['maxlength']">Name must be at most 20 characters.</div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
@@ -44,6 +47,7 @@
                 </nb-form-field>
                 <div *ngIf="submitted && ws.get('email')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('email')?.errors?.['required']">Please enter the email.</div>
+                  <div *ngIf="ws.get('email')?.errors?.['email']">Email is not valid.</div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
@@ -57,6 +61,7 @@
                 </nb-form-field>
                 <div *ngIf="submitted && ws.get('phone')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('phone')?.errors?.['required']">Please enter the phone number.</div>
+                  <div *ngIf="ws.get('phone')?.errors?.['pattern']">Please enter a valid 10-digit Phone Number starting with 6, 7, 8, or 9.</div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
@@ -70,6 +75,10 @@
                 </nb-form-field>
                 <div *ngIf="submitted && ws.get('alternatePhone')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('alternatePhone')?.errors?.['required']">Please enter the alternative phone number.</div>
+                  <div *ngIf="ws.get('alternatePhone')?.errors?.['pattern']">Please enter a valid 10-digit Phone Number starting with 6, 7, 8, or 9.</div>
+                </div>
+                <div *ngIf="ws.get('phone')?.value && ws.errors?.['phoneNumbersShouldNotMatch']" class="small text-danger">
+                  Phone Number and Alternative Phone Number cannot be the same.
                 </div>
               </div>
               <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
@@ -96,6 +105,9 @@
                 </nb-form-field>
                 <div *ngIf="submitted && ws.get('shopName')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('shopName')?.errors?.['required']">Please enter the shop name.</div>
+                  <div *ngIf="ws.get('shopName')?.errors?.['pattern']">Shop Name is not valid.</div>
+                  <div *ngIf="ws.get('shopName')?.errors?.['minlength']">Shop Name must be at least 3 characters.</div>
+                  <div *ngIf="ws.get('shopName')?.errors?.['maxlength']">Shop Name must be at most 50 characters.</div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
@@ -105,10 +117,12 @@
                   <input type="url" nbInput class="form-control" fullWidth
                          formControlName="gstNumber"
                          placeholder="GST Number"
-                         [ngClass]="{ 'is-invalid': submitted && ws.get('gstNumber')?.errors }">
+                         [ngClass]="{ 'is-invalid': submitted && ws.get('gstNumber')?.errors }"
+                         (keyup)="ws.get('gstNumber')?.value ? ws.get('gstNumber')?.setValue(ws.get('gstNumber')?.value.toUpperCase()) : ws.get('gstNumber')?.setValue(ws.get('gstNumber')?.value)">
                 </nb-form-field>
                 <div *ngIf="submitted && ws.get('gstNumber')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('gstNumber')?.errors?.['required']">Please enter the GST Number.</div>
+                  <div *ngIf="ws.get('gstNumber')?.errors?.['pattern']">Format 27ABCDE1234F1Z5.</div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
@@ -118,10 +132,66 @@
                   <input type="url" nbInput class="form-control" fullWidth
                          formControlName="panNumber"
                          placeholder="PAN Number"
-                         [ngClass]="{ 'is-invalid': submitted && ws.get('panNumber')?.errors }">
+                         [ngClass]="{ 'is-invalid': submitted && ws.get('panNumber')?.errors }"
+                         (keyup)="ws.get('panNumber')?.value ? ws.get('panNumber')?.setValue(ws.get('panNumber')?.value.toUpperCase()) : ws.get('panNumber')?.setValue(ws.get('panNumber')?.value)">
                 </nb-form-field>
                 <div *ngIf="submitted && ws.get('panNumber')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('panNumber')?.errors?.['required']">Please enter the PAN Number.</div>
+                  <div *ngIf="ws.get('panNumber')?.errors?.['pattern']">Format ABCDE1234F.</div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
+                <label class="label fw-semibold">Bank Name*</label>
+                <nb-form-field>
+                  <nb-icon nbPrefix icon="code-outline" pack="eva"></nb-icon>
+                  <input type="text" nbInput class="form-control" fullWidth
+                         formControlName="bankName"
+                         placeholder="Bank Name"
+                         (keyup)="ws.get('bankName')?.value ? ws.get('bankName')?.setValue(ws.get('bankName')?.value.toUpperCase()) : ws.get('bankName')?.setValue(ws.get('bankName')?.value)"
+                          (input)="trimLeadingSpace($event)"
+                         [ngClass]="{ 'is-invalid': submitted && ws.get('bankName')?.errors }">
+                </nb-form-field>
+                <div *ngIf="submitted && ws.get('bankName')?.errors" class="small text-danger">
+                  <div *ngIf="ws.get('bankName')?.errors?.['required']">
+                    Please enter the bank name.
+                  </div>
+                  <div *ngIf="ws.get('bankName')?.errors?.['minlength']">
+                    Bank name must be at least 3 characters.
+                  </div>
+                  <div *ngIf="ws.get('bankName')?.errors?.['maxlength']">
+                    Bank name cannot exceed 50 characters.
+                  </div>
+                  <div *ngIf="ws.get('bankName')?.errors?.['pattern']">
+                    Bank name can only contain letters and spaces.
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">Bank Account Number*</label>
+                <nb-form-field>
+                  <nb-icon nbPrefix class="cursor-pointer-npk" icon="credit-card-outline" pack="eva"></nb-icon>
+                  <input type="text" nbInput class="form-control" fullWidth
+                         formControlName="bankAccountNumber"
+                         placeholder="Bank Account Number"
+                         [ngClass]="{ 'is-invalid': submitted && ws.get('bankAccountNumber')?.errors }">
+                </nb-form-field>
+                <div *ngIf="submitted && ws.get('bankAccountNumber')?.errors" class="small text-danger">
+                  <div *ngIf="ws.get('bankAccountNumber')?.errors?.['required']">Please enter the bank account number.</div>
+                  <div *ngIf="ws.get('bankAccountNumber')?.errors?.['pattern']">Please enter a valid bank account number (9-18 digits).</div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                <label class="label fw-semibold">IFSC Code*</label>
+                <nb-form-field>
+                  <nb-icon nbPrefix class="cursor-pointer-npk" icon="keypad-outline" pack="eva"></nb-icon>
+                  <input type="text" nbInput class="form-control" fullWidth
+                         formControlName="IFSCCode"
+                         placeholder="IFSC Code"
+                         [ngClass]="{ 'is-invalid': submitted && ws.get('IFSCCode')?.errors }">
+                </nb-form-field>
+                <div *ngIf="submitted && ws.get('IFSCCode')?.errors" class="small text-danger">
+                  <div *ngIf="ws.get('IFSCCode')?.errors?.['required']">Please enter the IFSC code.</div>
+                  <div *ngIf="ws.get('IFSCCode')?.errors?.['pattern']">Please enter a valid IFSC code (e.g., SBIN0001234).</div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
@@ -190,6 +260,7 @@
                 </nb-form-field>
                 <div *ngIf="submitted && ws.get('zipCode')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('zipCode')?.errors?.['required']">Please enter the zip code.</div>
+                  <div *ngIf="ws.get('zipCode')?.errors?.['pattern']">Please enter a valid 6-digit Zip Code.</div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
@@ -201,8 +272,8 @@
                          (change)="onFileChange($event, ws, i)"
                          placeholder="Upload picture">
                 </nb-form-field>
-                <div *ngIf="submitted && ws.get('image')?.errors" class="small text-danger">
-                  <div *ngIf="ws.get('image')?.errors?.['required']">Please upload an image.</div>
+                <div *ngIf="submitted && ws.get('images')?.errors" class="small text-danger">
+                  <div *ngIf="ws.get('images')?.errors?.['required']">Please upload an image.</div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
@@ -229,6 +300,9 @@
                          [ngClass]="{ 'is-invalid': submitted && ws.get('address')?.errors }"></textarea>
                 <div *ngIf="submitted && ws.get('address')?.errors" class="small text-danger">
                   <div *ngIf="ws.get('address')?.errors?.['required']">Please enter the address.</div>
+                  <div *ngIf="ws.get('address')?.errors?.['pattern']">Address Name is not valid.</div>
+                  <div *ngIf="ws.get('address')?.errors?.['minlength']">Address Name must be at least 3 characters.</div>
+                  <div *ngIf="ws.get('address')?.errors?.['maxlength']">Address Name must be at most 100 characters.</div>
                 </div>
               </div>
               <div class="col-12 py-0 text-center">
@@ -244,8 +318,8 @@
           </div>
         </div>
       </form>
-      <div class="mt-3 d-flex justify-content-between">
-        <button nbButton class="bg-black text-white" size="small" (click)="addWholesaler()" type="button">+ Wholesaler</button>
+      <div class="mt-3 d-flex justify-content-end">
+        <button nbButton class="bg-black text-white d-none" size="small" (click)="addWholesaler()" type="button">+ Wholesaler</button>
         <div class="d-flex gap-3">
           <button nbButton class="bg-transparent "
                   (click)="backToPrev()" size="small"
