@@ -2,6 +2,7 @@ import Wholesaler from '../models/wholesalers.model.js';
 import fs from "fs";
 import cloudinary from "./cloudinary.controller.js";
 import nodemailer from "nodemailer";
+import mongoose from "mongoose";
 
 // Helper to generate unique code
 const generateUniqueCode = async () => {
@@ -15,6 +16,44 @@ const generateUniqueCode = async () => {
     } while (!code || await Wholesaler.exists({ code }));
     return code;
 };
+
+// Function to dynamically create a new database using user.code
+const createDatabase = async (dbName, wholesalerData) => {
+    try {
+        const DB_URL = process.env.DB_URL;
+        const dbURI = DB_URL.replace("npk_interior", dbName);
+        const newDbConnection = mongoose.createConnection(dbURI);
+
+        // Define the "users" schema
+        const ShopAccountSchema = new mongoose.Schema({
+            shopName: String,
+            gstNumber: String,
+            panNumber: String,
+            createdOn: { type: Date, default: Date.now },
+            updatedOn: { type: Date, default: Date.now },
+        });
+
+        // Create the "initials" collection
+        const ShopAccountModel = newDbConnection.model('account_detail', ShopAccountSchema);
+
+        // Insert the first SHOP account record
+        await ShopAccountModel.insertOne({
+            shopName: wholesalerData.shopName,
+            panNumber: wholesalerData.panNumber,
+            gstNumber: wholesalerData.gstNumber,
+            createdOn: new Date(),
+            updatedOn: new Date(),
+        });
+
+        console.log(`Database '${dbName}' created with 'account_detail' collection and initial wholesaler record.`);
+        return newDbConnection;
+    } catch (error) {
+        console.error(`Failed to create database '${dbName}':`, error);
+        throw error;
+    }
+};
+
+
 // Reuse transporter (faster)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -53,6 +92,9 @@ const sendInvitationToWholesaler = async (wholesaler) => {
 
             <p style="font-size: 14px; color: #555; text-align: center;">
                 We look forward to collaborating with you and creating beautiful spaces together.
+            </p>
+            <p style="font-size: 14px; color: #555; text-align: center;">
+                We will be in touch with you soon, Regarding your account. For future invoices. This is your generated code: ${wholesaler.code}
             </p>
             <div style="text-align: center; margin: 20px;">
                 <a href="https://www.synycs.com/" style="background: linear-gradient(135deg, #444, #888); color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: bold; box-shadow: 2px 2px 8px rgba(0,0,0,0.2);">
@@ -126,6 +168,11 @@ export const addWholesaler = async (req, res) => {
                 const files = filesByWholesalerIndex[index] || [];
                 const code = await generateUniqueCode();
 
+                await createDatabase(code, wholesaler);
+
+                delete wholesaler.gstNumber;
+                delete wholesaler.panNumber;
+
                 // Upload images to Cloudinary
                 const uploadedImages = await Promise.all(
                     files.map(async (file) => {
@@ -190,7 +237,7 @@ export const getWholesalerById = async (req, res) => {
 export const getWholesalers = async (req, res) => {
     try {
         const wholesalers = await Wholesaler.find({}, {}, { lean: true }).exec();
-        res.json({ success: true, wholesalers });
+        res.json({ success: true, response: wholesalers, message: "Wholesalers fetched successfully" });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: "Something went wrong", error: error.message });

@@ -1,0 +1,24 @@
+.wholesalerProfileCardAddress {
+  line-height: 1.2em; /* Each line is 1.2 times the font size */
+  height: 2.4em; /* 1.2em * 4 = 4.8em to fit exactly 4 lines */
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 4 lines */
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+}
+//.wholesalerProfileCard{
+//  position: relative;
+//  inset: 0;
+//  margin-top: 2rem
+//}
+//.wholesalerProfileCardHeader{
+//  margin-top: 2.5rem
+//}
+//.wholesalerProfileCardImg{
+//  position: absolute;
+//  top: -2rem;
+//  left: 50%;
+//  transform: translateX(-50%);
+//  //width: 4rem !important;
+//}
