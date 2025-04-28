@@ -1,6 +1,45 @@
 ## DB Overview
 **NPK Interior** In this project, we are building a modern e-commerce platform for home interior decor. The project is built using a modern mongodb database. And, these are the queries that are used to manage data from the database.
 
+-----------------------------------------------------------------------------------
+## Connect DB and Sub DB's for the dynamic requirements
+
+```angular2html
+import {getDbConnection, getModel} from "./dbSwitch.controller.js";
+```
+```angular2html
+import mongoose from "mongoose";
+
+const dbCache = new Map();
+
+export const getDbConnection = async (dbName) => {
+    if (dbCache.has(dbName)) {
+        return dbCache.get(dbName);
+    }
+    const DB_URL = process.env.DB_URL.replace('npk_interior', dbName);
+    const connection = await mongoose.createConnection(DB_URL).asPromise();
+    dbCache.set(dbName, connection);
+    return connection;
+};
+
+export const getModel = (connection, name, schema) => {
+    return connection.models[name] || connection.model(name, schema);
+};
+
+export const closeDbConnection = (connection) => {
+    for (let [dbName, conn] of dbCache.entries()) {
+        if (conn === connection) {
+            dbCache.delete(dbName); // Remove from cache
+            break;
+        }
+    }
+    connection.close();
+};
+
+```
+#### We can use this controller when we want to switch between DB's
+
+-----------------------------------------------------------------------------------
 ## Categories
 #### `GET /categories` - Fetches all categories from the database but not the subcategories.
 ```
@@ -154,7 +193,7 @@ if (type === "Sub Category") {
 
 ## Products
 
-#### `POST /products` - Store all products from the database.
+#### `POST /products` - Store all products into the database.
 * Before storing products, We are storing the images in `AWS S3` bucket. So, we can store the product images in the database in URL format.
 * Based on product name (Using `SLUG`), we are storing the products. And, we are storing the images.
 * By `SLUG` we can easily modify the products.
@@ -420,3 +459,357 @@ const copyS3Object = async (sourceKey, destinationKey) => {
 };
 
 ```
+-----------------------------------------------------------------------------------
+#### `UPDATE /Cart or Wishlist` - Modify the cart / wishlist in database.
+
+__Example for updating the cart / wishlist through the API:__
+* `PUT /products/:id, body: { _id,  {cart: true } or { wishlist: false } }`
+
+>Based on the type, This will update the cart / wishlist with the given _id.
+> 
+> Here we switched to the user DB from main db based on code. Because we are maintaining the cart and wishlist DB for each user.
+```aiignore
+ const { id } = req.params;
+    const type = req.body; // e.g. { cart: true } or { wishlist: false }
+    const dbName = req.user.code;
+    const userId = req.user.id;
+
+    const typeKey = Object.keys(type)[0]; // 'cart' or 'wishlist'
+    const shouldAdd = type[typeKey];
+
+    if (!['cart', 'wishlist'].includes(typeKey)) {
+        return res.status(400).json({ success: false, message: 'Invalid type key' });
+    }
+
+    // Determine which field to update: 'cartUsers' or 'wishlistUsers'
+    const fieldKey = typeKey === 'cart' ? 'cartUsers' : 'wishlistUsers';
+    const updateQuery = shouldAdd
+        ? { $addToSet: { [fieldKey]: userId } } // Add userId if not already present
+        : { $pull: { [fieldKey]: userId } };    // Remove userId if present
+
+    try {
+        const product = await Product.findByIdAndUpdate(
+            id,
+            updateQuery,
+            { new: true, runValidators: true }
+        );
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        // Respond to client
+        res.status(200).json({
+            success: true,
+            message: `Product ${typeKey} status updated`,
+            response: product,
+        });
+
+        // Optionally update separate Cart/Wishlist collection in background (if needed)
+        const connection = await getDbConnection(dbName);
+        const schemaMap = { cart: cartSchema, wishlist: wishlistSchema };
+        const modelName = typeKey.charAt(0).toUpperCase() + typeKey.slice(1);
+        const Model = getModel(connection, modelName, schemaMap[typeKey]);
+
+        if (shouldAdd) {
+            await Model.updateOne(
+                { productId: id, userId },
+                { $setOnInsert: { addedOn: new Date() } },
+                { upsert: true }
+            );
+        } else {
+            await Model.deleteOne({ productId: id, userId });
+        }
+
+    } catch (error) {
+        console.error('Error updating product type:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ success: false, message: 'Update failed', response: null });
+        }
+    }
+```
+-----------------------------------------------------------------------------------
+#### `UPDATE /notifyUsers` - To notify the users when the product back to stock.
+
+__Example for notify users for products through the API:__
+* `PUT /products/notifyToUser/:id, body: { _id,  {notify: true } }`
+
+>Based on the type, This will update the notify users with the given _id.
+
+```aiignore
+const { id } = req.params;
+    const type = req.body;
+    const userId = req.user.id;
+
+    const typeKey = Object.keys(type)[0]; // e.g. 'notify'
+    const shouldAdd = type[typeKey];
+
+    try {
+        const update = shouldAdd
+            ? { $addToSet: { notifyUsers: userId } }
+            : { $pull: { notifyUsers: userId } };
+
+        const product = await Product.findByIdAndUpdate(
+            id,
+            update,
+            { new: true, runValidators: true }
+        ).lean().exec();
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: shouldAdd
+                ? 'You have been added to notifications.'
+                : 'You will no longer receive notifications.',
+            response: null,
+        });
+
+    } catch (error) {
+        console.error('Error updating notifyUsers:', error);
+        return res.status(500).json({ success: false, message: 'Failed to update notifications.' });
+    }
+```
+
+>What is `$addToSet` and `$pull` doing? Why are they used here?
+> 
+> **$addToSet** ( Prevents duplicates.)
+> > **Purpose**: Adds a value to an array only if it does NOT already exist.
+> 
+> > **In this code:** notifyUsers is an array in your Product document (MongoDB collection). <br><br>
+> > When shouldAdd is true, it means the user wants to start receiving notifications.<br>
+> > **$addToSet**: { notifyUsers: userId } adds the user's ID to the notifyUsers array only if it’s not already there.
+
+>
+> **$pull** (  Cleanly unsubscribes without affecting others..)
+> > **Purpose**: Removes a value from an array if it exists.
+>
+> > **In this code:** <br><br>
+> > When shouldAdd is false, it means the user wants to unsubscribe from notifications.<br>
+> > **$pull**: { notifyUsers: userId } removes their user ID from the notifyUsers array if it's there.
+
+
+**$addToSet**: Prevents duplicate user IDs from piling up in notifyUsers.
+
+**$pull**: Safely removes user ID without crashing or needing a manual search.
+
+**Both**: Keep your MongoDB document clean, efficient, and easy to manage.
+
+-----------------------------------------------------------------------------------
+### General Improvements
+
+#### getProducts
+
+
+> **DRY Principle**: Extract repeated logic (e.g., parsing request body keys, S3 upload code) into reusable helper functions.
+> 
+> **Error Handling**: Create a centralized error handler instead of repeating try-catch blocks.
+> 
+> **Logging**: Use a logging library (like winston or pino) instead of console.log or console.error for better traceability.
+> 
+> **Validation** : Validate incoming request data early (e.g., using Joi, Zod, or a custom validator) to avoid processing invalid data.
+>
+> **Performance** : Use Promise.all where multiple async operations can happen in parallel (you are already doing this nicely for products).
+>
+> **Environment** Checks: Avoid expensive operations (like image base64 conversion) if not needed in production environments.
+
+#### addProduct
+
+> **Request Parsing**: Move the parsing of the weird products[index][field] request body into a utility function like parseProductsFromRequest(req.body).
+>
+> **File Handling**: Instead of syncing (fs.unlinkSync), use fs.promises.unlink() with await for non-blocking behavior.
+> 
+> **Slug Generation**: Cache the slug lookup to avoid multiple DB hits while checking uniqueness (or do it smarter with MongoDB indexes if possible).
+>
+> **Image Upload**: Upload images in parallel using Promise.all where safe to improve performance.
+>
+> **Error Aggregation**: Instead of stopping at the first image upload failure, collect errors and report them all at once if needed.
+>
+> **Field Conversion**: Create a normalizeProductFields(product) helper to handle parsing of JSON fields, boolean conversions, etc.
+
+-----------------------------------------------------------------------------------
+
+## Wholesalers
+
+#### `POST /wholesalers` - Store all wholesalers into the database.
+* while storing the wholesalers, We are storing the images in `CLOUDINARY` storage. So, we can store the wholesaler images in the database in URL format.
+* Generate a unique `CODE` for each wholesaler.
+* Create Dynamic DB name for each wholesaler Based on `CODE`.
+* Based on wholesaler `CODE` (Using `dynamic DB name`), we are storing the wholesalers. And, we are storing the images.
+* By `CODE` we can easily modify the wholesalers in `CLOUDINARY`.
+
+__First connect the CLOUDINARY:__
+
+```angular2html
+import {v2 as cloudinary} from 'cloudinary';
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+export default cloudinary
+```
+```angular2html
+// Helper to generate unique code
+const generateUniqueCode = async () => {
+  let code;
+  do {
+    const randomString = Math.random().toString(36).slice(2, 9);
+    const digitCount = (randomString.match(/\d/g) || []).length;
+    if (digitCount >= 2 && digitCount <= 3) {
+         code = 'NPK_WS_' + randomString;
+    }
+  } while (!code || await Wholesaler.exists({ code }));
+  return code;
+};
+
+```
+```angular2html
+// Function to dynamically create a new database using user.code
+const createDatabase = async (dbName, wholesalerData) => {
+        try {
+          const DB_URL = process.env.DB_URL;
+          const dbURI = DB_URL.replace("npk_interior", dbName);
+          const newDbConnection = mongoose.createConnection(dbURI);
+
+        // Define the "users" schema
+        const ShopAccountSchema = new mongoose.Schema({
+            //required schema
+        });
+
+    // Create the "account_detail" collection
+    const ShopAccountModel = newDbConnection.model('account_detail', ShopAccountSchema);
+
+    // Insert the first SHOP account record
+    await ShopAccountModel.insertOne({
+        //required data
+    });
+
+    console.log(`Database '${dbName}' created with 'account_detail' collection and initial wholesaler record.`);
+    return newDbConnection;
+    } catch (error) {
+      console.error(`Failed to create database '${dbName}':`, error);
+      throw error;
+    }
+};
+
+```
+```aiignore
+import cloudinary from "./cloudinary.controller.js";
+try {
+        const wholesalersData = Array.isArray(req.body.wholesalers) ? req.body.wholesalers : [];
+
+        if (wholesalersData.length === 0) {
+            return res.status(400).json({ success: false, message: "No valid wholesalers found" });
+        }
+
+        // Check duplicate emails
+        const duplicateEmails = await Wholesaler.find({
+            email: { $in: wholesalersData.map(w => w.email.toLowerCase()) }
+        }).lean();
+
+        if (duplicateEmails.length > 0) {
+            return res.status(400).json({ success: false, message: "Email already registered. Use a different email." });
+        }
+
+        // Group uploaded files by wholesaler index
+        const filesByWholesalerIndex = {};
+        if (req.files?.length > 0) {
+            for (const file of req.files) {
+                const match = file.fieldname.match(/^images-(\d+)$/);
+                if (match) {
+                    const index = parseInt(match[1]);
+                    filesByWholesalerIndex[index] = filesByWholesalerIndex[index] || [];
+                    filesByWholesalerIndex[index].push(file);
+                }
+            }
+        }
+
+        // Process and prepare wholesalers
+        const wholesalersToSave = await Promise.all(
+            wholesalersData.map(async (wholesaler, index) => {
+                const files = filesByWholesalerIndex[index] || [];
+                const code = await generateUniqueCode();
+
+                await createDatabase(code, wholesaler);
+
+                delete wholesaler.gstNumber;
+                delete wholesaler.panNumber;
+                delete wholesaler.bankName;
+                delete wholesaler.bankAccountNumber;
+                delete wholesaler.IFSCCode;
+
+                // Upload images to Cloudinary
+                const uploadedImages = await Promise.all(
+                    files.map(async (file) => {
+                        try {
+                            const result = await cloudinary.uploader.upload(file.path, {
+                                folder: `wholesalers/${code}`,
+                                public_id: `${Date.now()}-${file.originalname.split('.')[0]}`,
+                                resource_type: "image"
+                            });
+
+                            return {
+                                name: file.originalname,
+                                type: file.mimetype,
+                                key: result.secure_url,
+                                keyId: result.public_id
+                            };
+                        } finally {
+                            fs.unlink(file.path, (err) => {
+                                if (err) console.error('File delete error:', err);
+                            });
+                        }
+                    })
+                );
+
+                return {
+                    ...wholesaler,
+                    code,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    createdBy: req.user.id,
+                    updatedBy: req.user.id,
+                    images: uploadedImages
+                };
+            })
+        );
+
+        // Insert all wholesalers
+        const savedWholesalers = await Wholesaler.insertMany(wholesalersToSave);
+
+        // Send invitation emails in parallel
+        await Promise.all(savedWholesalers.map(sendInvitationToWholesaler));
+
+        res.status(201).json({ success: true, wholesalers: savedWholesalers });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Something went wrong", error: error.message });
+    }
+```
+
+> The handler begins by pulling `req.body.wholesalers` into a local array called `wholesalersData`; if that property is missing or not an array, it falls back to an empty array. If there are no entries to process, it immediately returns a 400 error, so you never waste work on an empty request.
+
+> Next, it performs a single database lookup against the `Wholesaler` collection to see if any of the submitted emails (lowercased) already exist. Finding one or more duplicates here causes another 400 response, preventing duplicate‐account creation before any files are uploaded or records are written.
+
+> The uploaded files arrive in fields named like `images-0`, `images-1`, etc. A simple regex extracts the index from each field name and groups those `req.files` into an object (`filesByWholesalerIndex`) so that later, when we process the nth wholesaler in the data array, we know exactly which files belong to it. 
+
+> Then we `Promise.all` over `wholesalersData`, meaning each wholesaler object is processed in parallel. For each, a unique code is generated and passed (along with the wholesaler data) into `createDatabase—perhaps` to seed related records in other collections. We delete fields such as GST number, PAN, bank details, and IFSC from the object so that sensitive PII doesn’t accidentally get stored twice. We then upload that wholesaler’s files to Cloudinary all at once, mapping each upload result into an `{ name, type, key, keyId }` object, and using a `finally` block (with `fs.unlink`) to clean up the temporary file whether the upload succeeds or fails.
+
+> Once every wholesaler has been transformed into the exact shape we want—including timestamps, `createdBy/updatedBy` from `req.user.id`, and an `images` array of upload metadata—we execute a single `insertMany` call. This bulk insertion is both faster and more atomic than saving each document one by one. Immediately afterward, we trigger invitation emails by mapping `savedWholesalers` through `sendInvitationToWholesaler` inside another `Promise.all`, so that email sending doesn’t block subsequent operations.
+
+> Finally, on success we return HTTP 201 with the newly created wholesaler documents. Any exception thrown along the way bubbles up to the `catch`, where we log it and send back a generic 500 response with the error message. This structure—early validation, grouped file handling, parallel processing with `Promise.all`, bulk insert, and centralized error handling—keeps the code both efficient and maintainable.
+
+#### Note:
+  - The main reason for using `Promise.all` here is to run multiple asynchronous tasks in parallel, instead of waiting for each one to finish before starting the next. This is crucial for improving performance and efficiency.
+
+Operation | Purpose | Why It’s Used Here | Benefit|
+|-|-|-|-|
+`Promise.all `for processing wholesalers & images | Execute all wholesalers data transformations and image uploads concurrently. | Avoids waiting for each wholesaler (and each of their file uploads) to finish before starting the next one, making the overall batch processing much faster. | - Parallel image uploads- Reduced total latency
+`Promise.all` for sending invitation emails | Send all invitation emails at the same time instead of one-by-one. | Prevents blocking on each individual email send, so the API can complete faster and the server remains responsive while emails are dispatched in the background. | - Faster bulk notifications- Non-blocking I/O
+Error handling with `Promise.all` | Immediately reject the batch if any sub-promise fails. | Ensures that a failure in any individual upload or email send is caught at the batch level, so you don’t end up with partial state (some wholesalers created, some not). | - Atomicity and consistency- Centralized errors

@@ -37,7 +37,7 @@ const createDatabase = async (dbName, wholesalerData) => {
             updatedOn: { type: Date, default: Date.now },
         });
 
-        // Create the "initials" collection
+        // Create the "account_detail" collection
         const ShopAccountModel = newDbConnection.model('account_detail', ShopAccountSchema);
 
         // Insert the first SHOP account record

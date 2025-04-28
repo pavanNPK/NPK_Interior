@@ -478,3 +478,282 @@ This authentication system is a robust and secure solution that ensures user aut
 promoting a seamless and secure user experience.
 It handles the complex token lifecycle
 while maintaining a seamless user experience and clean separation of concerns in your codebase.
+
+-------------------------------------------------------------------
+
+## Role-based Authentication
+We are using a combination of encryption and authentication measures to protect user data and prevent unauthorized access.
+Encryption is used to protect the data stored in the database, while authentication measures are used to verify the identity of users and their access rights.
+This approach ensures that the data is secure and that only authorized users can access it.
+
+> ### **At Client side**
+> - We are using `ROLE GAURD` for protecting the routes. After, login, it will redirect the user to the intended route. Before, going to the intended route, it will check if the user has the required role to access the route. If not, it will redirect the user to the login page.
+> - Example: 
+> > { path: 'required path', component: required component, title: 'NPK | title', canActivate: [roleGuard] },
+> - Here we can stop the user from going to the `required path`.
+```angular2html
+export const roleGuard: CanActivateFn = (
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+): boolean | UrlTree => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+    const user = authService.currentUserValue;
+    if (!user) return router.createUrlTree(['/access-denied']);
+    const role = user.role.toLowerCase();
+    const currentUrl = state.url.toLowerCase();
+
+    // here we  an manage the routes
+
+    if (role.startsWith('admin role')) return true;
+    if (role.startsWith('user role')) {
+    const restrictedPaths = ['main path(parent)'];
+    const allowedPaths = ['sub-paths(crud)'];
+    const segments = currentUrl.split('?')[0].split('/');
+    // If any restricted path is present in the URL segments, deny access
+    if (segments.some(seg => restrictedPaths.includes(seg))) {
+    return router.createUrlTree(['/access-denied']);
+    }
+    // Allow if any allowed path is in the URL
+    if (segments.some(seg => allowedPaths.includes(seg))) {
+    return true;
+    }
+    return router.createUrlTree(['/access-denied']);
+    }
+    return router.createUrlTree(['/access-denied']);
+};
+```
+##### Explaination:
+
+```angular2html
+import { inject } from '@angular/core';
+→ Brings in the inject function to manually inject services inside a standalone function.
+
+import { CanActivateFn, Router, UrlTree, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+→ Imports types and classes needed for routing guards and redirections.
+
+import { AuthService } from '../../services/auth.service';
+→ Imports your custom AuthService which handles user authentication details.
+
+export const roleGuard: CanActivateFn = (route, state) => {
+→ Defines and exports a guard function (roleGuard) that determines if navigation is allowed.
+
+const authService = inject(AuthService);
+→ Injects an instance of AuthService to access the current user info.
+
+const router = inject(Router);
+→ Injects the Router service to programmatically create redirection URLs.
+
+const user = authService.currentUserValue;
+→ Retrieves the currently logged-in user's information.
+
+if (!user) return router.createUrlTree(['/access-denied']);
+→ If no user is logged in, redirect them to an "Access Denied" page.
+
+const role = user.role.toLowerCase();
+→ Converts the user's role to lowercase for easier comparison.
+
+const currentUrl = state.url.toLowerCase();
+→ Retrieves and lowercases the current navigation URL.
+
+if (role.startsWith('sup')) return true;
+→ If the user’s role starts with 'sup' (likely supervisor), allow access to all routes.
+
+if (role.startsWith('shop')) {
+→ If the user’s role starts with 'shop', apply additional restrictions.
+
+const restrictedPaths = ['categories'];
+→ Defines URL segments that "shop" users are not allowed to access.
+
+const allowedPaths = ['view', 'details'];
+→ Defines URL segments that "shop" users are allowed to access.
+
+const segments = currentUrl.split('?')[0].split('/');
+→ Splits the URL into segments, ignoring query parameters.
+
+if (segments.some(seg => restrictedPaths.includes(seg))) {
+→ If any URL segment matches a restricted path, deny access.
+
+return router.createUrlTree(['/access-denied']);
+→ Redirects to the "Access Denied" page if a restricted segment is found.
+
+if (segments.some(seg => allowedPaths.includes(seg))) {
+→ If any URL segment matches an allowed path, permit access.
+
+return true;
+→ Grants access to the route if allowed segments are found.
+
+return router.createUrlTree(['/access-denied']);
+→ Otherwise, if none match, deny access.
+}
+→ Ends the "shop" role conditional block.
+
+return router.createUrlTree(['/access-denied']);
+→ For any other roles (not "sup" or "shop"), deny access.
+
+};
+→ Ends the roleGuard function.
+```
+
+
+> ## **At Server side**
+> - We are using ` authenticateToken, authorizeRoles` for verifying the user's token. It will check if the user has the required role to access the route. If not, it will return a `403` error response.
+> - Example:
+> > router.get('/path', authenticateToken, authorizeRoles('supervise', 'shopper'), function here(getCartItems));
+> - Here we can stop the user from going to the `required path` By validating the token and role.
+
+#### Token Creation: generateToken
+
+```angular2html
+export const generateToken = (user) => {
+        return JWT.sign({ id: user._id.toString(), email: user.email, role:user.role, code: user.code }, process.env.JWT_SECRET, { expiresIn: '24h' });
+}
+
+Purpose: Create a JWT token when the user logs in.
+Details:
+    Payload inside token: { id, email, role, code } from the user object.
+    Secret: JWT_SECRET from .env file.
+    Expiration: 24 hours.
+Usage: Sent to client after login for secured requests.
+
+```
+
+####  Authentication Middleware: authenticateToken
+
+```angular2html
+
+export const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) return res.sendStatus(401);
+            const userId = decoded.id; // Keep it as a string
+        // Query using the ObjectId
+        const user = await User.findOne({ _id: userId }, {}, { lean: true });
+        if (!user) {
+        return res.json({
+                success: false,
+                message: 'Invalid token or user not found.'
+                        });
+        }
+        req.user = decoded; // Attach user info to the request
+        next();
+};
+Purpose: Verify that incoming requests have a valid JWT token.
+Step-by-Step:
+    Reads token from Authorization header (Bearer TOKEN format).
+    Verifies the token using JWT.verify().
+    Fetches user info from database using decoded id.
+    If valid → attaches user info to req.user and calls next().
+    If invalid (token expired, wrong token, no token) → responds with error message.
+Important:
+    Handles expired tokens differently (TokenExpiredError).
+    Uses .lean() for fast Mongoose queries (returns plain JS object, no overhead).
+```
+#### Role-based Authorization Middleware: authorizeRoles
+
+```angular2html
+export const authorizeRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return res.json({
+                response: null,
+                role: "notAllowed",
+                success: false,
+                // message: `Role (${req.user.role}) is not allowed to access this resource.
+                // Allowed roles are: ${roles.join(', ')}`
+                message: `Role is not allowed to access this resource.`
+            });
+        }
+        next();
+    };
+};
+
+Purpose: Restrict access to specific roles only (e.g., admin, moderator, etc.).
+How it works:
+    Takes a list of allowed roles (...roles as a rest parameter).
+    Checks if req.user.role is included in the allowed roles.
+    If not, it blocks access with a custom JSON response.
+    If yes, it proceeds to the next middleware or route handler.
+```
+#### Token Refresh: refreshToken
+```angular2html
+export const refreshToken = async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+        if (!refreshToken) {
+            return res.json({
+                success: false,
+                message: 'Refresh token is required!'
+            });
+        }
+        const decoded = JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = await User.findById(decoded.id, {}, { lean: true });
+        if (!user) {
+            return res.json({
+                success: false,
+                message: 'Invalid refresh token!'
+            });
+        }
+        const newAccessToken = generateToken(user);
+        res.json({
+            response: {
+            accessToken: newAccessToken
+            },
+            success: true,
+            message: 'Token refreshed successfully'
+        });
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+            res.json({
+            success: false,
+            message: 'Invalid refresh token!'
+        });
+    }
+};
+
+Purpose: Issue a new access token using a valid refresh token.
+Process:
+    Reads refreshToken from req.body.
+    Verifies the refresh token using JWT.verify() with a different secret (REFRESH_TOKEN_SECRET).
+    Finds the user in the database by ID from the decoded refresh token.
+If the user exists:
+    Creates a new access token using generateToken(user).
+    Sends the new token back to the client.
+If invalid:
+    Responds with an error message.
+Note: The refresh token mechanism improves security by limiting the lifespan of access tokens.
+```
+### Important Concepts Highlighted:
+
+
+| Concept    | Explanation       |
+|-----------|--------|
+| JWT (JSON Web Token)	   | A compact, URL-safe way of representing claims between two parties.
+| Access Token	      | Short-lived token used to access protected resources.|
+| Refresh Token	   | Long-lived token used to get a new access token without re-login.|
+| Middleware | Functions that execute during the request-response cycle, before the final handler.|
+| Authorization Header	 | Standard HTTP header to pass the bearer token (Authorization: Bearer TOKEN).|
+| Lean Queries	   |     In Mongoose, .lean() improves read performance by skipping the full Mongoose document creation.|
+
+###  Quick Visual Summary of Flow:
+
+Login Success ➔ generateToken() ➔ Client Stores Access Token
+
+↓
+
+Client Makes API Request with Access Token ➔ authenticateToken()
+
+↓
+
+If Role Restrictions ➔ authorizeRoles('admin', 'user')
+
+↓
+
+If Token Expires ➔ Client Requests refreshToken() ➔ Server Issues New Access Token
+
+###  In Short:
+
+- **generateToken**: Creates new access tokens.
+- **authenticateToken**: Validates user by checking token.
+- **authorizeRoles**: Restricts access to specific roles.
+- **refreshToken**: Issues new access tokens using refresh tokens.(Provides new access tokens when the old ones expire.)

@@ -202,3 +202,190 @@ dimensionFormatValidator(): ValidatorFn {
       this.discountedPriceChange(this.p.at(i).get('price')?.value, this.p.at(i).get('discount')?.value, i);
     }
  ```
+
+------------------------------------------------------------------------------------
+
+### Reading excel and csv files. Convert them into required object post into DB
+
+```aiignore
+  import * as XLSX from "xlsx";
+  //here i imported predefined excelFormatForBulkProducts for instruction to upload specific format
+  import {ExcelFormatForBulkProducts} from "../excelFormatForBulkProducts";
+  
+   excelData: any[] = [];
+   tableHeaders: string[] = [];
+   
+   onFileSelected(event: Event) {
+      this.nonUpload = true;
+      this.bulkInstructions = true;
+      const target = event.target as HTMLInputElement;
+
+      if (!target.files || target.files.length !== 1) {
+        console.error('Please select exactly one file.');
+        return;
+      }
+
+      const file = target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        const bstr = e.target.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+
+        const sheet = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+        // Handle headers (first 2 rows)
+        const headerRow1 = sheet[0];
+        const headerRow2 = sheet[1];
+
+        // @ts-ignore
+        const finalHeaders = headerRow1.map((col: any, i: string | number) => {
+          // @ts-ignore
+          if (headerRow2 && headerRow2[i]) {
+            // @ts-ignore
+            return `${col}.${headerRow2[i]}`.trim();
+          }
+          return col;
+        });
+
+        const dataRows = sheet.slice(2);
+        this.excelData = dataRows
+          .map(row => {
+            const obj: any = {};
+            finalHeaders.forEach((key: string | number, i: string | number) => {
+              // @ts-ignore
+              obj[key] = row[i];
+            });
+            return obj;
+          })
+          .filter(row =>
+            Object.values(row).some(value => value !== null && value !== undefined && value !== '')
+          );
+
+        this.tableHeaders = finalHeaders;
+      };
+
+      reader.readAsBinaryString(file);
+    }
+
+    closeUpload(){
+      this.nonUpload = false;
+      this.submitted = false;
+      this.bulkInstructions = false;
+      this.excelData = [];
+      this.tableHeaders = [];
+      // Reset the file input so same file can be re-uploaded
+      if (this.fileInput) {
+        this.fileInput.nativeElement.value = '';
+      }
+    }
+    formatForExcel(bulkPDCTExcelFormat: any) {
+      this.dialogService.open(bulkPDCTExcelFormat, {closeOnBackdropClick: false});
+    }
+    uploadBulkProducts(){
+      const getValue = (obj: any, key: string, fallback: any = 'changed') => {
+        return Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : fallback;
+      };
+      const durations = [3, 6, 9, 12];
+      const productImages = [1, 2, 3, 4, 5];
+
+      const products = this.excelData.map((row: any) => ({
+        name: getValue(row, 'name'),
+        slug: getValue(row, 'slug'),
+        description: getValue(row, 'description'),
+        category: {
+          name: getValue(row, 'category.name'),
+          id: getValue(row, 'category.id')
+        },
+        subCategory: {
+          name: getValue(row, 'subCategory.name'),
+          id: getValue(row, 'subCategory.id')
+        },
+        price: getValue(row, 'price', 0),
+        discount: getValue(row, 'discount', 0),
+        discountedPrice: getValue(row, 'discountedPrice', 0),
+        emiStartsAt: getValue(row, 'emiStartsAt', 0),
+        annualInterest: getValue(row, 'annualInterest', 0),
+        isTrending: getValue(row, 'isTrending', false),
+        isFeatured: getValue(row, 'isFeatured', false),
+        isNewArrival: getValue(row, 'isNewArrival', false),
+        cart: getValue(row, 'cart', false),
+        wishlist: getValue(row, 'wishlist', false),
+        remainingCount: getValue(row, 'remainingCount', 0),
+        specifications: {
+          color: getValue(row, 'specifications.color'),
+          brand: getValue(row, 'specifications.brand'),
+          material: getValue(row, 'specifications.material'),
+          weight: getValue(row, 'specifications.weight'),
+          washingInstructions: getValue(row, 'specifications.washingInstructions'),
+          dimensions: getValue(row, 'specifications.dimensions'),
+          finish: getValue(row, 'specifications.finish'),
+          warranty: getValue(row, 'specifications.warranty'),
+        },
+        emiDetails: durations.map(duration => {
+          const prefix = `emiDetails${duration}`;
+          return {
+            month: getValue(row, `${prefix}.month`),
+            monthlyEmi: getValue(row, `${prefix}.monthlyEmi`),
+            totalPayable: getValue(row, `${prefix}.totalPayable`),
+            interestAmount: getValue(row, `${prefix}.interestAmount`),
+            principal: getValue(row, `${prefix}.principal`),
+          };
+        }),
+        images: productImages
+          .map(image => {
+            const prefix = `images${image}`;
+            const name = getValue(row, `${prefix}.name`);
+            const key = getValue(row, `${prefix}.key`);
+            const type = getValue(row, `${prefix}.type`);
+            if (!name || !key || !type) return null;
+            return {
+              name,
+              key,
+              type,
+            };
+          })
+          .filter(Boolean)
+      }));
+
+      this.ps.bulkUploadProducts(products).subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.toastService.success('Successfully added new products', 'Products', {duration: 2000});
+            this.closeUpload();
+            this.router.navigate(['/products/view']);
+          } else {
+            this.toastService.danger('Failed to add new products', 'Products', {duration: 2000});
+          }
+        }
+      })
+    }
+```
+
+| Method                                                                                                                           | Explanation|
+|----------------------------------------------------------------------------------------------------------------------------------|---|
+ onFileSelected(event: Event)                                                                                                     | Purpose: Handles file selection event when the user selects a file.|
+|                                                                                                                                  | Steps:|
+|                                                                                                                                  | 1. Checks if a file is selected and if only one file is chosen.                                                                    
+|                                                                                                                                  | 2. Reads the file using FileReader to parse an Excel file using the XLSX library.                                                  
+|| 3. Extracts the sheet data and combines headers (from two rows) into a final header array.                                         
+|| 4. Maps the rows into an object format, filtering out rows with empty values.                                                      
+||5. Sets the processed data (excelData) and table headers (tableHeaders).                                                           
+ closeUpload()                                                                                                                    | Purpose: Resets the upload state and clears the data.
+|| Steps:                                                                                                                            
+|| 1. Resets flags (nonUpload, submitted, bulkInstructions).                                                                         
+||2. Clears previously uploaded data (excelData, tableHeaders).                                                                     
+|| 3. Clears the file input field to allow the same file to be uploaded again.                                                      
+ formatForExcel(bulkPDCTExcelFormat: any)                                                                                         | Purpose: Opens a dialog with instructions for bulk product upload.
+|| Steps:                                                                                                                           
+|| 1. Opens a dialog box with specific instructions (bulkPDCTExcelFormat).                                                          
+ uploadBulkProducts()                                                                                                             | Purpose: Uploads the bulk product data after processing the Excel file.
+| |Steps:                                                                                                                           
+| |1. Defines a helper function getValue() to safely retrieve values from the row, defaulting to 'changed' if the key doesn’t exist. 
+|| 2. Maps each row of excelData to a product object, extracting values from the row and converting them into the appropriate format. 
+| |3. Uses the durations array to map EMI details for each product.                                                                 
+|| 4. Loops over productImages to handle image-related data for the product.                                                        
+| |5. Calls a bulkUploadProducts() method from a service (ps) to send the data to the backend.                                      
+| |6. Displays a success or failure message using toastService and redirects to the products view page.                             
