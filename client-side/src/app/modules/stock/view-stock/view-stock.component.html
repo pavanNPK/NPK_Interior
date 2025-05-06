@@ -1,9 +1,9 @@
-<div class="viewProductStockMain" *ngIf="loading">
+<div class="viewProductStockMain">
   <div class="appLayoutHeader">
     <div class="appLayoutHeaderText d-flex gap-2 align-items-center justify-content-between p-2">
       <h5 class="fw-semibold m-0">Stock Availability</h5>
       <button nbButton size="small"
-              nbTooltip="Add the stock for the prodcuts" nbTooltipPlacement="bottom"
+              nbTooltip="Add the stock for the products" nbTooltipPlacement="bottom"
               class="rounded-2 fw-semibold">
         <nb-icon icon="plus-outline"></nb-icon>
       </button>
@@ -11,17 +11,28 @@
   </div>
   <div class="appLayoutBody">
     <nb-card>
-      <nb-card-body>
-        <nb-tabset>
-          <nb-tab tabTitle="Low Stock" tabIcon="alert-triangle-outline"  responsive>
-            <p>List of <strong>users</strong>.</p>
-          </nb-tab>
-          <nb-tab tabTitle="Out of Stock" tabIcon="slash-outline"  responsive>
-            <p>List of <strong>orders</strong>.</p>
-          </nb-tab>
-          <nb-tab tabTitle="Applied Stock" tabIcon="checkmark-circle-2-outline" responsive>
-            <p>List of <strong>orders</strong>.</p>
-          </nb-tab>
+      <nb-card-body class="p-0">
+        <nb-tabset (changeTab)="getTabData($event.tabId)">
+          @for (tab of tabHeaders; track tab.value) {
+            <nb-tab tabTitle="{{tab.label}}" class="p-3"
+                    tabIcon="{{tab.tabIcon}}" responsive
+                    tabId="{{tab.value}}">
+
+              <!-- Show content when data is loaded -->
+              <div *ngIf="!loading || tabActiveValue !== tab.value">
+                <app-pagination
+                  [totalRecords]="allProducts.length"
+                  [perPage]="perPage"
+                  [tabTypeData]="tabActiveValue"
+                  [paginationData]="paginatedProducts"
+                  [currentPage]="currentPage"
+                  [isLoading]="loading"
+                  (pageChanged)="onPageChange($event)"
+                  (perPageChanged)="onPerPageChange($event)">
+                </app-pagination>
+              </div>
+            </nb-tab>
+          }
         </nb-tabset>
       </nb-card-body>
     </nb-card>

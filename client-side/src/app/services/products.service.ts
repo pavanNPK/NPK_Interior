@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
-import { ResponseWithError } from '../models/commonDTO';
-import { ProductsDTO } from '../models/productsDTO';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {map, Observable} from 'rxjs';
+import {ResponseWithError} from '../models/commonDTO';
+import {ProductsDTO} from '../models/productsDTO';
 import {
   ADD_PRODUCTS, BULK_UPLOAD,
   DOMAIN_URL,
   GET_ALL_CATEGORIES,
-  GET_ALL_PRODUCTS,
+  GET_ALL_PRODUCTS, GET_LOW_STOCK_PRODUCTS,
   PRODUCT_NOTIFY_TO_USER
 } from "../constants/API-DTO";
 
@@ -15,7 +15,8 @@ import {
   providedIn: 'root'
 })
 export class ProductsService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+  }
 
 
   getProducts(search: string): Observable<ResponseWithError<ProductsDTO[]>> {
@@ -47,6 +48,7 @@ export class ProductsService {
   addProductToCartOrWishlist(id: string, typeValue: boolean, type: string): Observable<ResponseWithError<any>> {
     return this.http.patch<ResponseWithError<any>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}/${id}`, {[type]: !typeValue})
   }
+
   notifyUserForProduct(id: string, typeValue: boolean): Observable<ResponseWithError<any>> {
     return this.http.patch<ResponseWithError<any>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}${PRODUCT_NOTIFY_TO_USER}/${id}`, {notify: !typeValue})
   }
@@ -54,5 +56,11 @@ export class ProductsService {
   bulkUploadProducts(products: any): Observable<ResponseWithError<any>> {
     return this.http.post<ResponseWithError<any>>(`${DOMAIN_URL}${ADD_PRODUCTS}${BULK_UPLOAD}`, products)
       .pipe(map(response => response));
+  }
+
+  getLowStockProducts(stockType: string): Observable<ResponseWithError<ProductsDTO[]>> {
+    return this.http.get<ResponseWithError<ProductsDTO[]>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}${GET_LOW_STOCK_PRODUCTS}`, {
+      params: {stockType}
+    }).pipe(map(response => response))
   }
 }

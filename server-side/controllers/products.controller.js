@@ -547,3 +547,22 @@ export const bulkUpload = async (req, res) => {
         res.status(500).json({response: null, success: false, message: 'Error uploading products' });
     }
 };
+
+export const getLowStockProducts = async (req, res) => {
+    try {
+        let {stockType} = req.query;
+        let filter = {}
+        if (stockType === 'lowStock'){
+            filter = {remainingCount: { $lt: 51, $gt: 0 } };
+        } else if (stockType === 'outOfStock'){
+            filter = {remainingCount: { $lt: 1 } };
+        } else if (stockType === 'appliedStock'){
+            filter = {remainingCount: { $gt: 0 } };
+        }
+        const products = await Product.find(filter, { name: 1, _id: 1, slug: 1, remainingCount: 1 }).lean().exec();
+        res.json({response: products, success: true, message: 'Low stock products fetched successfully' });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({response: null, success: false, message: 'Error fetching products' });
+    }
+};

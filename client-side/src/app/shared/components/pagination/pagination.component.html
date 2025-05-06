@@ -1,0 +1,82 @@
+<div class="pagination-wrapper">
+  <!-- No data message -->
+  <div *ngIf="!paginationData?.length" class="no-data-message">
+    <p class="fw-semibold">No data available for {{ tabTypeData }}</p>
+  </div>
+
+  <!-- Data table -->
+  <div *ngIf="paginationData?.length > 0" class="data-container">
+    <div class="OrderTable">
+      <table class="w-100 dataTableCss">
+        <thead>
+          <tr class="d-flex">
+            <th class="col-1">#</th>
+            <th class="col-3">Name</th>
+            <th class="col-2">Stock</th>
+            <th class="col-4">Wholesalers</th>
+            <th class="col-2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let item of paginationData; trackBy: trackById; let i = index">
+          <tr class="d-flex">
+            <td class="col-1">{{i+1}}</td>
+            <td class="col-3">{{item.name}}</td>
+            <td class="col-2">{{item.remainingCount}}</td>
+            <td class="col-4">sffsdfsdfsdf</td>
+            <td class="col-2">
+              <nb-icon class="cursor-pointer-npk" size="small" status="info" nbTooltip="Assign the product to wholesalers" icon="at-outline" pack="eva" ></nb-icon>
+            </td>
+          </tr>
+        </ng-container>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-controls">
+      <!-- Records per page selector -->
+      <div class="per-page-selector">
+        <label>Records per page:</label>
+        <nb-select [(ngModel)]="perPage" (ngModelChange)="onPerPageChange($event)" size="small">
+          <nb-option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</nb-option>
+        </nb-select>
+      </div>
+
+      <!-- Record range info -->
+      <div class="record-info">
+        <p class="m-0">
+          Showing {{ totalRecords ? (currentPage - 1) * perPage + 1 : 0 }} to
+          {{ Math.min(currentPage * perPage, totalRecords) }} of {{ totalRecords }}
+        </p>
+      </div>
+
+      <!-- Page navigation -->
+      <div class="pagination-buttons">
+        <button nbButton size="small" outline (click)="changePage(1)" [disabled]="currentPage === 1">
+          First
+        </button>
+
+        <button nbButton size="small" outline (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+          Prev
+        </button>
+
+        <ng-container *ngIf="visiblePages.length > 0">
+          <button *ngFor="let p of visiblePages"
+                  nbButton size="small"
+                  [status]="p === currentPage ? 'primary' : 'basic'"
+                  (click)="changePage(p)">
+            {{ p }}
+          </button>
+        </ng-container>
+
+        <button nbButton size="small" outline (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
+          Next
+        </button>
+
+        <button nbButton size="small" outline (click)="changePage(totalPages)" [disabled]="currentPage === totalPages">
+          Last
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

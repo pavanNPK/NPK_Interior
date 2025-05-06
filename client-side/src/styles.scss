@@ -264,41 +264,38 @@ input:-webkit-autofill:active {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.dataTableCss thead tr{
+  background: #2E3C6F!important;
+  border-radius: 5px!important;
+  margin-bottom: 8px;
+  margin-top: 8px;
+  color: white;
+}
 
-.dataTableCss {
-  thead {
-    tr {
-      background: #2E3C6F !important;
-      border-radius: 5px !important;
-      margin: 8px 0;
-      color: white;
-    }
-    th {
-      border: none !important;
-    }
-  }
+.dataTableCss tbody tr{
+  background: #f7f9fc!important;
+  border-radius: 5px!important;
+  margin-bottom: 8px;
+  align-items: center;
+}
 
-  tbody {
-    tr {
-      background: #ffffff !important;
-      border-radius: 5px !important;
-      margin-bottom: 8px;
-      align-items: center;
-      td {
-        word-break: break-word;
-        nb-icon {
-          font-size: 1.4rem;
-          cursor: pointer;
-        }
-      }
-    }
-  }
+.dataTableCss thead th{
+  border: transparent!important;
+}
 
-  td,
-  th {
-    border: none !important;
+.dataTableCss td, .table th{
+  border: transparent!important;
+}
+
+.dataTableCss tbody tr td{
+  word-break: break-word;
+
+  nb-icon{
+    font-size: 1.4rem;
+    cursor: pointer;
   }
 }
+
 .productStockBannerOOS{
   background: red;
 }
