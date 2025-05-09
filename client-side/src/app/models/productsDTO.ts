@@ -43,6 +43,7 @@ export class ProductsDTO {
   cart?: boolean;
   wishlist?: boolean;
   bulkUpload?: boolean;
+  wholeSalers?: ProductWholeSalersDTO[];
 }
 export class ProductImagesDTO {
   key?: string;
@@ -58,4 +59,10 @@ export class EMIDetailsDTO{
   totalPayable?: number;
   interestAmount?: number;
   principal?: number;
+}
+export class ProductWholeSalersDTO {
+  name?: string;
+  email?: string;
+  _id?: string;
+  profilePicture?: string;
 }

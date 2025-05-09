@@ -32,7 +32,7 @@ export class ViewStockComponent implements OnInit {
 
   allProducts: ProductsDTO[] = []; // All fetched products
   paginatedProducts: ProductsDTO[] = []; // Only the visible page
-  perPage = 10;
+  perPage = 50;
   currentPage = 1;
   tabActiveValue = 'lowStock';
 

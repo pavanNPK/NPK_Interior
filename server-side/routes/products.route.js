@@ -10,7 +10,12 @@ import {
     getProducts,
     getProductById,
     updateProduct,
-    deleteProduct, updateProductType, notifyProductToUser, bulkUpload, getLowStockProducts
+    deleteProduct,
+    updateProductType,
+    notifyProductToUser,
+    bulkUpload,
+    getLowStockProducts,
+    updateProductStock
 } from '../controllers/products.controller.js';
 
 import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware.js';
@@ -66,7 +71,8 @@ router.get('/getLowStockProducts', authenticateToken, authorizeRoles('supervise'
 router.get('/:slug', authenticateToken, authorizeRoles('supervise', 'shopper'), getProductById);
 router.put('/:slug',  authenticateToken, authorizeRoles('supervise'), uploadUpdate.any(), updateProduct);
 router.patch('/:id', authenticateToken, authorizeRoles( 'shopper'), updateProductType);
-router.patch('/notifyToUser/:id', authenticateToken, authorizeRoles( 'shopper'), notifyProductToUser);
+router.patch('/updateStock/:id', authenticateToken, authorizeRoles( 'supervise'), updateProductStock);
+router.patch('/notifyToUser/:id', authenticateToken, authorizeRoles( 'supervise'), notifyProductToUser);
 router.delete('/:id',  authenticateToken, authorizeRoles('supervise'),deleteProduct);
 
 // Export the router

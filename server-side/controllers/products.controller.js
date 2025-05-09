@@ -6,6 +6,7 @@ import slugify from 'slugify';
 import fs from 'fs';
 import {deleteFileFromS3, getSignedUrlForS3, migrateS3Folder, uploadWithPutObject} from "./s3upload.controller.js";
 import {getDbConnection, getModel} from "./dbSwitch.controller.js";
+import {productStockAggregate} from "../aggregators/product-stock.aggregate.js";
 
 // Get all products
 export const getProducts = async (req, res) => {
@@ -551,18 +552,28 @@ export const bulkUpload = async (req, res) => {
 export const getLowStockProducts = async (req, res) => {
     try {
         let {stockType} = req.query;
-        let filter = {}
-        if (stockType === 'lowStock'){
-            filter = {remainingCount: { $lt: 51, $gt: 0 } };
-        } else if (stockType === 'outOfStock'){
-            filter = {remainingCount: { $lt: 1 } };
-        } else if (stockType === 'appliedStock'){
-            filter = {remainingCount: { $gt: 0 } };
-        }
-        const products = await Product.find(filter, { name: 1, _id: 1, slug: 1, remainingCount: 1 }).lean().exec();
+        let stockAggregateQry = productStockAggregate(stockType);
+        const products = await Product.aggregate(stockAggregateQry);
         res.json({response: products, success: true, message: 'Low stock products fetched successfully' });
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).json({response: null, success: false, message: 'Error fetching products' });
+    }
+};
+
+export const updateProductStock = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const stock = req.body;
+        console.log(id, stock)
+        // const product = await Product.findByIdAndUpdate(
+        //     id,
+        //     { $set: { stock } },
+        //     { new: true, runValidators: true }
+        // ).lean().exec();
+        // res.json({response: product, success: true, message: 'Stock updated successfully' });
+    } catch (error) {
+        console.error('Error updating stock:', error);
+        res.status(500).json({response: null, success: false, message: 'Error updating stock' });
     }
 };

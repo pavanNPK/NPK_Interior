@@ -11,71 +11,73 @@
     </div>
   </div>
   <div class="appLayoutBody">
-    <div class="viewWholesalers row m-0">
+    <div class="viewWholesalers row">
       @for (ws of wsData;track ws.code) {
-        <nb-card class="col-sm-12 col-md-6 col-lg-4 col-xl-4 mb-3 wholesalerProfileCard">
-          <nb-card-header class="p-2 wholesalerProfileCardHeader">
-            <div>
-              <div class="d-flex gap-2 align-items-center justify-content-between">
-                <div>
-                  <p class="fw-semibold m-0 p-0 text-truncate">{{ws.name}}</p>
-                  <div class="d-flex align-items-center gap-1">
-                    <nb-icon icon="email-outline" class="text-black-50"></nb-icon>
-                    <small class="fw-semibold text-black-50 text-truncate">{{ws.email}}</small><br>
+        <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4 mb-1">
+          <nb-card class="wholesalerProfileCard px-2">
+            <nb-card-header class="p-2 wholesalerProfileCardHeader">
+              <div>
+                <div class="d-flex gap-2 align-items-center justify-content-between">
+                  <div>
+                    <p class="fw-semibold m-0 p-0 text-truncate">{{ws.name}}</p>
+                    <div class="d-flex align-items-center gap-1">
+                      <nb-icon icon="email-outline" class="text-black-50"></nb-icon>
+                      <small class="fw-semibold text-black-50 text-truncate">{{ws.email}}</small><br>
+                    </div>
+                  </div>
+                  <div >
+                    @for (im of ws.images; track im.key) {
+                      <img ngSrc="{{im.key}}" alt="logo" style="object-fit: cover; aspect-ratio: 1 / 1;" class="rounded-circle img-thumbnail wholesalerProfileCardImg" width="60" height="60">
+                    }
                   </div>
                 </div>
-                <div >
-                  @for (im of ws.images; track im.key) {
-                    <img ngSrc="{{im.key}}" alt="logo" class="rounded-circle img-thumbnail wholesalerProfileCardImg" width="60" height="60">
-                  }
-                </div>
               </div>
-            </div>
-          </nb-card-header>
-          <nb-card-body class="px-0 wholesalerProfileCardBody">
-            <div class="">
+            </nb-card-header>
+            <nb-card-body class="px-0 wholesalerProfileCardBody">
               <div class="">
-                <small class="fw-semibold mb-0"><nb-icon icon="home-outline" class="fs-small"></nb-icon> Address</small>
-                <small class="m-0 wholesalerProfileCardAddress text-black-50 ml-4" nbTooltip="{{ws.address}}">{{ws.address}}</small>
-              </div>
-              <div class="mt-2 d-flex gap-2 align-items-center">
-                <div>
-                  <small class="fw-semibold mb-0 d-flex"> <nb-icon icon="phone-outline" class="fs-6 mr-1"></nb-icon> Contact</small>
-                  <small class="m-0 text-black-50 ml-4">{{ws.phone}}</small>
+                <div class="">
+                  <small class="fw-semibold mb-0"><nb-icon icon="home-outline" class="fs-small"></nb-icon> Address</small>
+                  <small class="m-0 wholesalerProfileCardAddress text-black-50 ml-4" nbTooltip="{{ws.address}}">{{ws.address}}</small>
+                </div>
+                <div class="mt-2 d-flex gap-2 align-items-center">
+                  <div>
+                    <small class="fw-semibold mb-0 d-flex"> <nb-icon icon="phone-outline" class="fs-6 mr-1"></nb-icon> Contact</small>
+                    <small class="m-0 text-black-50 ml-4">{{ws.phone}}</small>
+                  </div>
+                  <div>
+                    <small class="fw-semibold mb-0 d-flex"> <nb-icon icon="phone-outline" class="fs-6 mr-1"></nb-icon> Alternative</small>
+                    <small class="m-0 text-black-50 ml-4">{{ws.phone}}</small>
+                  </div>
                 </div>
                 <div>
-                  <small class="fw-semibold mb-0 d-flex"> <nb-icon icon="phone-outline" class="fs-6 mr-1"></nb-icon> Alternative</small>
-                  <small class="m-0 text-black-50 ml-4">{{ws.phone}}</small>
+                  <small class="fw-semibold mb-0"> <nb-icon icon="globe-outline" class="fs-6"></nb-icon> Location</small><br>
+                  <small class="m-0 text-black-50 ml-3">{{ws.country}} - {{ws.state}} - {{ws.city}} - {{ws.zipCode}}</small>
                 </div>
               </div>
-              <div>
-                <small class="fw-semibold mb-0"> <nb-icon icon="globe-outline" class="fs-6"></nb-icon> Location</small><br>
-                <small class="m-0 text-black-50 ml-3">{{ws.country}} - {{ws.state}} - {{ws.city}} - {{ws.zipCode}}</small>
+            </nb-card-body>
+            <nb-card-footer class="p-2 wholesalerProfileCardFooter">
+              <div class="d-flex gap-2 justify-content-end">
+                <button nbButton size="small" status="info"
+                        [routerLink]="['/wholesalers/edit',ws.code]"
+                        nbTooltip="Edit the wholesalers" nbTooltipPlacement="bottom"
+                        class="rounded-2 fw-semibold">
+                  <nb-icon icon="edit-outline"></nb-icon>
+                </button>
+                <button nbButton size="small" status="success"
+                        [routerLink]="['/wholesalers/edit',ws.code]"
+                        nbTooltip="View details of the wholesalers" nbTooltipPlacement="bottom"
+                        class="rounded-2 fw-semibold">
+                  <nb-icon icon="eye-outline"></nb-icon>
+                </button>
+                <button nbButton size="small" status="danger"
+                        nbTooltip="Delete the wholesalers" nbTooltipPlacement="bottom"
+                        class="rounded-2 fw-semibold">
+                  <nb-icon icon="trash-outline"></nb-icon>
+                </button>
               </div>
-            </div>
-          </nb-card-body>
-          <nb-card-footer class="p-2 wholesalerProfileCardFooter">
-            <div class="d-flex gap-2 justify-content-end">
-              <button nbButton size="small" status="info"
-                      [routerLink]="['/wholesalers/edit',ws.code]"
-                      nbTooltip="Edit the wholesalers" nbTooltipPlacement="bottom"
-                      class="rounded-2 fw-semibold">
-                <nb-icon icon="edit-outline"></nb-icon>
-              </button>
-              <button nbButton size="small" status="success"
-                      [routerLink]="['/wholesalers/edit',ws.code]"
-                      nbTooltip="View details of the wholesalers" nbTooltipPlacement="bottom"
-                      class="rounded-2 fw-semibold">
-                <nb-icon icon="eye-outline"></nb-icon>
-              </button>
-              <button nbButton size="small" status="danger"
-                      nbTooltip="Delete the wholesalers" nbTooltipPlacement="bottom"
-                      class="rounded-2 fw-semibold">
-                <nb-icon icon="trash-outline"></nb-icon>
-              </button>
-            </div>
-          </nb-card-footer>
-        </nb-card>
+            </nb-card-footer>
+          </nb-card>
+        </div>
       }
     </div>
   </div>

@@ -3,6 +3,7 @@ import fs from "fs";
 import cloudinary from "./cloudinary.controller.js";
 import nodemailer from "nodemailer";
 import mongoose from "mongoose";
+import User from "../models/user.model.js";
 
 // Helper to generate unique code
 const generateUniqueCode = async () => {
@@ -225,6 +226,21 @@ export const addWholesaler = async (req, res) => {
 
         // Send invitation emails in parallel
         await Promise.all(savedWholesalers.map(sendInvitationToWholesaler));
+
+        // Prepare users to insert
+        const usersToInsert = savedWholesalers.map((wholesaler) => ({
+            firstName: wholesaler.name.split(" ")[0],
+            lastName: wholesaler.name.split(" ").slice(1).join(" "),
+            userName: wholesaler.name.split(" ")[0],
+            code: wholesaler.code,
+            role: "wholesaler", // custom role
+            email: wholesaler.email.toLowerCase(),
+            isVerified: true,
+            createdAt: wholesaler.createdAt,
+        }));
+
+        // Insert users
+        User.insertMany(usersToInsert);
 
         res.status(201).json({ success: true, wholesalers: savedWholesalers });
 

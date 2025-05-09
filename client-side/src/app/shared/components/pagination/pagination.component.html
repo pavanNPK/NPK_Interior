@@ -1,14 +1,15 @@
 <div class="pagination-wrapper">
   <!-- No data message -->
-  <div *ngIf="!paginationData?.length" class="no-data-message">
-    <p class="fw-semibold">No data available for {{ tabTypeData }}</p>
-  </div>
+  @if (!paginationData?.length) {
+    <app-no-data></app-no-data>
+  }
 
-  <!-- Data table -->
-  <div *ngIf="paginationData?.length > 0" class="data-container">
-    <div class="OrderTable">
-      <table class="w-100 dataTableCss">
-        <thead>
+  <!-- Deferred rendering of data table -->
+  @defer (when paginationData?.length > 0) {
+    <div class="data-container">
+      <div class="OrderTable">
+        <table class="w-100 dataTableCss">
+          <thead>
           <tr class="d-flex">
             <th class="col-1">#</th>
             <th class="col-3">Name</th>
@@ -16,67 +17,186 @@
             <th class="col-4">Wholesalers</th>
             <th class="col-2">Action</th>
           </tr>
-        </thead>
-        <tbody>
-          <ng-container *ngFor="let item of paginationData; trackBy: trackById; let i = index">
-          <tr class="d-flex">
-            <td class="col-1">{{i+1}}</td>
-            <td class="col-3">{{item.name}}</td>
-            <td class="col-2">{{item.remainingCount}}</td>
-            <td class="col-4">sffsdfsdfsdf</td>
-            <td class="col-2">
-              <nb-icon class="cursor-pointer-npk" size="small" status="info" nbTooltip="Assign the product to wholesalers" icon="at-outline" pack="eva" ></nb-icon>
-            </td>
-          </tr>
-        </ng-container>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (item of paginationData; track item.id; let i = $index) {
+              <tr class="d-flex">
+                <td class="col-1">{{ i + 1 }}</td>
+                <td class="col-3">{{ item.name }}</td>
+                <td class="col-2">{{ item.remainingCount }}</td>
+                <td class="col-4">
+                  @if (item.wholesalers?.length) {
+                    <ng-container>
+                      <!-- Show first two wholesalers -->
+                      <img *ngFor="let wholesaler of item.wholesalers.slice(0, 3)" nbTooltip="{{wholesaler.name}} - ({{wholesaler.email}})" ngSrc="{{wholesaler.profilePicture}}" alt="logo" style="object-fit: cover; aspect-ratio: 1 / 1;" class="rounded-circle img-thumbnail cursor-pointer-npk stock-wholesaler-img" width="40" height="40">
+
+                      <!-- Show "+N more" if there are more than 3 -->
+                      @if (item.wholesalers.length > 3) {
+                        <span
+                          class="more-indicator"
+                          [nbTooltip]="getRemainingWholesalersInfo(item.wholesalers.slice(3))"
+                          nbTooltipClass="multi-line-tooltip"
+                          nbTooltipPlacement="top">
+                          +{{ item.wholesalers.length - 3 }} more
+                        </span>
+                      }
+                    </ng-container>
+                  } @else {
+                    <p class="m-0">No wholesalers...</p>
+                  }
+                </td>
+                <td class="col-2">
+                  <nb-icon
+                    class="cursor-pointer-npk"
+                    size="small"
+                    status="info"
+                    (click)="assignWholesalers(wholesalersListPopup, item)"
+                    nbTooltip="Assign the product to wholesalers"
+                    icon="at-outline"
+                    pack="eva">
+                  </nb-icon>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-controls">
+        <!-- Records per page selector -->
+        <div class="per-page-selector">
+          <label>Records per page:</label>
+          <nb-select [(ngModel)]="perPage" (ngModelChange)="onPerPageChange($event)" size="small">
+            @for (size of pageSizeOptions; track size) {
+              <nb-option [value]="size">{{ size }}</nb-option>
+            }
+          </nb-select>
+        </div>
+
+        <!-- Record range info -->
+        <div class="record-info">
+          <p class="m-0">
+            Showing {{ totalRecords ? (currentPage - 1) * perPage + 1 : 0 }} to
+            {{ Math.min(currentPage * perPage, totalRecords) }} of {{ totalRecords }}
+          </p>
+        </div>
+
+        <!-- Page navigation -->
+        <div class="pagination-buttons">
+          <button nbButton size="small" outline (click)="changePage(1)" [disabled]="currentPage === 1">First</button>
+          <button nbButton size="small" outline (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">Prev</button>
+
+          @if (visiblePages.length > 0) {
+            @for (p of visiblePages; track p) {
+              <button nbButton size="small"
+                      [status]="p === currentPage ? 'primary' : 'basic'"
+                      (click)="changePage(p)">
+                {{ p }}
+              </button>
+            }
+          }
+
+          <button nbButton size="small" outline (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
+          <button nbButton size="small" outline (click)="changePage(totalPages)" [disabled]="currentPage === totalPages">Last</button>
+        </div>
+      </div>
     </div>
-
-    <div class="pagination-controls">
-      <!-- Records per page selector -->
-      <div class="per-page-selector">
-        <label>Records per page:</label>
-        <nb-select [(ngModel)]="perPage" (ngModelChange)="onPerPageChange($event)" size="small">
-          <nb-option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</nb-option>
-        </nb-select>
-      </div>
-
-      <!-- Record range info -->
-      <div class="record-info">
-        <p class="m-0">
-          Showing {{ totalRecords ? (currentPage - 1) * perPage + 1 : 0 }} to
-          {{ Math.min(currentPage * perPage, totalRecords) }} of {{ totalRecords }}
-        </p>
-      </div>
-
-      <!-- Page navigation -->
-      <div class="pagination-buttons">
-        <button nbButton size="small" outline (click)="changePage(1)" [disabled]="currentPage === 1">
-          First
-        </button>
-
-        <button nbButton size="small" outline (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
-          Prev
-        </button>
-
-        <ng-container *ngIf="visiblePages.length > 0">
-          <button *ngFor="let p of visiblePages"
-                  nbButton size="small"
-                  [status]="p === currentPage ? 'primary' : 'basic'"
-                  (click)="changePage(p)">
-            {{ p }}
-          </button>
-        </ng-container>
-
-        <button nbButton size="small" outline (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
-          Next
-        </button>
-
-        <button nbButton size="small" outline (click)="changePage(totalPages)" [disabled]="currentPage === totalPages">
-          Last
-        </button>
-      </div>
-    </div>
-  </div>
+  }
 </div>
+
+<!-- Wholesalers list popup -->
+<ng-template #wholesalersListPopup let-data let-ref="dialogRef">
+  <nb-card class="globalDialogBox">
+    <nb-card-header class="globalDialogBoxCardHeader">
+      <h5 class="m-0 fw-semibold">Assign Wholesalers</h5>
+      <nb-icon class="cursor-pointer-npk" icon="close-outline" pack="eva"
+               (click)="ref.close(); requiredQuantity.clearValidators(); requiredQuantity.updateValueAndValidity();"></nb-icon>
+    </nb-card-header>
+    <nb-card-body class="globalDialogBoxCardBody">
+      <div class="row">
+        <div class="col-6 pb-0">
+          <div class="row m-0 bg-indigo-50 rounded h-100">
+            <div class="col-12">
+              <p class=" fw-semibold">Select Wholesalers</p>
+              <div class="input-group mb-3">
+                <input type="text" class="form-control" nbInput fullWidth
+                       placeholder="Search wholesalers" [formControl]="searchWholesaler">
+              </div>
+              <div class="wholesalers-list">
+                @defer (when wholesalersList?.length){
+                  @for (wholesaler of wholesalersList; track wholesaler.name) {
+                    @if (!wholesaler.selected){
+                      <div class="d-flex align-items-center gap-2 w-100 mb-2 p-2 rounded bg-white cursor-pointer-npk">
+                        <img ngSrc="{{wholesaler.profilePicture}}"
+                             alt="profile"
+                             width="40" height="40"
+                             class="rounded-circle wholesalerSelectionImg img-thumbnail" />
+                        <div class="flex-grow-1 overflow-hidden text-left" style="min-width: 0;">
+                          <small class="d-block fw-semibold text-truncate">{{ wholesaler.name }}</small>
+                          <small class="d-block text-black-50 text-truncate">{{ wholesaler.email }}</small>
+                        </div>
+                        <button nbButton size="small" status="success" (click)="wholesaler.selected = true" class="rounded-2 fw-semibold">
+                          <nb-icon icon="checkmark-outline"></nb-icon>
+                        </button>
+                      </div>
+                    }
+                  }
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 pb-0">
+          <div class="row m-0 bg-indigo-50 rounded h-100">
+            <div class="col-12">
+              <p class=" fw-semibold">Selected Wholesalers</p>
+              <div class="input-group mb-3">
+                <input type="text" class="form-control" nbInput fullWidth
+                       placeholder="Search wholesalers" [formControl]="searchWholesaler">
+              </div>
+              <div class="wholesalers-list">
+                @defer (when wholesalersList?.length){
+                  @for (wholesaler of wholesalersList; track wholesaler.name) {
+                    @if (wholesaler.selected){
+                      <div class="d-flex align-items-center gap-2 w-100 mb-2 p-2 rounded bg-white cursor-pointer-npk">
+                        <img ngSrc="{{wholesaler.profilePicture}}"
+                             alt="profile"
+                             width="40" height="40"
+                             class="rounded-circle wholesalerSelectionImg img-thumbnail" />
+                        <div class="flex-grow-1 overflow-hidden text-left" style="min-width: 0;">
+                          <small class="d-block fw-semibold text-truncate">{{ wholesaler.name }}</small>
+                          <small class="d-block text-black-50 text-truncate">{{ wholesaler.email }}</small>
+                        </div>
+                        <button nbButton size="small" status="danger" (click)="wholesaler.selected = false" class="rounded-2 fw-semibold">
+                          <nb-icon icon="close-outline"></nb-icon>
+                        </button>
+                      </div>
+                    }
+                  }
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nb-card-body>
+    <nb-card-footer class="globalDialogBoxCardFooter">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <label class="label">Quantity*</label>
+          <input type="number" class="form-control" nbInput min="0" pattern="^[0-9]*$"
+                 [status]="requiredQuantity.invalid && (requiredQuantity.touched || requiredQuantity.dirty) ? 'danger' : 'basic'"
+                  [ngClass]="{'is-invalid': requiredQuantity.invalid && (requiredQuantity.touched || requiredQuantity.dirty)}"
+                 placeholder="Enter required quantity" [formControl]="requiredQuantity">
+        </div>
+        <div class="d-flex gap-3">
+          <button nbButton class="bg-transparent "
+                  (click)="ref.close(); requiredQuantity.clearValidators(); requiredQuantity.updateValueAndValidity();" size="small"
+                  [nbTooltip]="'Close the assigner popup'" type="button" style="border: 1px solid black !important;">Cancel</button>
+          <button nbButton class="bg-black text-white" size="small"
+                  type="button" (click)="saveAssigners(ref)">Save</button>
+        </div>
+      </div>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

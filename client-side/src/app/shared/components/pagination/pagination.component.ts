@@ -6,37 +6,53 @@ import {
   OnChanges,
   SimpleChanges,
   ChangeDetectorRef,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy, OnInit
 } from '@angular/core';
-import {NgForOf, NgIf} from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import {NbButtonModule, NbIconModule, NbSelectModule, NbSpinnerModule, NbTooltipModule} from "@nebular/theme";
+import {NgClass, NgForOf, NgOptimizedImage} from "@angular/common";
+import {FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {
+  NbButtonModule,
+  NbCardModule, NbDialogService,
+  NbIconModule, NbInputModule,
+  NbSelectModule,
+  NbSpinnerModule,
+  NbTooltipModule
+} from "@nebular/theme";
+import {WholesalersDTO} from "../../../models/wholesalersDTO";
+import {NoDataComponent} from "../../../modules/core/components/no-data/no-data.component";
+import {ProductsService} from "../../../services/products.service";
 
 @Component({
   selector: 'app-pagination',
   standalone: true,
-  imports: [NgForOf, FormsModule, NbSelectModule, NbButtonModule, NgIf, NbSpinnerModule, NbIconModule, NbTooltipModule],
+  imports: [NgForOf, FormsModule, NbSelectModule, NbButtonModule, NbSpinnerModule, NbIconModule, NbTooltipModule, NoDataComponent, NgOptimizedImage, NbCardModule, ReactiveFormsModule, NbInputModule, NgClass],
   templateUrl: './pagination.component.html',
   styleUrl: './pagination.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PaginationComponent implements OnChanges {
+export class PaginationComponent implements OnInit, OnChanges {
   @Input() totalRecords = 0;
   @Input() perPage = 10;
   @Input() currentPage = 1;
   @Input() paginationData: any;
   @Input() tabTypeData: string = '';
   @Input() isLoading: boolean = false;
-
+  searchWholesaler = new FormControl('');
+  requiredQuantity = new FormControl('', Validators.required);
   @Output() pageChanged = new EventEmitter<number>();
   @Output() perPageChanged = new EventEmitter<number>();
 
   totalPages = 0;
   pages: number[] = [];
+  wholesalersList: WholesalersDTO[] | undefined = [];
   visiblePages: number[] = [];
-  pageSizeOptions = [1, 2, 3, 4, 5, 8, 10, 20, 30, 50, 100];
+  pageSizeOptions = [50, 100, 200, 500];
+  productId: any;
 
-  constructor(private cd: ChangeDetectorRef) {}
+  constructor(private cd: ChangeDetectorRef, private ps: ProductsService ,private dialogService: NbDialogService) {}
+
+  ngOnInit(): void {
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['totalRecords'] || changes['perPage']) {
@@ -95,7 +111,38 @@ export class PaginationComponent implements OnChanges {
   protected readonly Math = Math;
   protected readonly Number = Number;
 
-  trackById(index: number, item: any): string {
-    return item._id || index.toString(); // Fallback to index if _id is not available
+  getRemainingWholesalersInfo(wholesalers: any[]): string {
+    return wholesalers.map(w => `${w.name} - (${w.email})`).join('\n');
+  }
+  assignWholesalers(wholesalersListPopup: any, item: any) {
+    this.productId = item._id;
+    this.wholesalersList = item.wholesalers;
+    console.log(this.wholesalersList)
+    this.dialogService.open(wholesalersListPopup, {closeOnBackdropClick: false});
+  }
+
+  saveAssigners(ref:any) {
+    this.requiredQuantity.setValidators(Validators.required);
+    this.requiredQuantity.updateValueAndValidity();
+    console.log(this.requiredQuantity.value)
+    let data = {
+      wholesalers: this.wholesalersList?.map((x: any) => x.selected ? x._id : null).filter((x: any) => x !== null),
+      requiredQuantity: this.requiredQuantity.value ? Number(this.requiredQuantity.value) : undefined
+    }
+    if (data.requiredQuantity) {
+      // @ts-ignore
+      console.log(data)
+      this.ps.updateProductStock(this.productId, data).subscribe({
+        next: (response) => {
+        },
+        error: (error) => console.error('Error fetching wholesalers', error),
+        complete: () => {
+          ref.close();
+        }
+      })
+    } else {
+      this.requiredQuantity.markAsTouched();
+      this.requiredQuantity.markAsDirty();
+    }
   }
 }

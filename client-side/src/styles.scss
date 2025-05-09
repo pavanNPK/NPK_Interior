@@ -227,6 +227,11 @@ input[type="text"]:focus {
 .globalDialogBox{
   position: relative;
   inset: 0;
+  .globalDialogBoxCardHeader{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   .globalDialogBoxCardBody{
     text-align: center;
     display: inline-table;
@@ -302,9 +307,7 @@ input:-webkit-autofill:active {
 .productStockBannerLS{
   background: gray;
 }
-input[type="file"] {
 
-}
 
 //-----------------------------------------------------------------------------------------------------------
 // for guide text for privacy policy, terms and conditions and return policy

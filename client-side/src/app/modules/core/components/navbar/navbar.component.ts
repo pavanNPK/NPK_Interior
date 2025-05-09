@@ -82,6 +82,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     // {title: 'Cart', icon: 'shopping-bag-outline', link: '/cart/view'},
     {title: 'Settings', icon: 'settings-2-outline', link: '/settings/view'},
   ]
+  wholeNavItems:NbMenuItem[] = [
+    {title: 'Dashboard', icon: 'home-outline', link: '/dashboard/view'},
+    {title: 'Stock Requests', icon: 'flip-2-outline', link: '/stock-requests', pathMatch: 'prefix'},
+    {title: 'Billings', icon: 'file-text-outline', link: '/account-center', pathMatch: 'prefix'},
+  ]
   items:NbMenuItem[] = [];
   showProfile: boolean = false;
   sidebarVisible: boolean = false;
@@ -101,7 +106,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.userData = this.as.currentUserValue || null;
     if (this.userData) {
-      this.items = this.userData.role.startsWith('shop') ? this.shopNavItems : this.supNavItems;
+      this.items = this.userData.role.startsWith('shop') ? this.shopNavItems : this.userData.role.startsWith('whole') ? this.wholeNavItems : this.supNavItems;
     }
     // Get lastLoggedIn value directly
     this.lastLoggedIn = this.userData?._id

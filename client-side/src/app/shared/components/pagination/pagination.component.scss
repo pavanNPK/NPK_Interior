@@ -4,13 +4,6 @@
   width: 100%;
 }
 
-.no-data-message {
-  text-align: center;
-  padding: 2rem;
-  background-color: #f7f9fc;
-  border-radius: 0.25rem;
-}
-
 .pagination-controls {
   display: flex;
   flex-wrap: wrap;
@@ -61,4 +54,18 @@
       margin: 0
     }
   }
+}
+.more-indicator {
+  cursor: pointer;
+  color: #3366ff;
+  font-weight: 500;
+  margin-left: 5px;
+}
+.stock-wholesaler-img:not(:first-child){
+  margin-left: -1rem
+}
+
+.wholesalerSelectionImg {
+  object-fit: cover;
+  aspect-ratio: 1/1;
 }

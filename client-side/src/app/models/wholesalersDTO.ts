@@ -21,6 +21,8 @@ export class WholesalersDTO {
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
+  profilePicture?: string;
+  selected?: boolean;
 }
 export class WholesalersImagesDTO {
   key?: string;

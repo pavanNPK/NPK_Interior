@@ -6,9 +6,8 @@ import {ProductsDTO} from '../models/productsDTO';
 import {
   ADD_PRODUCTS, BULK_UPLOAD,
   DOMAIN_URL,
-  GET_ALL_CATEGORIES,
   GET_ALL_PRODUCTS, GET_LOW_STOCK_PRODUCTS,
-  PRODUCT_NOTIFY_TO_USER
+  PRODUCT_NOTIFY_TO_USER, UPDATE_STOCK_PRODUCT
 } from "../constants/API-DTO";
 
 @Injectable({
@@ -62,5 +61,10 @@ export class ProductsService {
     return this.http.get<ResponseWithError<ProductsDTO[]>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}${GET_LOW_STOCK_PRODUCTS}`, {
       params: {stockType}
     }).pipe(map(response => response))
+  }
+
+  updateProductStock(id: string, stock: any): Observable<ResponseWithError<any>> {
+    return this.http.patch<ResponseWithError<any>>(`${DOMAIN_URL}${GET_ALL_PRODUCTS}/${UPDATE_STOCK_PRODUCT}/${id}`, stock)
+      .pipe(map(response => response));
   }
 }

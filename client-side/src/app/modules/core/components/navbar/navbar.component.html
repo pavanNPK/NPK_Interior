@@ -62,14 +62,14 @@
             <nb-user size="medium" name="{{userData?.userName}}"
                      [onlyPicture]="isCompactView"
                      (click)="op.toggle($event)"
-                     [picture]="userData.role.startsWith('shop') ? './assets/profile/userPic.webp' : './assets/profile/admin.png'">
+                     [picture]="userData.role.startsWith('shop') ? './assets/profile/userPic.webp' : userData.role.startsWith('whole') ? ('./assets/profile/wholesaler.jpg') : './assets/profile/admin.png'">
             </nb-user>
             <div class="">
               <p-overlayPanel #op>
                 <div class="profileManagement bg-white rounded-2 text-center">
                   <div class="profileInfo">
                     <nb-user size="large" onlyPicture class="d-flex justify-content-center"
-                             [picture]="userData.role.startsWith('shop') ? './assets/profile/userPic.webp' : './assets/profile/admin.png'">
+                             [picture]="userData.role.startsWith('shop') ? './assets/profile/userPic.webp' : userData.role.startsWith('whole') ? ('./assets/profile/wholesaler.jpg') : './assets/profile/admin.png'">
                     </nb-user>
                     <p class="fw-semibold mb-1 mt-2">{{ userData?.firstName }} {{userData?.lastName}}</p>
                     <small class="text-black-50 d-block mb-1 small">{{ userData?.email }}</small>
