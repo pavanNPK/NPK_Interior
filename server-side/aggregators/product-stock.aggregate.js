@@ -21,6 +21,7 @@ export const productStockAggregate = function(type) {
                         $project: {
                             name: 1,
                             email: 1,
+                            code: 1,
                             profilePicture: { $arrayElemAt: ["$images.key", 0] } // First image from the array
                         }
                     }
@@ -38,6 +39,7 @@ export const productStockAggregate = function(type) {
                     _id: 1,
                     name: 1,
                     email: 1,
+                    code: 1,
                     profilePicture: 1  // Include the profile picture (first image)
                 }
             }

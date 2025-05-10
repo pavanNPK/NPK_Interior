@@ -65,4 +65,5 @@ export class ProductWholeSalersDTO {
   email?: string;
   _id?: string;
   profilePicture?: string;
+  code?: string;
 }

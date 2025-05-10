@@ -27,9 +27,21 @@ const productSchema = new mongoose.Schema({
         monthlyEmi: Number,
         totalPayable: Number,
         interestAmount: Number,
-        principal: Number
+        principal: Number,
     }],
     images: [],
+    requiredStock: {
+        stock: Number,
+        wholesalers: [
+            {
+                _id: false, // 👈 prevents auto-adding _id
+                id: { type: mongoose.Schema.Types.ObjectId, ref: "Wholesaler", required: true },
+                code: String
+            }
+        ],
+        requestedAt: { type: Date, default: new Date() },
+        requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
+    },
     notifyUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     cartUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     wishlistUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

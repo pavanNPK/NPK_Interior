@@ -15,7 +15,7 @@ import {
   NbCardModule, NbDialogService,
   NbIconModule, NbInputModule,
   NbSelectModule,
-  NbSpinnerModule,
+  NbSpinnerModule, NbToastrService,
   NbTooltipModule
 } from "@nebular/theme";
 import {WholesalersDTO} from "../../../models/wholesalersDTO";
@@ -49,7 +49,10 @@ export class PaginationComponent implements OnInit, OnChanges {
   pageSizeOptions = [50, 100, 200, 500];
   productId: any;
 
-  constructor(private cd: ChangeDetectorRef, private ps: ProductsService ,private dialogService: NbDialogService) {}
+  constructor(private cd: ChangeDetectorRef,
+              private ps: ProductsService,
+              private toastService: NbToastrService,
+              private dialogService: NbDialogService) {}
 
   ngOnInit(): void {
   }
@@ -126,7 +129,8 @@ export class PaginationComponent implements OnInit, OnChanges {
     this.requiredQuantity.updateValueAndValidity();
     console.log(this.requiredQuantity.value)
     let data = {
-      wholesalers: this.wholesalersList?.map((x: any) => x.selected ? x._id : null).filter((x: any) => x !== null),
+      selectedWholesalers: this.wholesalersList?.map((x: any) => x.selected ? {id: x._id, code: x.code} : null).filter((x: any) => x !== null),
+      removedWholesalers: this.wholesalersList?.map((x: any) => !x.selected ? {id: x._id, code: x.code} : null).filter((x: any) => x !== null),
       requiredQuantity: this.requiredQuantity.value ? Number(this.requiredQuantity.value) : undefined
     }
     if (data.requiredQuantity) {
@@ -134,6 +138,10 @@ export class PaginationComponent implements OnInit, OnChanges {
       console.log(data)
       this.ps.updateProductStock(this.productId, data).subscribe({
         next: (response) => {
+          if (response.success){
+            ref.close();
+            this.toastService.success('Stock updated successfully', 'Products', {duration: 2000});
+          }
         },
         error: (error) => console.error('Error fetching wholesalers', error),
         complete: () => {
@@ -144,5 +152,11 @@ export class PaginationComponent implements OnInit, OnChanges {
       this.requiredQuantity.markAsTouched();
       this.requiredQuantity.markAsDirty();
     }
+  }
+  get hasSelectedWholesalers(): boolean {
+    return this.wholesalersList?.some(w => w.selected) ?? false;
+  }
+  get hasAllWholesalersSelected(): boolean {
+    return this.wholesalersList?.every(w => w.selected) ?? false;
   }
 }

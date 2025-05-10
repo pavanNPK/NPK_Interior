@@ -114,6 +114,8 @@
     </nb-card-header>
     <nb-card-body class="globalDialogBoxCardBody">
       <div class="row">
+        @let noWholesalers = hasSelectedWholesalers;
+        @let allWholesalers = hasAllWholesalersSelected;
         <div class="col-6 pb-0">
           <div class="row m-0 bg-indigo-50 rounded h-100">
             <div class="col-12">
@@ -123,22 +125,26 @@
                        placeholder="Search wholesalers" [formControl]="searchWholesaler">
               </div>
               <div class="wholesalers-list">
-                @defer (when wholesalersList?.length){
-                  @for (wholesaler of wholesalersList; track wholesaler.name) {
-                    @if (!wholesaler.selected){
-                      <div class="d-flex align-items-center gap-2 w-100 mb-2 p-2 rounded bg-white cursor-pointer-npk">
-                        <img ngSrc="{{wholesaler.profilePicture}}"
-                             alt="profile"
-                             width="40" height="40"
-                             class="rounded-circle wholesalerSelectionImg img-thumbnail" />
-                        <div class="flex-grow-1 overflow-hidden text-left" style="min-width: 0;">
-                          <small class="d-block fw-semibold text-truncate">{{ wholesaler.name }}</small>
-                          <small class="d-block text-black-50 text-truncate">{{ wholesaler.email }}</small>
+                @if (allWholesalers) {
+                  <p class="m-0">All wholesalers selected...</p>
+                } @else {
+                  @defer (when wholesalersList?.length){
+                    @for (wholesaler of wholesalersList; track wholesaler.name) {
+                      @if (!wholesaler.selected){
+                        <div class="d-flex align-items-center gap-2 w-100 mb-2 p-2 rounded bg-white">
+                          <img ngSrc="{{wholesaler.profilePicture}}"
+                               alt="profile"
+                               width="40" height="40"
+                               class="rounded-circle wholesalerSelectionImg img-thumbnail" />
+                          <div class="flex-grow-1 overflow-hidden text-left" style="min-width: 0;">
+                            <small class="d-block fw-semibold text-truncate">{{ wholesaler.name }}</small>
+                            <small class="d-block text-black-50 text-truncate">{{ wholesaler.email }}</small>
+                          </div>
+                          <button nbButton size="small" status="success" (click)="wholesaler.selected = true" class="rounded-2 fw-semibold">
+                            <nb-icon icon="checkmark-outline"></nb-icon>
+                          </button>
                         </div>
-                        <button nbButton size="small" status="success" (click)="wholesaler.selected = true" class="rounded-2 fw-semibold">
-                          <nb-icon icon="checkmark-outline"></nb-icon>
-                        </button>
-                      </div>
+                      }
                     }
                   }
                 }
@@ -156,21 +162,25 @@
               </div>
               <div class="wholesalers-list">
                 @defer (when wholesalersList?.length){
-                  @for (wholesaler of wholesalersList; track wholesaler.name) {
-                    @if (wholesaler.selected){
-                      <div class="d-flex align-items-center gap-2 w-100 mb-2 p-2 rounded bg-white cursor-pointer-npk">
-                        <img ngSrc="{{wholesaler.profilePicture}}"
-                             alt="profile"
-                             width="40" height="40"
-                             class="rounded-circle wholesalerSelectionImg img-thumbnail" />
-                        <div class="flex-grow-1 overflow-hidden text-left" style="min-width: 0;">
-                          <small class="d-block fw-semibold text-truncate">{{ wholesaler.name }}</small>
-                          <small class="d-block text-black-50 text-truncate">{{ wholesaler.email }}</small>
+                  @if (!noWholesalers) {
+                    <p class="m-0">No wholesalers selected...</p>
+                  } @else {
+                    @for (wholesaler of wholesalersList; track wholesaler.name) {
+                      @if (wholesaler.selected){
+                        <div class="d-flex align-items-center gap-2 w-100 mb-2 p-2 rounded bg-white">
+                          <img ngSrc="{{wholesaler.profilePicture}}"
+                               alt="profile"
+                               width="40" height="40"
+                               class="rounded-circle wholesalerSelectionImg img-thumbnail" />
+                          <div class="flex-grow-1 overflow-hidden text-left" style="min-width: 0;">
+                            <small class="d-block fw-semibold text-truncate">{{ wholesaler.name }}</small>
+                            <small class="d-block text-black-50 text-truncate">{{ wholesaler.email }}</small>
+                          </div>
+                          <button nbButton size="small" status="danger" (click)="wholesaler.selected = false" class="rounded-2 fw-semibold">
+                            <nb-icon icon="close-outline"></nb-icon>
+                          </button>
                         </div>
-                        <button nbButton size="small" status="danger" (click)="wholesaler.selected = false" class="rounded-2 fw-semibold">
-                          <nb-icon icon="close-outline"></nb-icon>
-                        </button>
-                      </div>
+                      }
                     }
                   }
                 }
