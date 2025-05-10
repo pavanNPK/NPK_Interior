@@ -14,8 +14,9 @@
             <th class="col-1">#</th>
             <th class="col-3">Name</th>
             <th class="col-2">Stock</th>
-            <th class="col-4">Wholesalers</th>
-            <th class="col-2">Action</th>
+            <th class="col-2">Requested</th>
+            <th class="col-3">Wholesalers</th>
+            <th class="col-1">Action</th>
           </tr>
           </thead>
           <tbody>
@@ -24,11 +25,16 @@
                 <td class="col-1">{{ i + 1 }}</td>
                 <td class="col-3">{{ item.name }}</td>
                 <td class="col-2">{{ item.remainingCount }}</td>
-                <td class="col-4">
-                  @if (item.wholesalers?.length) {
+                <td class="col-2">{{ item.requiredStock?.wholesalers.length ?  item.requiredStock?.stock : 0 }}</td>
+                <td class="col-3">
+                  @if (item.requiredStock?.wholesalers?.length) {
                     <ng-container>
                       <!-- Show first two wholesalers -->
-                      <img *ngFor="let wholesaler of item.wholesalers.slice(0, 3)" nbTooltip="{{wholesaler.name}} - ({{wholesaler.email}})" ngSrc="{{wholesaler.profilePicture}}" alt="logo" style="object-fit: cover; aspect-ratio: 1 / 1;" class="rounded-circle img-thumbnail cursor-pointer-npk stock-wholesaler-img" width="40" height="40">
+                      <img *ngFor="let wholesaler of item.requiredStock?.wholesalers.slice(0, 3)"
+                           nbTooltip="{{wholesaler.name}} - ({{wholesaler.email}})"
+                           ngSrc="{{wholesaler.profilePicture}}" alt="logo"
+                           style="object-fit: cover; aspect-ratio: 1 / 1;"
+                           class="rounded-circle img-thumbnail cursor-pointer-npk stock-wholesaler-img" width="40" height="40">
 
                       <!-- Show "+N more" if there are more than 3 -->
                       @if (item.wholesalers.length > 3) {
@@ -42,10 +48,10 @@
                       }
                     </ng-container>
                   } @else {
-                    <p class="m-0">No wholesalers...</p>
+                    <p class="m-0 pt-2 pb-2">No wholesalers...</p>
                   }
                 </td>
-                <td class="col-2">
+                <td class="col-1">
                   <nb-icon
                     class="cursor-pointer-npk"
                     size="small"
@@ -194,7 +200,7 @@
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <label class="label">Quantity*</label>
-          <input type="number" class="form-control" nbInput min="0" pattern="^[0-9]*$"
+          <input type="number" class="form-control" nbInput pattern="^[0-9]*$"
                  [status]="requiredQuantity.invalid && (requiredQuantity.touched || requiredQuantity.dirty) ? 'danger' : 'basic'"
                   [ngClass]="{'is-invalid': requiredQuantity.invalid && (requiredQuantity.touched || requiredQuantity.dirty)}"
                  placeholder="Enter required quantity" [formControl]="requiredQuantity">

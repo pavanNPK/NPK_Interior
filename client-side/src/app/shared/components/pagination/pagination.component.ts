@@ -38,7 +38,7 @@ export class PaginationComponent implements OnInit, OnChanges {
   @Input() tabTypeData: string = '';
   @Input() isLoading: boolean = false;
   searchWholesaler = new FormControl('');
-  requiredQuantity = new FormControl('', Validators.required);
+  requiredQuantity = new FormControl(0, Validators.required);
   @Output() pageChanged = new EventEmitter<number>();
   @Output() perPageChanged = new EventEmitter<number>();
 
@@ -118,41 +118,66 @@ export class PaginationComponent implements OnInit, OnChanges {
     return wholesalers.map(w => `${w.name} - (${w.email})`).join('\n');
   }
   assignWholesalers(wholesalersListPopup: any, item: any) {
+    const requiredIds = item?.requiredStock?.wholesalers?.map((w: any) => w._id) || [];
+    this.wholesalersList = item.wholesalers.map((ws: any) => ({
+      ...ws,selected: requiredIds.includes(ws._id)
+    }));
     this.productId = item._id;
-    this.wholesalersList = item.wholesalers;
-    console.log(this.wholesalersList)
-    this.dialogService.open(wholesalersListPopup, {closeOnBackdropClick: false});
+    this.requiredQuantity.setValue(item?.requiredStock?.stock || 0);
+    console.log(item?.requiredStock?.wholesalers, 'req');
+    console.log(this.wholesalersList, 'wl');
+    this.dialogService.open(wholesalersListPopup, { closeOnBackdropClick: false });
   }
 
-  saveAssigners(ref:any) {
+
+  saveAssigners(ref: any) {
     this.requiredQuantity.setValidators(Validators.required);
     this.requiredQuantity.updateValueAndValidity();
-    console.log(this.requiredQuantity.value)
-    let data = {
-      selectedWholesalers: this.wholesalersList?.map((x: any) => x.selected ? {id: x._id, code: x.code} : null).filter((x: any) => x !== null),
-      removedWholesalers: this.wholesalersList?.map((x: any) => !x.selected ? {id: x._id, code: x.code} : null).filter((x: any) => x !== null),
-      requiredQuantity: this.requiredQuantity.value ? Number(this.requiredQuantity.value) : undefined
+
+    const selectedWholesalers = this.wholesalersList?.filter(x => x.selected)
+      .map(x => ({ id: x._id, code: x.code })) || [];
+
+    const removedWholesalers = this.wholesalersList      ?.filter(x => !x.selected)
+      .map(x => ({ id: x._id, code: x.code })) || [];
+
+    // Set quantity to 0 if no wholesalers selected
+    if (selectedWholesalers.length === 0) {
+      this.requiredQuantity.setValue(0);
     }
-    if (data.requiredQuantity) {
-      // @ts-ignore
-      console.log(data)
+
+    const requiredQty = this.requiredQuantity.value || 0;
+
+    // Validation logic
+    if (selectedWholesalers.length > 0 && requiredQty <= 0) {
+      this.requiredQuantity.setErrors({ min: true });
+      this.requiredQuantity.markAsTouched();
+      this.requiredQuantity.markAsDirty();
+      return; // Stop submission
+    }
+
+    const data = {
+      selectedWholesalers,
+      removedWholesalers,
+      requiredQuantity: requiredQty
+    };
+
+    if (this.requiredQuantity.valid) {
       this.ps.updateProductStock(this.productId, data).subscribe({
         next: (response) => {
-          if (response.success){
+          if (response.success) {
             ref.close();
-            this.toastService.success('Stock updated successfully', 'Products', {duration: 2000});
+            this.toastService.success('Stock updated successfully', 'Products', { duration: 2000 });
           }
         },
-        error: (error) => console.error('Error fetching wholesalers', error),
-        complete: () => {
-          ref.close();
-        }
-      })
+        error: (error) => console.error('Error updating stock', error),
+        complete: () => ref.close()
+      });
     } else {
       this.requiredQuantity.markAsTouched();
       this.requiredQuantity.markAsDirty();
     }
   }
+
   get hasSelectedWholesalers(): boolean {
     return this.wholesalersList?.some(w => w.selected) ?? false;
   }

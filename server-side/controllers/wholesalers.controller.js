@@ -262,13 +262,28 @@ export const getWholesalerById = async (req, res) => {
 
 export const getWholesalers = async (req, res) => {
     try {
-        const wholesalers = await Wholesaler.find({}, {}, { lean: true }).exec();
-        res.json({ success: true, response: wholesalers, message: "Wholesalers fetched successfully" });
+        const { type } = req.query;
+        let wholesalers;
+        if (type === 'stock') {
+            wholesalers = await Wholesaler.aggregate([
+                {
+                    $project: {
+                        name: 1,
+                        email: 1,
+                        code: 1,
+                        profilePicture: { $arrayElemAt: ["$images.key", 0] }
+                    }
+                }
+            ]);
+        } else {
+            wholesalers = await Wholesaler.find({}, {}, { lean: true });
+        }
+        res.json({success: true,response: wholesalers,message: "Wholesalers fetched successfully"});
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Something went wrong", error: error.message });
+        res.status(500).json({success: false,message: "Something went wrong",error: error.message});
     }
-}
+};
 
 export const updateWholesaler = async (req, res) => {
     try {

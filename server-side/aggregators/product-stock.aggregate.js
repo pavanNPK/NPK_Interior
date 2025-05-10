@@ -13,35 +13,36 @@ export const productStockAggregate = function(type) {
         {
             $match: filter
         },
-        {
-            $lookup: {
-                from: 'wholesalers',
-                pipeline: [  // Aggregate wholesalers as part of the lookup
-                    {
-                        $project: {
-                            name: 1,
-                            email: 1,
-                            code: 1,
-                            profilePicture: { $arrayElemAt: ["$images.key", 0] } // First image from the array
-                        }
-                    }
-                ],
-                as: 'wholesalers'  // Add all wholesalers in an array
-            }
-        },
+        // {
+        //     $lookup: {
+        //         from: 'wholesalers',
+        //         pipeline: [  // Aggregate wholesalers as part of the lookup
+        //             {
+        //                 $project: {
+        //                     name: 1,
+        //                     email: 1,
+        //                     code: 1,
+        //                     profilePicture: { $arrayElemAt: ["$images.key", 0] } // First image from the array
+        //                 }
+        //             }
+        //         ],
+        //         as: 'wholesalers'  // Add all wholesalers in an array
+        //     }
+        // },
         {
             $project: {
                 name: 1,
                 slug: 1,
                 remainingCount: 1,
                 _id: 1,
-                wholesalers: {
-                    _id: 1,
-                    name: 1,
-                    email: 1,
-                    code: 1,
-                    profilePicture: 1  // Include the profile picture (first image)
-                }
+                requiredStock: 1,
+                // wholesalers: {
+                //     _id: 1,
+                //     name: 1,
+                //     email: 1,
+                //     code: 1,
+                //     profilePicture: 1  // Include the profile picture (first image)
+                // }
             }
         }
     ];

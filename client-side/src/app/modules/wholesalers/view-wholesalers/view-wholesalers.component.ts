@@ -36,7 +36,7 @@ export class ViewWholesalersComponent implements OnInit{
   }
 
   loadWSData() {
-    this.ws.getWholesalers().subscribe({
+    this.ws.getWholesalers('').subscribe({
       next: (response: ResponseWithError<WholesalersDTO[]>) => {
         if (response.success)
           this.wsData = response.response || [];

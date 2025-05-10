@@ -11,6 +11,8 @@ import {ProductsService} from "../../../services/products.service";
 import {ResponseWithError} from "../../../models/commonDTO";
 import {ProductsDTO} from "../../../models/productsDTO";
 import {PaginationComponent} from "../../../shared/components/pagination/pagination.component";
+import {WholesalersService} from "../../../services/wholesalers.service";
+import {WholesalersDTO} from "../../../models/wholesalersDTO";
 
 @Component({
   selector: 'app-view-stock',
@@ -32,6 +34,8 @@ export class ViewStockComponent implements OnInit {
 
   allProducts: ProductsDTO[] = []; // All fetched products
   paginatedProducts: ProductsDTO[] = []; // Only the visible page
+  wsData: WholesalersDTO[] = [];
+  stockData: any;
   perPage = 50;
   currentPage = 1;
   tabActiveValue = 'lowStock';
@@ -42,18 +46,40 @@ export class ViewStockComponent implements OnInit {
     { label: 'Applied Stock', value: 'appliedStock', tabIcon: 'checkmark-circle-2-outline' }
   ];
 
-  constructor(private ps: ProductsService) {}
+  constructor(private ps: ProductsService, private ws: WholesalersService) {}
 
   ngOnInit(): void {
+    this.getWholesalers();
     this.getLowStockProducts(this.tabActiveValue);
   }
-
+  getWholesalers() {
+    this.ws.getWholesalers('stock').subscribe({
+      next: (res: ResponseWithError<WholesalersDTO[]>) => {
+        if (res.success) {
+         this.wsData = res.response || [];
+         console.log(this.wsData);
+        }
+      },
+      error: (error: any) => {
+        console.error('Error fetching wholesalers:', error);
+      }
+    });
+  }
   getLowStockProducts(value: string) {
     this.loading = true; // Set loading to true when starting to fetch data
     this.ps.getLowStockProducts(value).subscribe({
       next: (res: ResponseWithError<ProductsDTO[]>) => {
         if (res.success) {
           this.allProducts = res.response || [];
+          this.allProducts.filter(x => x.wholesalers = this.wsData)
+          this.allProducts.forEach((product: any) => {
+            if (product.requiredStock?.wholesalers?.length && product.wholesalers?.length) {
+              product.requiredStock.wholesalers = product.requiredStock.wholesalers.map((w: any) =>
+                product.wholesalers.find((w2: any) => w2._id === w.id) || w
+              );
+            }
+          });
+          console.log(this.allProducts);
           this.currentPage = 1;
           this.updateDisplayedData();
         }

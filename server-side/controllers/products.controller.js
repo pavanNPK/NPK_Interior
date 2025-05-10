@@ -564,13 +564,13 @@ export const getLowStockProducts = async (req, res) => {
 
 export const updateProductStock = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params; // Product ID
         const stock = req.body;
 
         console.log(id, stock);
 
-        // Update product's requiredStock
-        let requiredStock = {
+        // Step 1: Update product's requiredStock
+        const requiredStock = {
             stock: stock.requiredQuantity,
             wholesalers: stock.selectedWholesalers,
             requestedAt: new Date(),
@@ -583,51 +583,33 @@ export const updateProductStock = async (req, res) => {
             { new: true, runValidators: true }
         ).lean().exec();
 
-        // Remove wholesalers array before re-using requiredStock elsewhere
-        delete requiredStock.wholesalers;
+        // Step 2: Add to selected wholesalers
+        for (const wholesaler of stock.selectedWholesalers) {
+            const connection = await getDbConnection(wholesaler.code);
+            const RequestedProduct = getModel(connection, 'Requested_Product', RequestedProductSchema);
 
-        try{
-            // Add product to selected wholesalers
-            for (const wholesaler of stock.selectedWholesalers) {
-                const connection = await getDbConnection(wholesaler.code);
-                const RequestedProduct = getModel(connection, 'Requested_Product', RequestedProductSchema);
-
-                await RequestedProduct.updateOne(
-                    { requestedBy: req.user.id },
-                    {
-                        $addToSet: { products: id },
-                        $setOnInsert: {
-                            quantity: stock.requiredQuantity,
-                            addedOn: new Date(),
-                            requestedBy: req.user.id
-                        },
-                        $set: {
-                            updatedOn: new Date()
-                        }
+            await RequestedProduct.updateOne(
+                { product_id: id },
+                {
+                    $setOnInsert: {
+                        quantity: stock.requiredQuantity,
+                        addedOn: new Date(),
+                        requestedBy: req.user.id
                     },
-                    { upsert: true }
-                );
-            }
-        } catch (error) {
-            console.log('Failed to add product to wholesalers:', error);
+                    $set: {
+                        updatedOn: new Date()
+                    }
+                },
+                { upsert: true }
+            );
         }
 
-        try {
+        // Step 3: Remove from unselected (removed) wholesalers
+        for (const wholesaler of stock.removedWholesalers) {
+            const connection = await getDbConnection(wholesaler.code);
+            const RequestedProduct = getModel(connection, 'Requested_Product', RequestedProductSchema);
 
-        } catch (error) {
-            // Remove product from removed wholesalers
-            for (const wholesaler of stock.removedWholesalers) {
-                const connection = await getDbConnection(wholesaler.code);
-                const RequestedProduct = getModel(connection, 'RequestedProduct', RequestedProductSchema);
-
-                await RequestedProduct.updateOne(
-                    { requestedBy: req.user.id },
-                    {
-                        $pull: { products: id },
-                        $set: { updatedOn: new Date() }
-                    }
-                );
-            }
+            await RequestedProduct.deleteOne({ product_id: id });
         }
 
         res.json({ response: null, success: true, message: 'Stock updated successfully' });

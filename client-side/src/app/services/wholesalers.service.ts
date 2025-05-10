@@ -17,8 +17,9 @@ export class WholesalersService {
       .pipe(map(response => response));
   }
 
-  getWholesalers(): Observable<ResponseWithError<WholesalersDTO[]>> {
-    return this.http.get<ResponseWithError<WholesalersDTO[]>>(`${DOMAIN_URL}${WHOLESALERS}`)
-      .pipe(map(response => response));
+  getWholesalers(type: string): Observable<ResponseWithError<WholesalersDTO[]>> {
+    return this.http.get<ResponseWithError<WholesalersDTO[]>>(
+      `${DOMAIN_URL}${WHOLESALERS}?type=${type}`
+    );
   }
 }
