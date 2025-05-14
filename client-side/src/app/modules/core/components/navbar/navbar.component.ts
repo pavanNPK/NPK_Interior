@@ -85,6 +85,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   wholeNavItems:NbMenuItem[] = [
     {title: 'Dashboard', icon: 'home-outline', link: '/dashboard/view'},
     {title: 'Stock Requests', icon: 'flip-2-outline', link: '/stock-requests', pathMatch: 'prefix'},
+    {title: 'Supplied Products', icon: 'layers-outline', link: '/products', pathMatch: 'prefix'},
     {title: 'Billings', icon: 'file-text-outline', link: '/account-center', pathMatch: 'prefix'},
   ]
   items:NbMenuItem[] = [];

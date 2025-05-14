@@ -1,7 +1,11 @@
 server-side/.env
+server-side/app.http
+server-side/http-client.env.json
 uploads/
 .qodo/
 .idea/
+.vscode/
+.gitignore
 node_modules/
 package-lock.json
 client-side/src/app/constants/API-DTO.ts

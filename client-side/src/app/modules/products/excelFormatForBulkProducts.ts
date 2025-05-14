@@ -10,7 +10,8 @@ export const ExcelFormatForBulkProducts = [
     header: 'Slug',
     key: 'slug',
     value: 'This is a unique slug for the each product. Please don\'t enter the slug manually. Use the Generate Slug. And copy the slug',
-    link: 'https://slugify.online/',
+    // link: 'https://slugify.online/',
+    link: 'https://appdevtools.com/slug-generator',
     type: 'String',
     index: 2
   },

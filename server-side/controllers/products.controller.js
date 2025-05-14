@@ -566,9 +566,6 @@ export const updateProductStock = async (req, res) => {
     try {
         const { id } = req.params; // Product ID
         const stock = req.body;
-
-        console.log(id, stock);
-
         // Step 1: Update product's requiredStock
         const requiredStock = {
             stock: stock.requiredQuantity,
@@ -587,7 +584,6 @@ export const updateProductStock = async (req, res) => {
         for (const wholesaler of stock.selectedWholesalers) {
             const connection = await getDbConnection(wholesaler.code);
             const RequestedProduct = getModel(connection, 'Requested_Product', RequestedProductSchema);
-
             await RequestedProduct.updateOne(
                 { product_id: id },
                 {
@@ -603,7 +599,6 @@ export const updateProductStock = async (req, res) => {
                 { upsert: true }
             );
         }
-
         // Step 3: Remove from unselected (removed) wholesalers
         for (const wholesaler of stock.removedWholesalers) {
             const connection = await getDbConnection(wholesaler.code);
@@ -611,7 +606,6 @@ export const updateProductStock = async (req, res) => {
 
             await RequestedProduct.deleteOne({ product_id: id });
         }
-
         res.json({ response: null, success: true, message: 'Stock updated successfully' });
 
     } catch (error) {
