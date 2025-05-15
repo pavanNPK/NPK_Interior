@@ -4,6 +4,8 @@ import cloudinary from "./cloudinary.controller.js";
 import nodemailer from "nodemailer";
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
+import {getDbConnection, getModel} from "./dbSwitch.controller.js";
+import {RequestedProductSchema} from "../models/requested-products.model.js";
 
 // Helper to generate unique code
 const generateUniqueCode = async () => {
@@ -299,6 +301,29 @@ export const deleteWholesaler = async (req, res) => {
     try {
         const wholesaler = await Wholesaler.findByIdAndDelete(req.params.id, {}, { lean: true }).exec();
         res.json({ success: true, wholesaler });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Something went wrong", error: error.message });
+    }
+}
+
+export const getWholesalerByCode = async (req, res) => {
+    try {
+        const wholesaler = await Wholesaler.findOne({ code: req.params.code }, {}, { lean: true }).exec();
+        res.json({ success: true, wholesaler });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Something went wrong", error: error.message });
+    }
+}
+
+export const getRequestedStocks = async (req, res) => {
+    try {
+        const dbName = req.user.code;
+        const connection = await getDbConnection(dbName);
+        const RequestedProductModel = getModel(connection, 'Requested_Product', RequestedProductSchema); // Create / Get model dynamically
+        const requestedProducts = await RequestedProductModel.find({}, {}, { lean: true }).lean().exec();
+        res.json({ success: true, response: requestedProducts, message: "Requested stocks fetched successfully" });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: "Something went wrong", error: error.message });

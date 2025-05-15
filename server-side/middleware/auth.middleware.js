@@ -1,6 +1,5 @@
 import JWT from 'jsonwebtoken';
 import User from "../models/user.model.js";
-import mongoose from "mongoose";
 // Create a JWT token
 export const generateToken = (user) => {
     return JWT.sign({ id: user._id.toString(), email: user.email, role:user.role, code: user.code }, process.env.JWT_SECRET, { expiresIn: '24h' });

@@ -41,6 +41,8 @@ export class PaginationComponent implements OnInit, OnChanges {
   requiredQuantity = new FormControl(0, Validators.required);
   @Output() pageChanged = new EventEmitter<number>();
   @Output() perPageChanged = new EventEmitter<number>();
+  @Output() dataUpdated = new EventEmitter<void>();
+
 
   totalPages = 0;
   pages: number[] = [];
@@ -165,12 +167,14 @@ export class PaginationComponent implements OnInit, OnChanges {
       this.ps.updateProductStock(this.productId, data).subscribe({
         next: (response) => {
           if (response.success) {
-            ref.close();
             this.toastService.success('Stock updated successfully', 'Products', { duration: 2000 });
           }
         },
         error: (error) => console.error('Error updating stock', error),
-        complete: () => ref.close()
+        complete: () => {
+          this.dataUpdated.emit();
+          ref.close();
+        }
       });
     } else {
       this.requiredQuantity.markAsTouched();

@@ -24,6 +24,7 @@ const routes: Routes = [
       { path: 'categories', loadChildren: () => import('../categories/categories.module').then(m => m.CategoriesModule) },
       { path: 'stock', loadChildren: () => import('../stock/stock.module').then(m => m.StockModule) },
       { path: 'wholesalers', loadChildren: () => import('../wholesalers/wholesalers.module').then(m => m.WholesalersModule) },
+      { path: 'stock-requests', loadChildren: () => import('../stock-requests/stock-requests.module').then(m => m.StockRequestsModule) },
     ]
   }
 ];

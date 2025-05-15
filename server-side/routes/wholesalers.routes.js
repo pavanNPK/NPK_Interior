@@ -7,7 +7,7 @@ import {
     getWholesalers,
     getWholesalerById,
     updateWholesaler,
-    deleteWholesaler
+    deleteWholesaler, getRequestedStocks
 } from "../controllers/wholesalers.controller.js";
 
 import { authenticateToken, authorizeRoles } from "../middleware/auth.middleware.js";
@@ -45,6 +45,7 @@ const upload = multer({
 });
 router.post('/', authenticateToken, authorizeRoles('supervise'), upload.any(), addWholesaler);
 router.get('/', authenticateToken, authorizeRoles('supervise'), getWholesalers);
+router.get('/', authenticateToken, authorizeRoles('wholesaler'), getRequestedStocks);
 router.get('/:id', authenticateToken, authorizeRoles('supervise'), getWholesalerById);
 router.put('/:id', authenticateToken, authorizeRoles('supervise'), updateWholesaler);
 router.delete('/:id', authenticateToken, authorizeRoles('supervise'), deleteWholesaler);

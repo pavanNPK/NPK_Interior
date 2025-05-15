@@ -28,6 +28,7 @@
                   [currentPage]="currentPage"
                   [isLoading]="loading"
                   (pageChanged)="onPageChange($event)"
+                  (dataUpdated)="getLowStockProducts(tabActiveValue)"
                   (perPageChanged)="onPerPageChange($event)">
                 </app-pagination>
               </div>
