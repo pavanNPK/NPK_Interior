@@ -72,4 +72,5 @@ productSchema.index({ name: 'text' });
 
 // Create and export the Product model using ES module syntax
 const Product = mongoose.model('Product', productSchema);
+export { productSchema };
 export default Product;

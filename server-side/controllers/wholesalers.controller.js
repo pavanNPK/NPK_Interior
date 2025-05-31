@@ -3,9 +3,10 @@ import fs from "fs";
 import cloudinary from "./cloudinary.controller.js";
 import nodemailer from "nodemailer";
 import mongoose from "mongoose";
-import User from "../models/user.model.js";
+import User, {userSchema} from "../models/user.model.js";
 import {getDbConnection, getModel} from "./dbSwitch.controller.js";
 import {RequestedProductSchema} from "../models/requested-products.model.js";
+import {productSchema} from "../models/product.model.js";
 
 // Helper to generate unique code
 const generateUniqueCode = async () => {
@@ -321,11 +322,39 @@ export const getRequestedStocks = async (req, res) => {
     try {
         const dbName = req.user.code;
         const connection = await getDbConnection(dbName);
-        const RequestedProductModel = getModel(connection, 'Requested_Product', RequestedProductSchema); // Create / Get model dynamically
-        const requestedProducts = await RequestedProductModel.find({}, {}, { lean: true }).lean().exec();
-        res.json({ success: true, response: requestedProducts, message: "Requested stocks fetched successfully" });
+        const RequestedProductModel = getModel(connection, 'Requested_Product', RequestedProductSchema);
+        const requestedProducts = await RequestedProductModel.find({}, null, { lean: true });
+        if (!requestedProducts.length) return res.json({ success: true, response: [], message: "No requested stocks found" });
+
+        const mainDbName = process.env.DB_NAME;
+        const mainConnection = await getDbConnection(mainDbName);
+        const ProductModel = getModel(mainConnection, 'Product', productSchema);
+        const UserModel = getModel(mainConnection, 'User', userSchema);
+
+        const products = await Promise.all(requestedProducts.map(async (reqProd) => {
+            const [product, user] = await Promise.all([
+                ProductModel.findById(reqProd.product_id, {
+                    slug: 1, name: 1, description: 1
+                }, { lean: true }),
+
+                UserModel.findById(reqProd.requestedBy, {
+                    firstName: 1, lastName: 1, email: 1
+                }, { lean: true })
+            ]);
+
+            if (!product) return null;
+            return {
+                ...product, requestedStock: reqProd.quantity, requestedOn: reqProd.addedOn, requestUpdatedOn: reqProd.updatedOn,
+                requestedBy: user ? {
+                    name: `${user.firstName} ${user.lastName}`, email: user.email
+                } : null
+            };
+        }));
+        // Filter out null entries (if a product was not found)
+        const filteredProducts = products.filter(p => p);
+        res.json({success: true,response: filteredProducts,message: "Requested stocks fetched successfully"});
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: "Something went wrong", error: error.message });
     }
-}
+};
